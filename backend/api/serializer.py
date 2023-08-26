@@ -9,6 +9,12 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
+class ProfileSerializer(serializers.ModelSerializer):
+    #tengo que poner el usuario?
+    class Meta:
+        model = Profile
+        fields = ('id', 'full_name', 'bio', 'img', 'verified')
+
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
     def get_token(cls, user):

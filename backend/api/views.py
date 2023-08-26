@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User
-from .serializer import UserSerializer, MyTokenObtainPairSerializer, RegisterSerializer
+from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -28,3 +28,11 @@ def dashboard(request):
         response = f"Hello, {request.user}, you are seeing a POST request, and you sent this text: {text}"
         return Response({'response': response}, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
+
+class ProfileUpdateAPIView(generics.UpdateAPIView):
+    
+    serializer_class = ProfileSerializer
+
+    def get_queryset(self):
+        #return self.get_serializer().Meta.model.objects.filter(state = True)
+        return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
