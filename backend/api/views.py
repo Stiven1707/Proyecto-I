@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from .models import Profile, User
-from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer
+from .models import Profile, User, Propuesta
+from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, PropuestaSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -37,3 +37,7 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
     def get_queryset(self):
         #return self.get_serializer().Meta.model.objects.filter(state = True)
         return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
+
+class PropuestaList(generics.ListCreateAPIView):
+    queryset = Propuesta.objects.all()
+    serializer_class = PropuestaSerializer

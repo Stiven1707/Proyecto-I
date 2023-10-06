@@ -1,4 +1,4 @@
-from .models import User, Profile
+from .models import User, Profile , Propuesta
 from django.contrib.auth.password_validation import  validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -22,6 +22,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         # Add custom claims
         token['username'] = user.username
+        token['id'] = user.id
         token['full_name'] = user.profile.full_name
 
         return token
@@ -49,3 +50,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+    
+class PropuestaSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Propuesta
+        fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos')
+        
