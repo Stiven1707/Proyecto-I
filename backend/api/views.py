@@ -39,5 +39,9 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
 
 class PropuestaList(generics.ListCreateAPIView):
-    queryset = Propuesta.objects.all()
     serializer_class = PropuestaSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        # Filtra las propuestas para mostrar solo las del usuario autenticado
+        return Propuesta.objects.filter(user=self.request.user)
