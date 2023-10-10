@@ -17,7 +17,15 @@ class User(AbstractUser):
     REQUIRED_FIELDS = ['username']
 
     def profile(self):
-        return self.profile
+        return self.profile 
+    
+    
+    def save(self, *args, **kwargs):
+            #quiero que se agregue el usuario a partir del rol nombre su respectivo grupo
+            #quiero que se actualice el usuario a partir del rol nombre su respectivo grupo
+        
+        print("save final")
+        super().save(*args, **kwargs)
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
