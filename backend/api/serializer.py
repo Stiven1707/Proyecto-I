@@ -54,5 +54,5 @@ class RegisterSerializer(serializers.ModelSerializer):
 class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
-        fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos')
+        fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
         
