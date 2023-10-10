@@ -20,12 +20,27 @@ class User(AbstractUser):
         return self.profile 
     
     
-    def save(self, *args, **kwargs):
-            #quiero que se agregue el usuario a partir del rol nombre su respectivo grupo
-            #quiero que se actualice el usuario a partir del rol nombre su respectivo grupo
-        
-        print("save final")
-        super().save(*args, **kwargs)
+
+def update_user_group(sender, instance, created, **kwargs):
+    if not created and instance.rol is not None:
+        # Encuentra el grupo correspondiente al nuevo rol
+        nuevo_grupo = Group.objects.filter(name=instance.rol.rol_nombre).first()
+        print("nuevo_grupo: ", nuevo_grupo)
+        if nuevo_grupo:
+            # Elimina al usuario de los grupos anteriores
+            instance.groups.clear()
+            # Agrega al usuario al nuevo grupo
+            instance.groups.add(nuevo_grupo)
+def assign_user_group(sender, instance, created, **kwargs):
+    if created and instance.rol is not None:
+        # Encuentra el grupo correspondiente al rol
+        grupo = Group.objects.filter(name=instance.rol.rol_nombre).first()
+        print("grupo: ", grupo)
+        if grupo:
+            # Agrega al usuario al grupo
+            instance.groups.add(grupo)
+            # Guarda los cambios
+            instance.save()
     
 class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
@@ -45,6 +60,8 @@ def save_user_profile(sender, instance, **kwargs):
 
 post_save.connect(create_user_profile, sender=User)
 post_save.connect(save_user_profile, sender=User)
+post_save.connect(update_user_group, sender=User)
+post_save.connect(assign_user_group, sender=User)
 
 class Rol(models.Model):
     rol_nombre = models.CharField(max_length=45, unique= True)
