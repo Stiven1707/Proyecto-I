@@ -40,9 +40,17 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
 
 class PropuestaList(generics.ListCreateAPIView):
     serializer_class = PropuestaSerializer
+    grups_required = ['profesor']
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Filtra las propuestas para mostrar solo las del usuario autenticado
-        print("pk: ", self.kwargs['pk'])
-        return Propuesta.objects.filter(user=self.request.user)
+        grups_user = self.request.user.groups.all().values('name')
+        print("user_permisson: ", self.request.user.user_permissions.all()  )
+        #imprimir grupos
+        print("user_groups: ", grups_user )
+        for grupo in grups_user:
+            if grupo['name'] in self.grups_required:
+                #Solo sus propias propuestas(profesor)
+                return Propuesta.objects.filter(user=self.request.user) 
+        #(Estudiante) Todas las propuestas que estan activas
+        return Propuesta.objects.filter(pro_estado="ACTIVO")
