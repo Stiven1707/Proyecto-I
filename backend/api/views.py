@@ -44,4 +44,5 @@ class PropuestaList(generics.ListCreateAPIView):
 
     def get_queryset(self):
         # Filtra las propuestas para mostrar solo las del usuario autenticado
+        print("pk: ", self.kwargs['pk'])
         return Propuesta.objects.filter(user=self.request.user)

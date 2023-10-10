@@ -40,7 +40,7 @@ class Propuesta(models.Model):
     pro_titulo = models.CharField(max_length=255)
     pro_descripcion = models.TextField()
     pro_objetivos = models.TextField()
-    pro_estado = models.CharField(max_length=45)
+    pro_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
 
     def __str__(self):
         return self.pro_titulo
