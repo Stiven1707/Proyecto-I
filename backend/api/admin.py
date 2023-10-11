@@ -36,7 +36,7 @@ class DocumentoAdmin(admin.ModelAdmin):
     search_fields = ('doc_nombre',)
     ordering = ('doc_nombre',)
 class SeguimientoAdmin(admin.ModelAdmin):
-    list_display = ('seg_observaciones', 'seg_fecha_recepcion', 'seg_fecha_asignacion', 'seg_fecha_concepto', 'seg_estado')
+    list_display = ('seg_fecha_recepcion','seg_observaciones', 'seg_fecha_asignacion', 'seg_fecha_concepto', 'seg_estado')
     list_filter = ('usuarios', 'anteproyectos')
     search_fields = ('seg_observaciones',)
     ordering = ('seg_fecha_recepcion',)

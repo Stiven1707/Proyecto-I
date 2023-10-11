@@ -125,16 +125,20 @@ class AnteProyecto(models.Model):
     def __str__(self):
         return self.antp_titulo
 class Seguimiento(models.Model):
-    seg_observaciones = models.TextField()
+    seg_observaciones = models.TextField(blank=True)
     seg_fecha_recepcion = models.DateField()
-    seg_fecha_asignacion = models.DateField()
-    seg_fecha_concepto = models.DateField()
+    seg_fecha_asignacion = models.DateField(blank=True, null=True)
+    seg_fecha_concepto = models.DateField(blank=True, null=True)
     seg_estado = models.CharField(max_length=45, blank=True)
     usuarios = models.ManyToManyField(User, related_name='user_sigue_seg', blank=True)
     anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_seguido_seg', blank=True)
     
     def __str__(self):
-        return self.seg_descripcion
+        # Get the name of the associated "AnteProyecto" and the username
+        ante_proyecto_names = ', '.join([str(anteproyecto) for anteproyecto in self.anteproyectos.all()])
+        user_names = ', '.join([user.username for user in self.usuarios.all()])
+
+        return f'Seguimiento for AnteProyectos: {ante_proyecto_names}, Users: {user_names}'
 class Documento(models.Model):
     doc_nombre = models.CharField(max_length=45)
     doc_ruta = models.FileField(upload_to="documentos_user", blank=True)
