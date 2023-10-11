@@ -159,6 +159,9 @@ class Documento(models.Model):
     doc_ruta = models.FileField(upload_to="documentos_user", blank=True)
     anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_soporte_doc', blank=True)
     trabajos_de_grado = models.ManyToManyField('TrabajoDeGrado', related_name='trag_soporte_doc', blank=True)
+
+    def __str__(self):
+        return self.doc_nombre
 class TrabajoDeGrado(models.Model):
     trag_titulo = models.CharField(max_length=255)
     trag_modalidad = models.CharField(max_length=45)
