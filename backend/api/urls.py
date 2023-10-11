@@ -8,6 +8,8 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='auth_register'),
     path('user/update/<int:pk>/', views.ActualizarUsuarioView.as_view(), name='user_update'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('userprofesor/', views.UserProfesorList.as_view(), name='userprofesor-list'),
+    path('rol/', views.RolList.as_view(), name='rol-list'),
     path('profile/update/<int:pk>/', views.ProfileUpdateAPIView.as_view(), name='profile_update'),
     path('propuestas/', views.PropuestaList.as_view(), name='propuestas'),
 ]+[

@@ -1,4 +1,4 @@
-from .models import User, Profile , Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
+from .models import User, Rol, Profile , Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
 from django.contrib.auth.password_validation import  validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -24,6 +24,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['id'] = user.id
         token['full_name'] = user.profile.full_name
+        token['rol'] = user.rol
 
         return token
 
@@ -51,6 +52,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+
+class RolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rol
+        fields = ('id', 'rol_nombre', 'rol_descripcion', 'rol_estado')
+
 class ActualizarUsuarioSerializer(serializers.ModelSerializer):
     class Meta:
         model = User

@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from .models import Profile, User, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
-from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
+from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -21,6 +21,19 @@ class ActualizarUsuarioView(generics.UpdateAPIView):
     queryset = User.objects.all()
     permission_classes = ([IsAuthenticated])
     serializer_class = ActualizarUsuarioSerializer
+
+class UserProfesorList(generics.ListAPIView):
+    #solo listar los usuarios del rol profesor osea donde rol_nombre = profesor
+    queryset = User.objects.filter(rol__rol_nombre='profesor')
+    serializer_class = UserSerializer
+    permission_classes = ([IsAuthenticated])
+
+class RolList(generics.ListAPIView):
+    queryset = Rol.objects.all()
+    serializer_class = RolSerializer
+    permission_classes = ([IsAuthenticated])
+    
+
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
