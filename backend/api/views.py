@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from .models import Profile, User, Propuesta
-from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, PropuestaSerializer
+from .models import Profile, User, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
+from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,6 +16,11 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = ([AllowAny])
     serializer_class = RegisterSerializer
+
+class ActualizarUsuarioView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = ([IsAuthenticated])
+    serializer_class = ActualizarUsuarioSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])
@@ -40,8 +45,57 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
 
 class PropuestaList(generics.ListCreateAPIView):
     serializer_class = PropuestaSerializer
+    grups_required = ['profesor']
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        # Filtra las propuestas para mostrar solo las del usuario autenticado
-        return Propuesta.objects.filter(user=self.request.user)
+        grups_user = self.request.user.groups.all().values('name')
+        print("user_permisson: ", self.request.user.user_permissions.all()  )
+        #imprimir grupos
+        print("user_groups: ", grups_user )
+        for grupo in grups_user:
+            if grupo['name'] in self.grups_required:
+                #Solo sus propias propuestas(profesor)
+                return Propuesta.objects.filter(user=self.request.user) 
+        #(Estudiante) Todas las propuestas que estan activas
+        return Propuesta.objects.filter(pro_estado="ACTIVO")
+
+class AnteProyectoList(generics.ListCreateAPIView):
+    queryset = AnteProyecto.objects.all()
+    serializer_class = AnteProyectoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AnteProyecto.objects.all()
+    serializer_class = AnteProyectoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class SeguimientoList(generics.ListCreateAPIView):
+    queryset = Seguimiento.objects.all()
+    serializer_class = SeguimientoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Seguimiento.objects.all()
+    serializer_class = SeguimientoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class DocumentoList(generics.ListCreateAPIView):
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class TrabajoDeGradoList(generics.ListCreateAPIView):
+    queryset = TrabajoDeGrado.objects.all()
+    serializer_class = TrabajoDeGradoSerializer
+    permission_classes = ([IsAuthenticated])
+
+class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TrabajoDeGrado.objects.all()
+    serializer_class = TrabajoDeGradoSerializer
+    permission_classes = ([IsAuthenticated])

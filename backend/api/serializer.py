@@ -1,4 +1,4 @@
-from .models import User, Profile , Propuesta
+from .models import User, Profile , Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
 from django.contrib.auth.password_validation import  validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -33,7 +33,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('username', 'email', 'password', 'password2')
+        fields = ('rol','username', 'email', 'password', 'password2')
         
 
     def validate(self, attrs):
@@ -44,15 +44,40 @@ class RegisterSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = User.objects.create(
             username=validated_data['username'],
-            email=validated_data['email']
+            email=validated_data['email'],
+            rol=validated_data['rol']  # Asigna el rol al usuario
         )
         user.set_password(validated_data['password'])
         user.save()
 
         return user
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'rol')
+    
     
 class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
-        fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos')
+        fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
+class AnteProyectoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnteProyecto
+        fields = '__all__'
+
+class SeguimientoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seguimiento
+        fields = '__all__'
+
+class DocumentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documento
+        fields = '__all__'
+
+class TrabajoDeGradoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrabajoDeGrado
+        fields = '__all__'
         
