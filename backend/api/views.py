@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Propuesta
-from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, PropuestaSerializer
+from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -16,6 +16,11 @@ class RegisterView(generics.CreateAPIView):
     queryset = User.objects.all()
     permission_classes = ([AllowAny])
     serializer_class = RegisterSerializer
+
+class ActualizarUsuarioView(generics.UpdateAPIView):
+    queryset = User.objects.all()
+    permission_classes = ([IsAuthenticated])
+    serializer_class = ActualizarUsuarioSerializer
 
 @api_view(['GET', 'POST'])
 @permission_classes([IsAuthenticated])

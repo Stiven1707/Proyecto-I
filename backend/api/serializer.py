@@ -51,6 +51,11 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
+class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'username', 'email', 'rol')
+    
     
 class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
