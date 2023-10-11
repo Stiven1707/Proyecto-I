@@ -79,8 +79,8 @@ class DocumentoSerializer(serializers.ModelSerializer):
         model = Documento
         fields = '__all__'
 class AnteProyectoSerializer(serializers.ModelSerializer):
-    usuarios = UserSerializer(many=True)  # Serializa los usuarios asociados
-    documentos = DocumentoSerializer(many=True)  # Serializa los documentos asociados
+    usuarios = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+    #documentos = DocumentoSerializer(many=True)  # Serializa los documentos asociados
     class Meta:
         model = AnteProyecto
         fields = '__all__'

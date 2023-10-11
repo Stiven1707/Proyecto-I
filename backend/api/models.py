@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
+from django.utils import timezone
 
 # Create your models here.
 
@@ -124,6 +125,20 @@ class AnteProyecto(models.Model):
     
     def __str__(self):
         return self.antp_titulo
+def crear_seguimiento(sender, instance, created, **kwargs):
+    if created:
+        # Crea un seguimiento con la fecha de hoy en seg_fecha_recepcion
+        seguimiento = Seguimiento(seg_fecha_recepcion=timezone.now())
+        seguimiento.save()
+
+        # Asocia el seguimiento al AnteProyecto
+        instance.seguimientos.add(seguimiento)
+
+
+        # Asocia el ID del AnteProyecto al seguimiento
+        seguimiento.anteproyectos.add(instance)
+
+post_save.connect(crear_seguimiento, sender=AnteProyecto)
 class Seguimiento(models.Model):
     seg_observaciones = models.TextField(blank=True)
     seg_fecha_recepcion = models.DateField()
