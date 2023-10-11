@@ -63,31 +63,39 @@ class PropuestaList(generics.ListCreateAPIView):
 class AnteProyectoList(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
     serializer_class = AnteProyectoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
     serializer_class = AnteProyectoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class SeguimientoList(generics.ListCreateAPIView):
     queryset = Seguimiento.objects.all()
     serializer_class = SeguimientoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Seguimiento.objects.all()
     serializer_class = SeguimientoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class DocumentoList(generics.ListCreateAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Documento.objects.all()
     serializer_class = DocumentoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class TrabajoDeGradoList(generics.ListCreateAPIView):
     queryset = TrabajoDeGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
+    permission_classes = ([IsAuthenticated])
 
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TrabajoDeGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
+    permission_classes = ([IsAuthenticated])
