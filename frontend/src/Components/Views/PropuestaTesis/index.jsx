@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
+import jwt_decode from "jwt-decode";
 
 const PropuestaTesis = () => {
  //const url = 'http://localhost/4000/api';
@@ -25,10 +26,19 @@ const PropuestaTesis = () => {
 
 
     const getPropuestas = async () => {
-        
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/')
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        console.log(token);
+		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/2/',{
+            headers: {
+                'Authorization': `Token ${token}`
+            }
+        })
+        console.log(data);
 		setPropuestaList(data)
 	} 
+
+    useEffect(()=>{
+		getPropuestas()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target

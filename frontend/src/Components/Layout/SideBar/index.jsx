@@ -5,6 +5,7 @@ import Logo from '../../../Assets/img/Logo.png';
 import Chart_fill from '../../../Assets/img/Chart_fill.png';
 import Folder from '../../../Assets/img/Folder.png';
 import Logout from '../../../Assets/img/Logout.png';
+import jwt_decode from "jwt-decode";
 
 
 const Layout = () => {
@@ -14,11 +15,11 @@ const Layout = () => {
 	const handleLogout = () => {
 
 		localStorage.removeItem('auth');
-		localStorage.removeItem('userData');
+		localStorage.removeItem('authTokens');
 		window.location.href = '/login';
 	};
-    const token = JSON.parse(localStorage.getItem('userData')).user_id;
-    //const token = 1;
+	const datosUsuario = (JSON.parse(localStorage.getItem('authTokens'))).access
+    const token = jwt_decode(datosUsuario).user_id;
 
 
 	const Menus = [
