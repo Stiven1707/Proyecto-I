@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
+import jwt_decode from "jwt-decode";
 
 const PropuestaTesis = () => {
  //const url = 'http://localhost/4000/api';
@@ -25,10 +26,19 @@ const PropuestaTesis = () => {
 
 
     const getPropuestas = async () => {
-        
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/')
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        console.log(token);
+		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/2/',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log(data);
 		setPropuestaList(data)
-	} 
+	}
+
+    useEffect(()=>{
+		getPropuestas()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -56,7 +66,9 @@ const PropuestaTesis = () => {
             setShowModal(false)
             const { data } = await axios.post('http://127.0.0.1:8000/api/editar', body)
             setBody(initialState)
-        } catch ({ response }) {
+        } 
+        catch ({ response }) {
+        }
     }
 
     const onDelete = async () => {
@@ -69,7 +81,7 @@ const PropuestaTesis = () => {
     return (
         <div >
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <div className="pb-4 bg-white dark:bg-gray-900">
+                <div className="pb-4 bg-gray-700 dark:bg-gray-900">
                     <label htmlFor="table-search" className="sr-only">Search</label>
                         <div className='flex justify-between pl-5 pr-10'>
                     <div className="relative mt-1">
@@ -240,7 +252,6 @@ const PropuestaTesis = () => {
             ) : null}
         </div>
 	)
-}
 }
 
 export default PropuestaTesis
