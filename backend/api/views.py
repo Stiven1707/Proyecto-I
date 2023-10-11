@@ -1,8 +1,8 @@
 from django.shortcuts import render
 
 # Create your views here.
-from .models import Profile, User, Propuesta
-from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer
+from .models import Profile, User, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
+from .serializer import UserSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -59,3 +59,35 @@ class PropuestaList(generics.ListCreateAPIView):
                 return Propuesta.objects.filter(user=self.request.user) 
         #(Estudiante) Todas las propuestas que estan activas
         return Propuesta.objects.filter(pro_estado="ACTIVO")
+
+class AnteProyectoList(generics.ListCreateAPIView):
+    queryset = AnteProyecto.objects.all()
+    serializer_class = AnteProyectoSerializer
+
+class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = AnteProyecto.objects.all()
+    serializer_class = AnteProyectoSerializer
+
+class SeguimientoList(generics.ListCreateAPIView):
+    queryset = Seguimiento.objects.all()
+    serializer_class = SeguimientoSerializer
+
+class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Seguimiento.objects.all()
+    serializer_class = SeguimientoSerializer
+
+class DocumentoList(generics.ListCreateAPIView):
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+
+class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Documento.objects.all()
+    serializer_class = DocumentoSerializer
+
+class TrabajoDeGradoList(generics.ListCreateAPIView):
+    queryset = TrabajoDeGrado.objects.all()
+    serializer_class = TrabajoDeGradoSerializer
+
+class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TrabajoDeGrado.objects.all()
+    serializer_class = TrabajoDeGradoSerializer

@@ -1,4 +1,4 @@
-from .models import User, Profile , Propuesta
+from .models import User, Profile , Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
 from django.contrib.auth.password_validation import  validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -61,4 +61,23 @@ class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
         fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
+class AnteProyectoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnteProyecto
+        fields = '__all__'
+
+class SeguimientoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seguimiento
+        fields = '__all__'
+
+class DocumentoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documento
+        fields = '__all__'
+
+class TrabajoDeGradoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TrabajoDeGrado
+        fields = '__all__'
         

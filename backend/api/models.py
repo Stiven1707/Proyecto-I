@@ -12,6 +12,9 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True,max_length=100)
     rol = models.ForeignKey('Rol', on_delete=models.CASCADE, related_name='users', blank=True, null=True)
+    seguimientos = models.ManyToManyField('Seguimiento', related_name='user_sigue_seg', blank=True)
+    anteproyectos = models.ManyToManyField('AnteProyecto', related_name='user_participa_antp', blank=True)
+    trabajos_de_grado = models.ManyToManyField('TrabajoDeGrado', related_name='user_realiza_trag', blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -109,3 +112,44 @@ class Propuesta(models.Model):
 
     def __str__(self):
         return self.pro_titulo
+    
+#nuevas tablas
+# Para manejar el ante proyecto, otra para el seguimiento del ante proyecto por parte de unos profesores y una tabla para manejar los documentos necesarios
+class AnteProyecto(models.Model):
+    usuarios = models.ManyToManyField(User, related_name='user_participa_antp', blank=True)
+    antp_titulo = models.CharField(max_length=255)
+    antp_descripcion = models.TextField()
+    documentos = models.ManyToManyField('Documento', related_name='antp_soporte_doc', blank=True)
+    seguimientos = models.ManyToManyField('Seguimiento', related_name='antp_seguido_seg', blank=True)
+    
+    def __str__(self):
+        return self.antp_titulo
+class Seguimiento(models.Model):
+    seg_observaciones = models.TextField()
+    seg_fecha_recepcion = models.DateField()
+    seg_fecha_asignacion = models.DateField()
+    seg_fecha_concepto = models.DateField()
+    seg_estado = models.CharField(max_length=45, blank=True)
+    usuarios = models.ManyToManyField(User, related_name='user_sigue_seg', blank=True)
+    anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_seguido_seg', blank=True)
+    
+    def __str__(self):
+        return self.seg_descripcion
+class Documento(models.Model):
+    doc_nombre = models.CharField(max_length=45)
+    doc_ruta = models.FileField(upload_to="documentos_user", blank=True)
+    anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_soporte_doc', blank=True)
+    trabajos_de_grado = models.ManyToManyField('TrabajoDeGrado', related_name='trag_soporte_doc', blank=True)
+class TrabajoDeGrado(models.Model):
+    trag_titulo = models.CharField(max_length=255)
+    trag_modalidad = models.CharField(max_length=45)
+    trag_fecha_recepcion = models.DateField()
+    trag_fecha_sustentacion = models.DateField()
+    trag_estado = models.CharField(max_length=45, blank=True)
+    usuarios = models.ManyToManyField(User, related_name='user_realiza_trag', blank=True)
+    documentos = models.ManyToManyField(Documento, related_name='trag_soporte_doc', blank=True)
+    
+    def __str__(self):
+        return self.trag_titulo
+#ahora las tablas intermedias
+    
