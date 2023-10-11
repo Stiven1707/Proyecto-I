@@ -155,5 +155,4 @@ class TrabajoDeGrado(models.Model):
     
     def __str__(self):
         return self.trag_titulo
-#ahora las tablas intermedias
-    
+  

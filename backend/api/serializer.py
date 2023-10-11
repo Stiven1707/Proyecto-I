@@ -24,7 +24,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['id'] = user.id
         token['full_name'] = user.profile.full_name
-        token['rol'] = user.rol
+        token['rol'] = user.rol.id
 
         return token
 
@@ -68,10 +68,6 @@ class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
         fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
-class AnteProyectoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnteProyecto
-        fields = '__all__'
 
 class SeguimientoSerializer(serializers.ModelSerializer):
     class Meta:
@@ -81,6 +77,12 @@ class SeguimientoSerializer(serializers.ModelSerializer):
 class DocumentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documento
+        fields = '__all__'
+class AnteProyectoSerializer(serializers.ModelSerializer):
+    usuarios = UserSerializer(many=True)  # Serializa los usuarios asociados
+    documentos = DocumentoSerializer(many=True)  # Serializa los documentos asociados
+    class Meta:
+        model = AnteProyecto
         fields = '__all__'
 
 class TrabajoDeGradoSerializer(serializers.ModelSerializer):

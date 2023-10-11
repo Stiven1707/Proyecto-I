@@ -8,6 +8,8 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
+from django.utils import timezone
+
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
     serializer_class = MyTokenObtainPairSerializer
@@ -77,6 +79,30 @@ class AnteProyectoList(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
     serializer_class = AnteProyectoSerializer
     permission_classes = ([IsAuthenticated])
+
+    def create(self, request, *args, **kwargs):
+        # Extrae los datos del JSON
+        data = request.data
+        usuarios_data = data.pop('usuarios', [])
+        documentos_data = data.pop('documentos', [])
+
+        # Crea el AnteProyecto con los datos restantes
+        ante_proyecto_serializer = self.get_serializer(data=data)
+        ante_proyecto_serializer.is_valid(raise_exception=True)
+        ante_proyecto = ante_proyecto_serializer.save()
+
+        # Asocia los usuarios al AnteProyecto
+        for usuario_data in usuarios_data:
+            user, created = User.objects.get_or_create(id=usuario_data['id'])
+            ante_proyecto.usuarios.add(user)
+
+        # Asocia los documentos al AnteProyecto
+        for documento_data in documentos_data:
+            documento, created = Documento.objects.get_or_create(id=documento_data['id'])
+            ante_proyecto.documentos.add(documento)
+
+        return Response(ante_proyecto_serializer.data, status=status.HTTP_201_CREATED)
+
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
