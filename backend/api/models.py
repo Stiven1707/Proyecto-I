@@ -118,24 +118,8 @@ class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
 
-#quiero uuna señal que cuando se cree un anteproyecto se cree un seguimiento y se le asigne a los profesores, estudiantes
-# la solicitu que se envia a la api es:{
-#    "estudiantes": [
-#      47,
-#       48
-#     ],
-#     "profesores": [
-#       1,
-#       2
-#     ],
-#     "antp_titulo": "AR TDH señal 3",
-#     "antp_descripcion": "bla bla señal 3",
-#     "Documentos": [
-#       1,
-#       2
-#     ]
-#   }
-
+    def __str__(self):
+        return self.antp_titulo
         
 
 
@@ -143,13 +127,25 @@ class AntpSeguidoSeg(models.Model):
     antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
     seg = models.ForeignKey('Seguimiento', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.antp.antp_titulo + " - " + str(self.seg.id) + " - " + self.seg.seg_fecha_recepcion.strftime("%d/%m/%Y")
+
+
 class AntpSoporteDoc(models.Model):
     antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
     doc = models.ForeignKey('Documento', on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.antp.antp_titulo + " - " + self.doc.doc_nombre
+
+    
+
 class Documento(models.Model):
     doc_nombre = models.TextField()
     doc_ruta = models.FileField(upload_to='documentos_user')
+
+    def __str__(self):
+        return self.doc_nombre
 
 
 
@@ -161,6 +157,9 @@ class Seguimiento(models.Model):
     seg_fecha_concepto = models.DateField(null=True, blank=True)
     seg_estado = models.CharField(max_length=45)
 
+    def __str__(self):
+        return str(self.id) + " - " + self.seg_fecha_recepcion.strftime("%d/%m/%Y")
+
 class TrabajoGrado(models.Model):
     trag_titulo = models.CharField(max_length=255)
     trag_modalidad = models.CharField(max_length=45)
@@ -168,19 +167,34 @@ class TrabajoGrado(models.Model):
     trag_fecha_sustentacion = models.DateField()
     trag_estado = models.CharField(max_length=45)
 
+    def __str__(self):
+        return self.trag_titulo
+
 class TragSoporteDoc(models.Model):
     trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
     doc = models.ForeignKey(Documento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.trag.trag_titulo + " - " + self.doc.doc_nombre
 
 
 class UserParticipaAntp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.username + " - " + self.antp.antp_titulo
+
 class UserRealizaTrag(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
 
+    def __str__(self):
+        return self.user.username + " - " + self.trag.trag_titulo
+
 class UserSigueSeg(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     seg = models.ForeignKey(Seguimiento, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username + " - " + str(self.seg.id) + " - " + self.seg.seg_fecha_recepcion.strftime("%d/%m/%Y")
