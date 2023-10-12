@@ -3,7 +3,7 @@ from django.shortcuts import render
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
 from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer
-from rest_framework import generics, status
+from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -92,7 +92,45 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         estudiantes_ids = self.request.data.get('estudiantes')
         profesores_ids = self.request.data.get('profesores')
         documentos_ids = self.request.data.get('Documentos')
-
+        #validaciones
+        if not estudiantes_ids:
+            raise serializers.ValidationError("Debe enviar los estudiantes")
+        if not profesores_ids:
+            raise serializers.ValidationError("Debe enviar los profesores")
+        
+        #validar que si sean estudiantes
+        for estudiante_id in estudiantes_ids:
+            estudiante = User.objects.filter(id=estudiante_id).first()
+            if estudiante.rol.rol_nombre != 'estudiante':
+                raise serializers.ValidationError(f"El usuario {estudiante.username} no es estudiante")
+        #validar que si sean profesores
+        for profesor_id in profesores_ids:
+            profesor = User.objects.filter(id=profesor_id).first()
+            if profesor.rol.rol_nombre != 'profesor':
+                raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
+        #validar que si sean documentos
+        for documento_id in documentos_ids:
+            documento = Documento.objects.filter(id=documento_id).first()
+            if not documento:
+                raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
+        #validar que no se repitan los estudiantes
+        if len(estudiantes_ids) != len(set(estudiantes_ids)):
+            raise serializers.ValidationError("No se puede repetir estudiantes")
+        #validar que no se repitan los profesores
+        if len(profesores_ids) != len(set(profesores_ids)):
+            raise serializers.ValidationError("No se puede repetir profesores")
+        #validar que no se repitan los documentos
+        if len(documentos_ids) != len(set(documentos_ids)):
+            raise serializers.ValidationError("No se puede repetir documentos")
+        #validar que no se repitan los estudiantes y profesores
+        if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
+            raise serializers.ValidationError("No se puede repetir estudiantes y profesores")
+        #validar maximo de estudiantes 2 y de profesores 2
+        if len(estudiantes_ids) > 2:
+            raise serializers.ValidationError("Solo se puede tener 2 estudiantes")
+        if len(profesores_ids) > 2:
+            raise serializers.ValidationError("Solo se puede tener 2 profesores")
+        #
         # Crear el AnteProyecto
         anteproyecto = serializer.save()
 
