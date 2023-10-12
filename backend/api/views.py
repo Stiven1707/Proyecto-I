@@ -2,8 +2,8 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
-from rest_framework import generics, status
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer
+from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
@@ -27,6 +27,12 @@ class ActualizarUsuarioView(generics.UpdateAPIView):
 class UserProfesorList(generics.ListAPIView):
     #solo listar los usuarios del rol profesor osea donde rol_nombre = profesor
     queryset = User.objects.filter(rol__rol_nombre='profesor')
+    serializer_class = UserSerializer
+    permission_classes = ([IsAuthenticated])
+
+class UserEstudianteList(generics.ListAPIView):
+    #solo listar los usuarios del rol estudiantes osea donde rol_nombre = estudiante
+    queryset = User.objects.filter(rol__rol_nombre='estudiante')
     serializer_class = UserSerializer
     permission_classes = ([IsAuthenticated])
 
@@ -80,11 +86,55 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
     serializer_class = AnteProyectoSerializer
     permission_classes = [IsAuthenticated]
 
+    #para listar mediante una pk de ante proyecto quiero que muestre el ante proyecto, los estudiantes, los profesores y los 
+
     def perform_create(self, serializer):
         estudiantes_ids = self.request.data.get('estudiantes')
         profesores_ids = self.request.data.get('profesores')
         documentos_ids = self.request.data.get('Documentos')
-
+        #validaciones
+        if not estudiantes_ids:
+            raise serializers.ValidationError("Debe enviar los estudiantes")
+        if not profesores_ids:
+            raise serializers.ValidationError("Debe enviar los profesores")
+        
+        #validar que si sean estudiantes
+        for estudiante_id in estudiantes_ids:
+            estudiante = User.objects.filter(id=estudiante_id).first()
+            if estudiante.rol.rol_nombre != 'estudiante':
+                raise serializers.ValidationError(f"El usuario {estudiante.username} no es estudiante")
+        #validar que si sean profesores
+        for profesor_id in profesores_ids:
+            profesor = User.objects.filter(id=profesor_id).first()
+            if profesor.rol.rol_nombre != 'profesor':
+                raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
+        #validar que si sean documentos
+        for documento_id in documentos_ids:
+            documento = Documento.objects.filter(id=documento_id).first()
+            if not documento:
+                raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
+        #validar que no se repitan los estudiantes
+        if len(estudiantes_ids) != len(set(estudiantes_ids)):
+            raise serializers.ValidationError("No se puede repetir estudiantes")
+        #validar que no se repitan los profesores
+        if len(profesores_ids) != len(set(profesores_ids)):
+            raise serializers.ValidationError("No se puede repetir profesores")
+        #validar que no se repitan los documentos
+        if len(documentos_ids) != len(set(documentos_ids)):
+            raise serializers.ValidationError("No se puede repetir documentos")
+        #validar que no se repitan los estudiantes y profesores
+        if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
+            raise serializers.ValidationError("No se puede repetir estudiantes y profesores")
+        #validar maximo de estudiantes 2 y de profesores 2
+        if len(estudiantes_ids) > 2:
+            raise serializers.ValidationError("Solo se puede tener 2 estudiantes")
+        if len(profesores_ids) > 2:
+            raise serializers.ValidationError("Solo se puede tener 2 profesores")
+        #maximo 5 anteProyectos puede tener un profesor
+        for profesor_id in profesores_ids:
+            profesor = User.objects.filter(id=profesor_id).first()
+            if UserParticipaAntp.objects.filter(user=profesor).count() >= 5:
+                raise serializers.ValidationError(f"El profesor {profesor.username} ya tiene 5 anteproyectos")
         # Crear el AnteProyecto
         anteproyecto = serializer.save()
 
@@ -92,7 +142,7 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_estado='PENDIENTE')
         # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
         AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
-        
+
         # Asociar estudiantes y profesores
         estudiantes = User.objects.filter(id__in=estudiantes_ids)
         profesores = User.objects.filter(id__in=profesores_ids)
@@ -110,12 +160,6 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
         documentos = Documento.objects.filter(id__in=documentos_ids)
         AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
-
-        
-        
-        
-
-
 
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -148,8 +192,68 @@ class TrabajoDeGradoList(generics.ListCreateAPIView):
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
 
+
+
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TrabajoGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
+
+#Para tablas intermedias que regresan info de joins
+#convinanciones
+class UserParticipaAntpInfoCompleta( generics.ListAPIView):
+    queryset = UserParticipaAntp.objects.all()
+    serializer_class = UserParticipaAntpInfoCompletaSerializer
+    permission_classes = ([IsAuthenticated])
+
+class AntpSeguidoSegInfoCompleta( generics.ListAPIView):
+    queryset = AntpSeguidoSeg.objects.all()
+    serializer_class = AntpSeguidoSegInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+class AntpSoporteDocInfoCompleta( generics.ListAPIView):
+    queryset = AntpSoporteDoc.objects.all()
+    serializer_class = AntpSoporteDocInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+class UserSigueSegInfoCompleta( generics.ListAPIView):
+    queryset = UserSigueSeg.objects.all()
+    serializer_class = UserSigueSegInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+#prueba conbinar tablas intermedias
+
+
+#individuales
+
+
+class UserParticipaAntpList(generics.ListAPIView):
+    queryset = UserParticipaAntp.objects.all()
+    serializer_class = UserParticipaAntpSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class AntpSoporteDocList(generics.ListAPIView):
+    queryset = AntpSoporteDoc.objects.all()
+    serializer_class = AntpSoporteDocSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class AntpSeguidoSegList(generics.ListAPIView):
+    queryset = AntpSeguidoSeg.objects.all()
+    serializer_class = AntpSeguidoSegSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class UserSigueSegList(generics.ListAPIView):
+    queryset = UserSigueSeg.objects.all()
+    serializer_class = UserSigueSegSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
 

@@ -135,3 +135,39 @@ class UserSigueSegSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserSigueSeg
         fields = '__all__'
+
+#info completa en base a tablas intermedias
+class UserParticipaAntpInfoCompletaSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    antp = AnteProyectoSerializer()
+    class Meta:
+        model = UserParticipaAntp
+        fields = '__all__'
+
+class AntpSoporteDocInfoCompleSerializer(serializers.ModelSerializer):
+    antp = AnteProyectoSerializer()
+    doc = DocumentoSerializer()
+    class Meta:
+        model = AntpSoporteDoc
+        fields = '__all__'
+
+#prueba conbinar info de tablas intermedias
+class AntpSeguidoSegInfoCompleSerializer(serializers.ModelSerializer):
+    antp = AnteProyectoSerializer()
+    seg = SeguimientoSerializer()
+    class Meta:
+        model = AntpSeguidoSeg
+        fields = '__all__'
+
+class UserSigueSegInfoCompleSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    seg = SeguimientoSerializer()
+    class Meta:
+        model = UserSigueSeg
+        fields = '__all__'
+
+
+    
+
+
+

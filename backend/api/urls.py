@@ -8,7 +8,8 @@ urlpatterns = [
     path('register/', views.RegisterView.as_view(), name='auth_register'),
     path('user/update/<int:pk>/', views.ActualizarUsuarioView.as_view(), name='user_update'),
     path('dashboard/', views.dashboard, name='dashboard'),
-    path('userprofesor/', views.UserProfesorList.as_view(), name='userprofesor-list'),
+    path('user/profesor/', views.UserProfesorList.as_view(), name='userprofesor-list'),
+    path('user/estudiante/', views.UserEstudianteList.as_view(), name='userestudiante-list'),
     path('rol/', views.RolList.as_view(), name='rol-list'),
     path('profile/update/<int:pk>/', views.ProfileUpdateAPIView.as_view(), name='profile_update'),
     path('propuestas/', views.PropuestaList.as_view(), name='propuestas'),
@@ -21,4 +22,9 @@ urlpatterns = [
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
     path('trabajosdegrado/', views.TrabajoDeGradoList.as_view(), name='trabajodegrado-list'),
     path('trabajosdegrado/<int:pk>/', views.TrabajoDeGradoDetail.as_view(), name='trabajodegrado-detail'),
+]+[
+    path('anteproyectos/user/', views.UserParticipaAntpInfoCompleta.as_view(), name='UserParticipaAntpInfoCompleta-list'),
+    path('seguimientos/user/', views.UserSigueSegInfoCompleta.as_view(), name='UserSigueSeg-list'),
+    path('seguimientos/anteproyecto/', views.AntpSeguidoSegInfoCompleta.as_view(), name='AntpSeguidoSeg-list'),
+    path('anteproyectos/documentos/', views.AntpSoporteDocInfoCompleta.as_view(), name='AntpSoporteDoc-list'),
 ]
