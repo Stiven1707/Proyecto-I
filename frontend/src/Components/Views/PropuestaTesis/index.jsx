@@ -1,14 +1,21 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
 const PropuestaTesis = () => {
+
+    const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
+    const datosUsuario = jwt_decode(datosUsuarioCifrados)
+    console.log(datosUsuario);
  //const url = 'http://localhost/4000/api';
     const initialState = {
-        por_id: 0,
-        por_titulo: "",
-        por_descripcion: "",
-        por_objetivos: "",
+        user: datosUsuario.user_id,
+        pro_titulo: "",
+        pro_descripcion: "",
+        pro_objetivos: "",
+        pro_estado: "En espera",
 	}
 
     const [propuestaList, setPropuestaList] = useState([]);
@@ -28,12 +35,12 @@ const PropuestaTesis = () => {
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         console.log(token);
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/2/',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log(data);
+        console.log('Get propuestas: ',data);
 		setPropuestaList(data)
 	}
 
@@ -50,10 +57,17 @@ const PropuestaTesis = () => {
     };
 
     const onSubmit = async () => {
+        console.log('Que',body);
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false)
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body)
+        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
         .then(() => {
             setBody(initialState)
+            getPropuestas()
         })
         .catch(({response})=>{
             console.log(response)
@@ -62,13 +76,19 @@ const PropuestaTesis = () => {
 
         
     const onEdit = async () => {
-        try {
-            setShowModal(false)
-            const { data } = await axios.post('http://127.0.0.1:8000/api/editar', body)
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(() => {
             setBody(initialState)
-        } 
-        catch ({ response }) {
-        }
+            getPropuestas()
+        })
+        .catch(({response})=>{
+            console.log(response)
+        })
     }
 
     const onDelete = async () => {
@@ -81,30 +101,30 @@ const PropuestaTesis = () => {
     return (
         <div >
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <div className="pb-4 bg-gray-700 dark:bg-gray-900">
+                <div className="py-4 bg-gray-700 dark:bg-gray-900">
                     <label htmlFor="table-search" className="sr-only">Search</label>
                         <div className='flex justify-between pl-5 pr-10'>
-                    <div className="relative mt-1">
-                        <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                            <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path></svg>
-                        </div>
-                        <div className='flex'>
-                            <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
-                                setIsId(e.target.value)
-                                console.log(e.target.value);
-                            }} laceholder="Search"/>
-                            <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
-                                body.per_id = 0
-                            }}>Buscar</button>
-                        </div>
-                    </div>
-                        {isFound? <button className='px-4 py-2 bg-gray-800 text-white'  onClick={() => {
-                            setTitle('Crear')
-                            setBody(initialState)
-                            setIsEdit(false)
-                            setShowModal(true)}}>
-                                <i className='fa-solid fa-circle-plus'></i> Nuevo
-                        </button> : null}
+                            <div className="relative mt-1">
+                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                    <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path></svg>
+                                </div>
+                                <div className='flex items-center'>
+                                    <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
+                                        setIsId(e.target.value)
+                                        console.log(e.target.value);
+                                    }} laceholder="Search"/>
+                                    <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
+                                        body.per_id = 0
+                                    }}>Buscar</button>
+                                </div>
+                            </div>
+                            <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
+                                    setTitle('Crear')
+                                    setBody(initialState)
+                                    setIsEdit(false)
+                                    setShowModal(true)}}>
+                                    <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
+                            </button>
                         </div>
                 </div>
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -114,7 +134,6 @@ const PropuestaTesis = () => {
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Objetivos</th>
-                            <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -122,11 +141,11 @@ const PropuestaTesis = () => {
                     <tbody>
                     {propuestaList.map((propuesta)=>(
                         <tr key={propuesta.per_id}>
-                            <td className='border px-6 py-4'>{propuesta.pro_id}</td>
+                            <td className='border px-6 py-4'>{propuesta.id}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
-                            <td className='border px-6 py-4'>
+                            <td className='border px-6 py-4 flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                     console.log(propuestaList);
                                     setBody(propuesta)
@@ -134,7 +153,7 @@ const PropuestaTesis = () => {
                                     setIsEdit(true)
                                     setShowModal(true);}}
                                 >
-                                    <i className='fa-solid fa-edit'></i>    
+                                    <FontAwesomeIcon icon={faEdit} /> 
                                 </button>    
                                 &nbsp;
                                 <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
@@ -142,7 +161,7 @@ const PropuestaTesis = () => {
                                     setPropuestaDelete(propuesta.pro_titulo)
                                     setShowModalDelete(true)
                                 }}>
-                                    <i className='fa-solid fa-trash'></i>
+                                    <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             </td>
                         </tr>
@@ -160,52 +179,54 @@ const PropuestaTesis = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} periodo</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} propuesta</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
-                                        <label htmlFor="per_nombre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nombre</label>
-                                        <input type="text" name="per_nombre" id="per_nombre" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="name@company.com" 
-                                        value={body.per_nombre}
-                                        onChange={onChange}
-                                        required/>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
+                                            <textarea name='pro_titulo' id='pro_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.pro_titulo}
+                                            onChange={onChange}
+                                            required
+                                            />
                                     </div>
                                     <div>
-                                        <label htmlFor="per_fechainicio" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha inicio</label>
-                                        <input
-                                        type="date"
-                                        id="per_fechainicio"
-                                        name="per_fechainicio"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Selecciona una fecha"
-                                        value={body.per_fechainicio}
-                                        onChange={onChange} required/>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
+                                            <textarea name='pro_descripcion' id='pro_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.pro_descripcion}
+                                            onChange={onChange}
+                                            required
+                                            />
+                                    </div>
+                                    <div>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Objetivos</label>
+                                                <textarea name='pro_objetivos' id='pro_objetivos' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                                value={body.pro_objetivos}
+                                                onChange={onChange}
+                                                required
+                                                />
 
                                     </div>
                                     <div>
-                                        <label htmlFor="per_fechainicio" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Fecha fin</label>
-                                        <input
-                                        type="date"
-                                        id="per_fechafin"
-                                        name="per_fechafin"
-                                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                        placeholder="Selecciona una fecha"
-                                        value={body.per_fechafin}
-                                        onChange={onChange} required/>
-
-                                    </div>
-                                    <div>
-                                        <label htmlFor="per_anno" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Ano</label>
-                                        <input type="number" name="per_anno" id="per_anno" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" placeholder="ej:2020" min="2000" max="2024" maxLength="4" pattern="\d{4}"
-                                        value={body.per_anno}
-                                        onChange={onChange}
-                                        required/>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="per_semestre" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Semestre</label>
-                                        <input type="number" name="per_semestre" id="per_semestre" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white" min="1" max="2" step="1" maxLength="1" pattern="[1-9]" 
-                                        value={body.per_semestre}
-                                        onChange={onChange}
-                                        required/>
+                                        <label htmlFor="lab_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                                        <select
+                                                name="lab_estado"
+                                                style={{
+                                                    backgroundColor: 'withe',
+                                                    padding: '8px',
+                                                    borderRadius: '4px',
+                                                    width: '100%',
+                                                    color: 'lighgray',
+                                                    fontSize: '14px',
+                                                }}
+                                                value={body.pro_estado}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                >
+                                                    <option value="En espera">En espera</option>
+                                                    <option value="Activo">Activo</option>
+                                                    <option value="Finalizado">Finalizado</option>
+                                            </select>
                                     </div>
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => onSubmit()
                                     }>{title}</button>
