@@ -13,7 +13,7 @@ urlpatterns = [
     path('profile/update/<int:pk>/', views.ProfileUpdateAPIView.as_view(), name='profile_update'),
     path('propuestas/', views.PropuestaList.as_view(), name='propuestas'),
 ]+[
-    path('anteproyectos/', views.AnteProyectoList.as_view(), name='anteproyecto-list'),
+    path('anteproyectos/', views.AnteProyectoListCreate.as_view(), name='anteproyecto-list'),
     path('anteproyectos/<int:pk>/', views.AnteProyectoDetail.as_view(), name='anteproyecto-detail'),
     path('seguimientos/', views.SeguimientoList.as_view(), name='seguimiento-list'),
     path('seguimientos/<int:pk>/', views.SeguimientoDetail.as_view(), name='seguimiento-detail'),

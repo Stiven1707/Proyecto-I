@@ -1,7 +1,8 @@
-from .models import User, Rol, Profile , Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
-from django.contrib.auth.password_validation import  validate_password
+from .models import User, Rol, Profile, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, AntpSeguidoSeg, AntpSoporteDoc, TragSoporteDoc, UserParticipaAntp, UserRealizaTrag, UserSigueSeg
+from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -9,11 +10,13 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 
+
 class ProfileSerializer(serializers.ModelSerializer):
-    #tengo que poner el usuario?
+
     class Meta:
         model = Profile
         fields = ('id', 'full_name', 'bio', 'img', 'verified')
+
 
 class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
     @classmethod
@@ -28,14 +31,14 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 
         return token
 
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
 
     class Meta:
         model = User
-        fields = ('rol','username', 'email', 'password', 'password2')
-        
+        fields = ('rol', 'username', 'email', 'password', 'password2')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -53,40 +56,82 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         return user
 
+
 class RolSerializer(serializers.ModelSerializer):
     class Meta:
         model = Rol
         fields = ('id', 'rol_nombre', 'rol_descripcion', 'rol_estado')
 
+
 class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'rol')
-    
-    
+
+
 class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
         fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
+
 
 class SeguimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seguimiento
         fields = '__all__'
 
+
 class DocumentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documento
         fields = '__all__'
+
+
+class AntpSeguidoSegSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AntpSeguidoSeg
+        fields = '__all__'
+
+
+class AntpSoporteDocSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AntpSoporteDoc
+        fields = '__all__'
+
 class AnteProyectoSerializer(serializers.ModelSerializer):
-    usuarios = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
-    #documentos = DocumentoSerializer(many=True)  # Serializa los documentos asociados
+
     class Meta:
         model = AnteProyecto
         fields = '__all__'
 
-class TrabajoDeGradoSerializer(serializers.ModelSerializer):
+
+class TragSoporteDocSerializer(serializers.ModelSerializer):
     class Meta:
-        model = TrabajoDeGrado
+        model = TragSoporteDoc
         fields = '__all__'
-        
+
+class TrabajoDeGradoSerializer(serializers.ModelSerializer):
+    tragsoportedoc_set = TragSoporteDocSerializer(many=True)
+
+    class Meta:
+        model = TrabajoGrado
+        fields = '__all__'
+
+
+class UserParticipaAntpSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserParticipaAntp
+        fields = '__all__'
+
+
+class UserRealizaTragSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserRealizaTrag
+        fields = '__all__'
+
+
+class UserSigueSegSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = UserSigueSeg
+        fields = '__all__'

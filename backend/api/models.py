@@ -13,9 +13,6 @@ class User(AbstractUser):
     email = models.EmailField(unique=True)
     username = models.CharField(unique=True,max_length=100)
     rol = models.ForeignKey('Rol', on_delete=models.CASCADE, related_name='users', blank=True, null=True)
-    seguimientos = models.ManyToManyField('Seguimiento', related_name='user_sigue_seg', blank=True)
-    anteproyectos = models.ManyToManyField('AnteProyecto', related_name='user_participa_antp', blank=True)
-    trabajos_de_grado = models.ManyToManyField('TrabajoDeGrado', related_name='user_realiza_trag', blank=True)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['username']
@@ -116,61 +113,74 @@ class Propuesta(models.Model):
     
 #nuevas tablas
 # Para manejar el ante proyecto, otra para el seguimiento del ante proyecto por parte de unos profesores y una tabla para manejar los documentos necesarios
+
 class AnteProyecto(models.Model):
-    usuarios = models.ManyToManyField(User, related_name='user_participa_antp', blank=True)
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
-    documentos = models.ManyToManyField('Documento', related_name='antp_soporte_doc', blank=True)
-    seguimientos = models.ManyToManyField('Seguimiento', related_name='antp_seguido_seg', blank=True)
-    
-    def __str__(self):
-        return self.antp_titulo
-def crear_seguimiento(sender, instance, created, **kwargs):
-    if created:
-        # Crea un seguimiento con la fecha de hoy en seg_fecha_recepcion
-        seguimiento = Seguimiento(seg_fecha_recepcion=timezone.now())
-        seguimiento.save()
 
-        # Asocia el seguimiento al AnteProyecto
-        instance.seguimientos.add(seguimiento)
+#quiero uuna señal que cuando se cree un anteproyecto se cree un seguimiento y se le asigne a los profesores, estudiantes
+# la solicitu que se envia a la api es:{
+#    "estudiantes": [
+#      47,
+#       48
+#     ],
+#     "profesores": [
+#       1,
+#       2
+#     ],
+#     "antp_titulo": "AR TDH señal 3",
+#     "antp_descripcion": "bla bla señal 3",
+#     "Documentos": [
+#       1,
+#       2
+#     ]
+#   }
+
+        
 
 
-        # Asocia el ID del AnteProyecto al seguimiento
-        seguimiento.anteproyectos.add(instance)
+class AntpSeguidoSeg(models.Model):
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
+    seg = models.ForeignKey('Seguimiento', on_delete=models.CASCADE)
 
-post_save.connect(crear_seguimiento, sender=AnteProyecto)
+class AntpSoporteDoc(models.Model):
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
+    doc = models.ForeignKey('Documento', on_delete=models.CASCADE)
+
+class Documento(models.Model):
+    doc_nombre = models.TextField()
+    doc_ruta = models.FileField(upload_to='documentos_user')
+
+
+
+
 class Seguimiento(models.Model):
     seg_observaciones = models.TextField(blank=True)
     seg_fecha_recepcion = models.DateField()
-    seg_fecha_asignacion = models.DateField(blank=True, null=True)
-    seg_fecha_concepto = models.DateField(blank=True, null=True)
-    seg_estado = models.CharField(max_length=45, blank=True)
-    usuarios = models.ManyToManyField(User, related_name='user_sigue_seg', blank=True)
-    anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_seguido_seg', blank=True)
-    
-    def __str__(self):
-        # Get the name of the associated "AnteProyecto" and the username
-        ante_proyecto_names = ', '.join([str(anteproyecto) for anteproyecto in self.anteproyectos.all()])
-        user_names = ', '.join([user.username for user in self.usuarios.all()])
+    seg_fecha_asignacion = models.DateField(null=True, blank=True)
+    seg_fecha_concepto = models.DateField(null=True, blank=True)
+    seg_estado = models.CharField(max_length=45)
 
-        return f'Seguimiento for AnteProyectos: {ante_proyecto_names}, Users: {user_names}'
-class Documento(models.Model):
-    doc_nombre = models.CharField(max_length=45)
-    doc_ruta = models.FileField(upload_to="documentos_user", blank=True)
-    anteproyectos = models.ManyToManyField(AnteProyecto, related_name='antp_soporte_doc', blank=True)
-    trabajos_de_grado = models.ManyToManyField('TrabajoDeGrado', related_name='trag_soporte_doc', blank=True)
-
-    def __str__(self):
-        return self.doc_nombre
-class TrabajoDeGrado(models.Model):
+class TrabajoGrado(models.Model):
     trag_titulo = models.CharField(max_length=255)
     trag_modalidad = models.CharField(max_length=45)
     trag_fecha_recepcion = models.DateField()
     trag_fecha_sustentacion = models.DateField()
-    trag_estado = models.CharField(max_length=45, blank=True)
-    usuarios = models.ManyToManyField(User, related_name='user_realiza_trag', blank=True)
-    documentos = models.ManyToManyField(Documento, related_name='trag_soporte_doc', blank=True)
-    
-    def __str__(self):
-        return self.trag_titulo
-  
+    trag_estado = models.CharField(max_length=45)
+
+class TragSoporteDoc(models.Model):
+    trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
+    doc = models.ForeignKey(Documento, on_delete=models.CASCADE)
+
+
+class UserParticipaAntp(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
+
+class UserRealizaTrag(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
+
+class UserSigueSeg(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    seg = models.ForeignKey(Seguimiento, on_delete=models.CASCADE)

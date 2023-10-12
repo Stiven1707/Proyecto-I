@@ -1,7 +1,7 @@
 from django.shortcuts import render
 
 # Create your views here.
-from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoDeGrado
+from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
 from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
@@ -75,10 +75,46 @@ class PropuestaList(generics.ListCreateAPIView):
         #(Estudiante) Todas las propuestas que estan activas
         return Propuesta.objects.filter(pro_estado="ACTIVO")
 
-class AnteProyectoList(generics.ListCreateAPIView):
+class AnteProyectoListCreate(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
     serializer_class = AnteProyectoSerializer
-    permission_classes = ([IsAuthenticated])
+    permission_classes = [IsAuthenticated]
+
+    def perform_create(self, serializer):
+        estudiantes_ids = self.request.data.get('estudiantes')
+        profesores_ids = self.request.data.get('profesores')
+        documentos_ids = self.request.data.get('Documentos')
+
+        # Crear el AnteProyecto
+        anteproyecto = serializer.save()
+
+        # Crear el seguimiento con fecha de hoy
+        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_estado='PENDIENTE')
+        # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
+        AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
+        
+        # Asociar estudiantes y profesores
+        estudiantes = User.objects.filter(id__in=estudiantes_ids)
+        profesores = User.objects.filter(id__in=profesores_ids)
+        # Asignar el anteproyecto a los estudiantes mediante la tabla intermedia UserParticipaAntp
+        # Asociar el seguimiento a los estudiantes mediante la tabla intermedia UserSigueSeg        
+        for estudiante in estudiantes:
+            UserParticipaAntp.objects.create(user=estudiante, antp=anteproyecto)
+            UserSigueSeg.objects.create(user=estudiante, seg=seguimiento)
+        # Asignar el anteproyecto a los profesores mediante la tabla intermedia UserParticipaAntp
+        # Asociar el seguimiento a los profesores mediante la tabla intermedia UserSigueSeg
+        for profesor in profesores:
+            UserParticipaAntp.objects.create(user=profesor, antp=anteproyecto)
+            UserSigueSeg.objects.create(user=profesor, seg=seguimiento)
+
+        # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
+        documentos = Documento.objects.filter(id__in=documentos_ids)
+        AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
+
+        
+        
+        
+
 
 
 
@@ -108,12 +144,12 @@ class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = ([IsAuthenticated])
 
 class TrabajoDeGradoList(generics.ListCreateAPIView):
-    queryset = TrabajoDeGrado.objects.all()
+    queryset = TrabajoGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
 
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = TrabajoDeGrado.objects.all()
+    queryset = TrabajoGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
 
