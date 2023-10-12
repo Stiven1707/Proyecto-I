@@ -130,7 +130,11 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             raise serializers.ValidationError("Solo se puede tener 2 estudiantes")
         if len(profesores_ids) > 2:
             raise serializers.ValidationError("Solo se puede tener 2 profesores")
-        #
+        #maximo 5 anteProyectos puede tener un profesor
+        for profesor_id in profesores_ids:
+            profesor = User.objects.filter(id=profesor_id).first()
+            if AnteProyecto.objects.filter(user=profesor).count() >= 5:
+                raise serializers.ValidationError(f"El profesor {profesor.username} ya tiene 5 anteproyectos")
         # Crear el AnteProyecto
         anteproyecto = serializer.save()
 
