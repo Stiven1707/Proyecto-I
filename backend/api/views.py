@@ -30,6 +30,12 @@ class UserProfesorList(generics.ListAPIView):
     serializer_class = UserSerializer
     permission_classes = ([IsAuthenticated])
 
+class UserEstudianteList(generics.ListAPIView):
+    #solo listar los usuarios del rol estudiantes osea donde rol_nombre = estudiante
+    queryset = User.objects.filter(rol__rol_nombre='estudiante')
+    serializer_class = UserSerializer
+    permission_classes = ([IsAuthenticated])
+
 class RolList(generics.ListAPIView):
     queryset = Rol.objects.all()
     serializer_class = RolSerializer
