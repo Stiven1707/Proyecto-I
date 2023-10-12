@@ -21,4 +21,9 @@ urlpatterns = [
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
     path('trabajosdegrado/', views.TrabajoDeGradoList.as_view(), name='trabajodegrado-list'),
     path('trabajosdegrado/<int:pk>/', views.TrabajoDeGradoDetail.as_view(), name='trabajodegrado-detail'),
+]+[
+    path('anteproyectos/user/', views.UserParticipaAntpInfoCompleta.as_view(), name='UserParticipaAntpInfoCompleta-list'),
+    path('seguimientos/user/', views.UserSigueSegInfoCompleta.as_view(), name='UserSigueSeg-list'),
+    path('seguimientos/anteproyecto/', views.AntpSeguidoSegInfoCompleta.as_view(), name='AntpSeguidoSeg-list'),
+    path('anteproyectos/documentos/', views.AntpSoporteDocInfoCompleta.as_view(), name='AntpSoporteDoc-list'),
 ]

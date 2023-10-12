@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer
 from rest_framework import generics, status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -80,6 +80,8 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
     serializer_class = AnteProyectoSerializer
     permission_classes = [IsAuthenticated]
 
+    #para listar mediante una pk de ante proyecto quiero que muestre el ante proyecto, los estudiantes, los profesores y los 
+
     def perform_create(self, serializer):
         estudiantes_ids = self.request.data.get('estudiantes')
         profesores_ids = self.request.data.get('profesores')
@@ -92,7 +94,7 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_estado='PENDIENTE')
         # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
         AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
-        
+
         # Asociar estudiantes y profesores
         estudiantes = User.objects.filter(id__in=estudiantes_ids)
         profesores = User.objects.filter(id__in=profesores_ids)
@@ -110,12 +112,6 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
         documentos = Documento.objects.filter(id__in=documentos_ids)
         AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
-
-        
-        
-        
-
-
 
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -148,8 +144,68 @@ class TrabajoDeGradoList(generics.ListCreateAPIView):
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
 
+
+
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = TrabajoGrado.objects.all()
     serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
+
+#Para tablas intermedias que regresan info de joins
+#convinanciones
+class UserParticipaAntpInfoCompleta( generics.ListAPIView):
+    queryset = UserParticipaAntp.objects.all()
+    serializer_class = UserParticipaAntpInfoCompletaSerializer
+    permission_classes = ([IsAuthenticated])
+
+class AntpSeguidoSegInfoCompleta( generics.ListAPIView):
+    queryset = AntpSeguidoSeg.objects.all()
+    serializer_class = AntpSeguidoSegInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+class AntpSoporteDocInfoCompleta( generics.ListAPIView):
+    queryset = AntpSoporteDoc.objects.all()
+    serializer_class = AntpSoporteDocInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+class UserSigueSegInfoCompleta( generics.ListAPIView):
+    queryset = UserSigueSeg.objects.all()
+    serializer_class = UserSigueSegInfoCompleSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+#prueba conbinar tablas intermedias
+
+
+#individuales
+
+
+class UserParticipaAntpList(generics.ListAPIView):
+    queryset = UserParticipaAntp.objects.all()
+    serializer_class = UserParticipaAntpSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class AntpSoporteDocList(generics.ListAPIView):
+    queryset = AntpSoporteDoc.objects.all()
+    serializer_class = AntpSoporteDocSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class AntpSeguidoSegList(generics.ListAPIView):
+    queryset = AntpSeguidoSeg.objects.all()
+    serializer_class = AntpSeguidoSegSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
+class UserSigueSegList(generics.ListAPIView):
+    queryset = UserSigueSeg.objects.all()
+    serializer_class = UserSigueSegSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
 
