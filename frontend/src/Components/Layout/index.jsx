@@ -14,6 +14,7 @@ import Dashboard from '../Views/Dashboard';
 import SideBar from '../Layout/SideBar'
 import PropuestaTesis from '../Views/PropuestaTesis';
 import Anteproyecto from '../Views/Anteproyecto';
+import Seguimiento from './../Views/Seguimiento';
 
 
 const Layout = () => {
@@ -25,6 +26,7 @@ const Layout = () => {
 				<Route path="/" element={<Dashboard />} />
 				<Route path="/propuestas" element={<PropuestaTesis />} />
 				<Route path="/anteproyectos" element={<Anteproyecto />} />
+				<Route path="/seguimiento" element={<Seguimiento />} />
 			</Routes>
 		</div>
 		</div>

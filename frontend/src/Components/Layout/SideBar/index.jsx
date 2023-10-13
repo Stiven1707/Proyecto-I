@@ -26,6 +26,7 @@ const Layout = () => {
 		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 1, state: false },
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: 1, state: false },
 		{ title: 'Anteproyecto', src: `${Folder}`, path: '/app/anteproyectos', token: 1, state: false },
+		{ title: 'Seguimiento', src: `${Folder}`, path: '/app/seguimiento', token: 1, state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },
 	];
 
