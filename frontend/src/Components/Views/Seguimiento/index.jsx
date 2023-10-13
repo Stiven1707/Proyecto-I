@@ -4,7 +4,7 @@ import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const Anteproyecto = () => {
+const Seguimiento = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
@@ -390,4 +390,4 @@ const Anteproyecto = () => {
 	)
 }
 
-export default Anteproyecto
+export default Seguimiento
