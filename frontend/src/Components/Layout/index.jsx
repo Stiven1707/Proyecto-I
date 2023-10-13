@@ -13,6 +13,7 @@ import Logout from '../../Assets/img/Logout.png';
 import Dashboard from '../Views/Dashboard';
 import SideBar from '../Layout/SideBar'
 import PropuestaTesis from '../Views/PropuestaTesis';
+import Anteproyecto from '../Views/Anteproyecto';
 
 
 const Layout = () => {
@@ -23,6 +24,7 @@ const Layout = () => {
 			<Routes>
 				<Route path="/" element={<Dashboard />} />
 				<Route path="/propuestas" element={<PropuestaTesis />} />
+				<Route path="/anteproyectos" element={<Anteproyecto />} />
 			</Routes>
 		</div>
 		</div>

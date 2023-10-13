@@ -6,6 +6,7 @@ const Dashboard = () => {
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
     console.log(datosUsuario);
+    console.log(datosUsuarioCifrados);
 
 
     return (

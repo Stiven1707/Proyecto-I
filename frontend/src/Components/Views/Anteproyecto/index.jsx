@@ -4,7 +4,7 @@ import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const PropuestaTesis = () => {
+const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
@@ -19,6 +19,7 @@ const PropuestaTesis = () => {
 	}
 
     const [propuestaList, setPropuestaList] = useState([]);
+    const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -28,9 +29,14 @@ const PropuestaTesis = () => {
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
     const [isFound, setIsFound] = useState(false);
+    const [profesores, setProfesores] = useState([]);
+    const [estudiantes, setEstudiantes] = useState([]);
 
 
-
+    let fileData = [];
+    let IdProfesores = [];
+    let IdEstudiantes = [];
+    let IdDocumentos = [];
 
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
@@ -44,6 +50,29 @@ const PropuestaTesis = () => {
 		setPropuestaList(data)
 	}
 
+    const getProfesores = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        console.log(token);
+		const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor/',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log('Get profesores: ',data);
+		setPropuestaList(data)
+	}
+
+    const getEstudiantes = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        console.log(token);
+		const { data } = await axios.get('http://127.0.0.1:8000/api/user/estudiante/',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log('Get Estudiantes: ',data);
+		setPropuestaList(data)
+	}
     useEffect(()=>{
 		getPropuestas()}, [])
 
@@ -98,6 +127,47 @@ const PropuestaTesis = () => {
         }
     }
 
+    function saveFiles(event) {
+        // Obtener la lista de archivos seleccionados desde el evento
+        const selectedFiles = event.target.files;
+        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
+        fileData = [];
+        // Recorrer la lista de archivos y agregar los datos al arreglo
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
+            const fileName = file.name; // Nombre del archivo
+            const filePath = URL.createObjectURL(file); // Ruta del archivo
+            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
+            console.log('File path:', file);
+        }
+        // Hacer algo con el arreglo de datos, como enviarlo al servidor o realizar otras acciones necesarias
+        console.log(fileData);
+        console.log('Tamanio: ',fileData.length);
+        // Aquí puedes agregar el código para enviar los archivos al servidor u otras operaciones necesarias
+    }
+
+    const uploadFiles = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        for (let i = 0; i < fileData.length; i++) {
+            axios.post('http://127.0.0.1:8000/api/documentos/', fileData[i], {
+            headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'multipart/form-data',
+                }
+            })
+            .then((data) => {
+                IdDocumentos.push(data.data.id);
+                console.log('Documentos subidos: ', IdDocumentos);
+                setBody(initialState)
+                getPropuestas()
+            })
+            .catch(({response})=>{
+                console.log('Fallo al subir el archivo: ',response)
+            })
+        }
+        
+    }
+
     return (
         <div >
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -121,6 +191,8 @@ const PropuestaTesis = () => {
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
                                     setTitle('Crear')
                                     setBody(initialState)
+                                    getProfesores()
+                                    getEstudiantes()
                                     setIsEdit(false)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
@@ -133,7 +205,7 @@ const PropuestaTesis = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Objetivos</th>
+                            <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -145,24 +217,26 @@ const PropuestaTesis = () => {
                             <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
-                            <td className='border px-6 py-4 flex'>
+                            <td className='border px-6 py-4'>
+                                <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                    console.log(propuestaList);
-                                    setBody(propuesta)
-                                    setTitle('Modificar')
-                                    setIsEdit(true)
-                                    setShowModal(true);}}
-                                >
-                                    <FontAwesomeIcon icon={faEdit} /> 
-                                </button>    
-                                &nbsp;
-                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                    setIdDelete(propuesta.pro_id)
-                                    setPropuestaDelete(propuesta.pro_titulo)
-                                    setShowModalDelete(true)
-                                }}>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
+                                        console.log(propuestaList);
+                                        setBody(propuesta)
+                                        setTitle('Modificar')
+                                        setIsEdit(true)
+                                        setShowModal(true);}}
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} /> 
+                                    </button>    
+                                    &nbsp;
+                                    <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                        setIdDelete(propuesta.pro_id)
+                                        setPropuestaDelete(propuesta.pro_titulo)
+                                        setShowModalDelete(true)
+                                    }}>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}
@@ -211,7 +285,32 @@ const PropuestaTesis = () => {
                                         <select
                                                 name="lab_estado"
                                                 style={{
-                                                    backgroundColor: 'withe',
+                                                    backgroundColor: 'white',
+                                                    padding: '8px',
+                                                    borderRadius: '4px',
+                                                    width: '100%',
+                                                    color: 'lighgray',
+                                                    fontSize: '14px',
+                                                }}
+                                                value={body.pro_estado}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                >
+                                                    <option value={0}>Seleccionar al profesor encargado</option>
+                                                    {profesores.map(periodo => (
+                                                    <option key={periodo.per_id} value={periodo.per_id}>
+                                                        {periodo.per_nombre}
+                                                    </option>
+                                            ))} 
+                                            </select>
+                                    </div>
+                                    <div>
+                                        <label htmlFor="lab_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                                        <select
+                                                name="lab_estado"
+                                                style={{
+                                                    backgroundColor: 'white',
                                                     padding: '8px',
                                                     borderRadius: '4px',
                                                     width: '100%',
@@ -228,7 +327,23 @@ const PropuestaTesis = () => {
                                                     <option value="Finalizado">Finalizado</option>
                                             </select>
                                     </div>
-                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => onSubmit()
+                                    <div>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documento</label>
+                                        <input
+                                            type="file"
+                                            name="eva_evidencia"
+                                            id="eva_evidencia"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder={body.eva_evidencia}
+                                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                                            required
+                                            multiple
+                                        />
+                                    </div>
+                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => {
+                                        uploadFiles()
+                                        onSubmit()
+                                    }
                                     }>{title}</button>
                                 </form>
                             </div>
@@ -275,4 +390,4 @@ const PropuestaTesis = () => {
 	)
 }
 
-export default PropuestaTesis
+export default Anteproyecto
