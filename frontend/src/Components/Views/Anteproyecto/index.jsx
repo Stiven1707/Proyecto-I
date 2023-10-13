@@ -8,7 +8,7 @@ const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    console.log(datosUsuario);
+    //console.log(datosUsuario);
  //const url = 'http://localhost/4000/api';
     const initialState = {
         user: datosUsuario.user_id,
@@ -41,37 +41,37 @@ const Anteproyecto = () => {
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
+        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get propuestas: ',data);
+        //console.log('Get propuestas: ',data);
 		setPropuestaList(data)
 	}
 
     const getProfesores = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
+        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get profesores: ',data);
+        //console.log('Get profesores: ',data);
 		setProfesores(data)
 	}
 
     const getEstudiantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
+        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/user/estudiante/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get Estudiantes: ',data);
+        //console.log('Get Estudiantes: ',data);
 		setEstudiantes(data)
 	}
     useEffect(()=>{
@@ -92,7 +92,7 @@ const Anteproyecto = () => {
         body.profesores = IdProfesores;
         body.estudiantes = IdEstudiantes;
         body.Documentos = IdDocumentos;
-        console.log('Datos del body: ',body);
+        //console.log('Datos del body: ',body);
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false)
         axios.post('http://127.0.0.1:8000/api/anteproyectos/', body, {
@@ -144,11 +144,11 @@ const Anteproyecto = () => {
             const fileName = file.name; // Nombre del archivo
             const filePath = URL.createObjectURL(file); // Ruta del archivo
             fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
-            console.log('File path:', file);
+            //console.log('File path:', file);
         }
         // Hacer algo con el arreglo de datos, como enviarlo al servidor o realizar otras acciones necesarias
-        console.log(fileData);
-        console.log('Tamanio: ',fileData.length);
+        //console.log(fileData);
+        //console.log('Tamanio: ',fileData.length);
         // Aquí puedes agregar el código para enviar los archivos al servidor u otras operaciones necesarias
     }
 
@@ -163,7 +163,7 @@ const Anteproyecto = () => {
             })
             .then((data) => {
                 IdDocumentos.push(data.data.id);
-                console.log('Documentos subidos: ', IdDocumentos);
+                //console.log('Documentos subidos: ', IdDocumentos);
                 setBody(initialState)
                 getAnteproyectos()
             })
@@ -187,7 +187,7 @@ const Anteproyecto = () => {
                                 <div className='flex items-center'>
                                     <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
                                         setIsId(e.target.value)
-                                        console.log(e.target.value);
+                                        //console.log(e.target.value);
                                     }} laceholder="Search"/>
                                     <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
                                         body.per_id = 0
@@ -230,7 +230,7 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        console.log(propuestaList);
+                                        //console.log(propuestaList);
                                         setBody(propuesta)
                                         setTitle('Modificar')
                                         setIsEdit(true)

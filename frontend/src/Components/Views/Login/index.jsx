@@ -27,9 +27,9 @@ const Login = () => {
         axios.post('http://127.0.0.1:8000/api/token/', body)
         .then(({data}) => {
             localStorage.setItem('auth', true)
-            console.log('Datos: ',jwt_decode(data.access));
+            //console.log('Datos: ',jwt_decode(data.access));
             const datos = jwt_decode(data.access)
-            console.log(datos.full_name);
+            //console.log(datos.full_name);
             localStorage.setItem('authTokens', JSON.stringify(data));
             window.location.href = '/app';
         })
