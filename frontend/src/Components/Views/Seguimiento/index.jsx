@@ -203,10 +203,16 @@ const Seguimiento = () => {
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope='col' className='border px-6 py-3'>#</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha Recepcion</th>
+                            <th scope='col' className='border px-6 py-3'>ID</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
-                            <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Documentos</th>
-                            <th scope='col' className='border px-6 py-3'>Acciones</th>
+                            <th scope='col' className='border px-6 py-3'>Modalidad</th>
+                            <th scope='col' className='border px-6 py-3'>Estudiantes</th>
+                            <th scope='col' className='border px-6 py-3'>Director</th>
+                            <th scope='col' className='border px-6 py-3'>Evaluadores</th>
+                            <th scope='col' className='border px-6 py-3'>Revision 1</th>
+                            <th scope='col' className='border px-6 py-3'>Revision 2</th>
+                            <th scope='col' className='border px-6 py-3'>Revision 3</th>
 
                         </tr>
                     </thead>
@@ -216,6 +222,13 @@ const Seguimiento = () => {
                             <td className='border px-6 py-4'>{propuesta.id}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
