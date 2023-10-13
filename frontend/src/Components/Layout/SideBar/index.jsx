@@ -64,7 +64,7 @@ const Layout = () => {
 				!open && 'scale-0'
 				}`}
 			>
-				Evalcoor App
+				SRSPG APP
 			</h1>
 			</div>
 			<ul className="pt-6">

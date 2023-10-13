@@ -41,7 +41,7 @@ const Seguimiento = () => {
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         console.log(token);
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/segimientos/user_antp',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -220,10 +220,10 @@ const Seguimiento = () => {
                     {propuestaList.map((propuesta)=>(
                         <tr key={propuesta.per_id}>
                             <td className='border px-6 py-4'>{propuesta.id}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.seguimiento.seg_fecha_recepcion}</td>
+                            <td className='border px-6 py-4'>{propuesta.anteproyecto.antp_titulo}</td>
+                            <td className='border px-6 py-4'>{propuesta.seg_fecha_recepcion}</td>
+                            <td className='border px-6 py-4'>{propuesta.seg_estado}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>

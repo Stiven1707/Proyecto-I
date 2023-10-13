@@ -92,7 +92,7 @@ const Anteproyecto = () => {
         body.profesores = IdProfesores;
         body.estudiantes = IdEstudiantes;
         body.Documentos = IdDocumentos;
-        //console.log('Datos del body: ',body);
+        console.log('Datos del body: ',body);
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false)
         axios.post('http://127.0.0.1:8000/api/anteproyectos/', body, {
@@ -263,7 +263,7 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} propuesta</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} anteproyecto</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
