@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer
 from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -255,5 +255,24 @@ class UserSigueSegList(generics.ListAPIView):
     permission_classes = ([IsAuthenticated])
 
 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated]) 
+def list_seguimientos_anteproyecto_usuarios(request):
+    seguimientos = Seguimiento.objects.all()
+    data = []
 
+    for seguimiento in seguimientos:
+        usuarios_sigue_seguimiento = UserSigueSeg.objects.filter(seg=seguimiento).select_related('user')
+        anteproyecto = AntpSeguidoSeg.objects.filter(seg=seguimiento).first().antp  # Supongo que hay un solo anteproyecto
+
+        serialized_usuarios = UserSigueSegSerializer(usuarios_sigue_seguimiento, many=True).data
+        serialized_anteproyecto = AnteProyectoSerializer(anteproyecto).data
+
+        data.append({
+            'seguimiento': SeguimientoSerializer(seguimiento).data,
+            'anteproyecto': serialized_anteproyecto,
+            'usuarios': serialized_usuarios,
+        })
+
+    return Response(data)
 

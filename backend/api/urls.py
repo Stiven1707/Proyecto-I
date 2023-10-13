@@ -27,4 +27,5 @@ urlpatterns = [
     path('seguimientos/user/', views.UserSigueSegInfoCompleta.as_view(), name='UserSigueSeg-list'),
     path('seguimientos/anteproyecto/', views.AntpSeguidoSegInfoCompleta.as_view(), name='AntpSeguidoSeg-list'),
     path('anteproyectos/documentos/', views.AntpSoporteDocInfoCompleta.as_view(), name='AntpSoporteDoc-list'),
+    path('segimientos/user_antp', views.list_seguimientos_anteproyecto_usuarios, name='Seg_user_antp-list'),
 ]
