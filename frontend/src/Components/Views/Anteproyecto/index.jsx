@@ -59,7 +59,7 @@ const Anteproyecto = () => {
             }
         })
         console.log('Get profesores: ',data);
-		setPropuestaList(data)
+		setProfesorList(data)
 	}
 
     const getEstudiantes = async () => {
@@ -71,7 +71,7 @@ const Anteproyecto = () => {
             }
         })
         console.log('Get Estudiantes: ',data);
-		setPropuestaList(data)
+		setEstudiantes(data)
 	}
     useEffect(()=>{
 		getPropuestas()}, [])
