@@ -121,33 +121,12 @@ class AnteProyecto(models.Model):
     def __str__(self):
         return self.antp_titulo
         
-
-
-class AntpSeguidoSeg(models.Model):
-    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
-    seg = models.ForeignKey('Seguimiento', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.antp.antp_titulo + " - " + str(self.seg.id) + " - " + self.seg.seg_fecha_recepcion.strftime("%d/%m/%Y")
-
-
-class AntpSoporteDoc(models.Model):
-    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
-    doc = models.ForeignKey('Documento', on_delete=models.CASCADE)
-
-    def __str__(self):
-        return self.antp.antp_titulo + " - " + self.doc.doc_nombre
-
-    
-
 class Documento(models.Model):
     doc_nombre = models.TextField()
     doc_ruta = models.FileField(upload_to='documentos_user')
 
     def __str__(self):
         return self.doc_nombre
-
-
 
 
 class Seguimiento(models.Model):
@@ -198,3 +177,19 @@ class UserSigueSeg(models.Model):
 
     def __str__(self):
         return self.user.username + " - " + str(self.seg.id) + " - " + self.seg.seg_fecha_recepcion.strftime("%d/%m/%Y")
+
+
+class AntpSeguidoSeg(models.Model):
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
+    seg = models.ForeignKey('Seguimiento', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.antp.antp_titulo + " - " + str(self.seg.id) + " - " + self.seg.seg_fecha_recepcion.strftime("%d/%m/%Y")
+
+
+class AntpSoporteDoc(models.Model):
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)
+    doc = models.ForeignKey('Documento', on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.antp.antp_titulo + " - " + self.doc.doc_nombre

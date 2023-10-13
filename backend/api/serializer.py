@@ -9,6 +9,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
+        
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -88,10 +89,10 @@ class DocumentoSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class AntpSeguidoSegSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AntpSeguidoSeg
-        fields = '__all__'
+# class AntpSeguidoSegSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = AntpSeguidoSeg
+#         fields = '__all__'
 
 
 class AntpSoporteDocSerializer(serializers.ModelSerializer):
@@ -131,10 +132,10 @@ class UserRealizaTragSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-class UserSigueSegSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserSigueSeg
-        fields = '__all__'
+# class UserSigueSegSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserSigueSeg
+#         fields = '__all__'
 
 #info completa en base a tablas intermedias
 class UserParticipaAntpInfoCompletaSerializer(serializers.ModelSerializer):
@@ -167,7 +168,33 @@ class UserSigueSegInfoCompleSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-    
+#########################
+#Prueba filtar por seguimiento
+
+class AntpSeguidoSegSerializer(serializers.ModelSerializer):
+    antp = serializers.PrimaryKeyRelatedField(read_only=True)
+    seg = SeguimientoSerializer()
+
+    class Meta:
+        model = AntpSeguidoSeg
+        fields = '__all__'
+
+class UserSigueSegSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    seg = serializers.PrimaryKeyRelatedField(read_only=True)
+
+    class Meta:
+        model = UserSigueSeg
+        fields = '__all__'
+
+class SeguimientoAnteproyectoUsuarioSerializer(serializers.ModelSerializer):
+    seguimiento = SeguimientoSerializer()  # Usa el serializador de seguimientos
+    anteproyecto = AnteProyectoSerializer()  # Usa el serializador de anteproyectos
+    usuarios = UserSerializer(many=True)  # Usa el serializador de usuarios
+
+    class Meta:
+        model = Seguimiento
+        fields = '__all__'
 
 
 
