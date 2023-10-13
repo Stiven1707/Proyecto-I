@@ -12,14 +12,15 @@ const Anteproyecto = () => {
  //const url = 'http://localhost/4000/api';
     const initialState = {
         user: datosUsuario.user_id,
-        pro_titulo: "",
-        pro_descripcion: "",
-        pro_objetivos: "",
-        pro_estado: "En espera",
+        estudiantes: [],
+        profesores: [],
+        antp_titulo: "",
+        antp_descripcion: "",
+        Documentos: [],
 	}
 
     const [propuestaList, setPropuestaList] = useState([]);
-    const [profesorList, setProfesorList] = useState([]);
+    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -28,7 +29,7 @@ const Anteproyecto = () => {
 	const [propuestaDelete, setPropuestaDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
-    const [isFound, setIsFound] = useState(false);
+    //const [isFound, setIsFound] = useState(false);
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
 
@@ -38,10 +39,10 @@ const Anteproyecto = () => {
     let IdEstudiantes = [];
     let IdDocumentos = [];
 
-    const getPropuestas = async () => {
+    const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         console.log(token);
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -59,7 +60,7 @@ const Anteproyecto = () => {
             }
         })
         console.log('Get profesores: ',data);
-		setProfesorList(data)
+		setProfesores(data)
 	}
 
     const getEstudiantes = async () => {
@@ -74,7 +75,7 @@ const Anteproyecto = () => {
 		setEstudiantes(data)
 	}
     useEffect(()=>{
-		getPropuestas()}, [])
+		getAnteproyectos()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -86,17 +87,22 @@ const Anteproyecto = () => {
     };
 
     const onSubmit = async () => {
-        console.log('Que',body);
+        IdProfesores.push(parseInt(body.profesores))
+        IdEstudiantes.push(parseInt(body.estudiantes))
+        body.profesores = IdProfesores;
+        body.estudiantes = IdEstudiantes;
+        body.Documentos = IdDocumentos;
+        console.log('Datos del body: ',body);
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false)
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+        axios.post('http://127.0.0.1:8000/api/anteproyectos/', body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(() => {
             setBody(initialState)
-            getPropuestas()
+            getAnteproyectos()
         })
         .catch(({response})=>{
             console.log(response)
@@ -113,7 +119,7 @@ const Anteproyecto = () => {
         })
         .then(() => {
             setBody(initialState)
-            getPropuestas()
+            getAnteproyectos()
         })
         .catch(({response})=>{
             console.log(response)
@@ -159,7 +165,7 @@ const Anteproyecto = () => {
                 IdDocumentos.push(data.data.id);
                 console.log('Documentos subidos: ', IdDocumentos);
                 setBody(initialState)
-                getPropuestas()
+                getAnteproyectos()
             })
             .catch(({response})=>{
                 console.log('Fallo al subir el archivo: ',response)
@@ -205,6 +211,8 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
+                            <th scope='col' className='border px-6 py-3'>Coordinador</th>
+                            <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
@@ -214,9 +222,11 @@ const Anteproyecto = () => {
                     {propuestaList.map((propuesta)=>(
                         <tr key={propuesta.per_id}>
                             <td className='border px-6 py-4'>{propuesta.id}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>{propuesta.antp_titulo}</td>
+                            <td className='border px-6 py-4'>{propuesta.antp_descripcion}</td>
+                            <td className='border px-6 py-4'>{propuesta.profesores}</td>
+                            <td className='border px-6 py-4'>{propuesta.estudiantes}</td>
+                            <td className='border px-6 py-4'>{propuesta.Documentos}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
@@ -230,8 +240,8 @@ const Anteproyecto = () => {
                                     </button>    
                                     &nbsp;
                                     <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(propuesta.pro_id)
-                                        setPropuestaDelete(propuesta.pro_titulo)
+                                        setIdDelete(propuesta.antp_id)
+                                        setPropuestaDelete(propuesta.antp_titulo)
                                         setShowModalDelete(true)
                                     }}>
                                         <FontAwesomeIcon icon={faTrash} />
@@ -249,7 +259,7 @@ const Anteproyecto = () => {
                     <div className="relative w-full max-w-md max-h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                             <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => setShowModal(false)} >
-                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
@@ -257,33 +267,24 @@ const Anteproyecto = () => {
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                            <textarea name='pro_titulo' id='pro_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.pro_titulo}
+                                            <textarea name='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.antp_titulo}
                                             onChange={onChange}
                                             required
                                             />
                                     </div>
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
-                                            <textarea name='pro_descripcion' id='pro_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.pro_descripcion}
+                                            <textarea name='antp_descripcion' id='antp_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.antp_descripcion}
                                             onChange={onChange}
                                             required
                                             />
                                     </div>
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Objetivos</label>
-                                                <textarea name='pro_objetivos' id='pro_objetivos' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                value={body.pro_objetivos}
-                                                onChange={onChange}
-                                                required
-                                                />
-
-                                    </div>
-                                    <div>
-                                        <label htmlFor="lab_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                                        <label htmlFor="profesores" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
                                         <select
-                                                name="lab_estado"
+                                                name="profesores"
                                                 style={{
                                                     backgroundColor: 'white',
                                                     padding: '8px',
@@ -292,23 +293,23 @@ const Anteproyecto = () => {
                                                     color: 'lighgray',
                                                     fontSize: '14px',
                                                 }}
-                                                value={body.pro_estado}
+                                                value={body.profesores}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 >
                                                     <option value={0}>Seleccionar al profesor encargado</option>
-                                                    {profesores.map(periodo => (
-                                                    <option key={periodo.per_id} value={periodo.per_id}>
-                                                        {periodo.per_nombre}
+                                                    {profesores.map(profesor => (
+                                                    <option key={profesor.id} value={profesor.id}>
+                                                        {profesor.username}
                                                     </option>
                                             ))} 
                                             </select>
                                     </div>
                                     <div>
-                                        <label htmlFor="lab_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                                        <label htmlFor="estudiantes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
                                         <select
-                                                name="lab_estado"
+                                                name="estudiantes"
                                                 style={{
                                                     backgroundColor: 'white',
                                                     padding: '8px',
@@ -317,14 +318,17 @@ const Anteproyecto = () => {
                                                     color: 'lighgray',
                                                     fontSize: '14px',
                                                 }}
-                                                value={body.pro_estado}
+                                                value={body.estudiantes}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 >
-                                                    <option value="En espera">En espera</option>
-                                                    <option value="Activo">Activo</option>
-                                                    <option value="Finalizado">Finalizado</option>
+                                                    <option value={0}>Seleccionar al estudiante</option>
+                                                        {estudiantes.map(estudiante => (
+                                                    <option key={estudiante.id} value={estudiante.id}>
+                                                        {estudiante.username}
+                                                    </option>
+                                            ))} 
                                             </select>
                                     </div>
                                     <div>
@@ -359,7 +363,7 @@ const Anteproyecto = () => {
                     <div className="relative w-full max-w-md max-h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                             <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => setShowModalDelete(false)} >
-                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
