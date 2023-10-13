@@ -9,6 +9,8 @@ import jwt_decode from "jwt-decode";
 
 const Login = () => {
     const [body, setBody] = useState({ email: '', password: '' })
+    const [showMensaje, setShowMensaje] = useState(false);
+
     //const navigate = useNavigate()
     //const classes = useStyles()
 
@@ -32,6 +34,7 @@ const Login = () => {
             window.location.href = '/app';
         })
         .catch(({response})=>{
+            setShowMensaje(true)
             console.log(response)
         })
     }
@@ -55,14 +58,15 @@ const Login = () => {
                         required/>
                     </div>
                     <div className="mt-4">
-                        <label className="block">Contrasena</label>
-                        <input type="password" placeholder="Digite constrasenia" className="w-full px-4 py-3 rounded-lg bg-gray-800 mt-2 border focus:border-blue-500 focus:bg-gray-900 focus:outline-none" 
+                        <label className="block">contraseña</label>
+                        <input type="password" placeholder="Digite contraseña" className="w-full px-4 py-3 rounded-lg bg-gray-800 mt-2 border focus:border-blue-500 focus:bg-gray-900 focus:outline-none" 
                         label='password'
                         value={body.password}
                         onChange={handleChange}
                         name='password'
                         required/>
                     </div>
+                    {showMensaje ? <p className="text-red-700">Usuario y contraseña invalidos</p> : null}
                     <button type="submit" className="w-full block bg-blue-900 hover:bg-blue-800 focus:bg-blue-400 text-white font-semibold rounded-lg px-4 py-3 mt-6"
                     onClick={onSubmit}>
                         Iniciar Sesion
