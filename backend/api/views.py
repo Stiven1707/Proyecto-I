@@ -266,8 +266,8 @@ def list_seguimientos_anteproyecto_usuarios(request):
         anteproyecto = AntpSeguidoSeg.objects.filter(seg=seguimiento).first().antp  # Supongo que hay un solo anteproyecto
 
         serialized_usuarios = UserSigueSegSerializer(usuarios_sigue_seguimiento, many=True).data
-        serialized_anteproyecto = AnteProyectoSerializer(anteproyecto).data
-
+        serialized_anteproyecto = AnteProyectoSerializer(anteproyecto).data 
+ 
         data.append({
             'seguimiento': SeguimientoSerializer(seguimiento).data,
             'anteproyecto': serialized_anteproyecto,
@@ -275,4 +275,30 @@ def list_seguimientos_anteproyecto_usuarios(request):
         })
 
     return Response(data)
+
+#listar el anteproyecto con sus estudiantes y profesores, ademas de sus seguimientos
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def list_anteproyecto_usuarios_anteproyecto(request):
+    anteproyecto = AnteProyecto.objects.all()
+    data = []
+
+    for anteproyecto in anteproyecto:
+        usuario_participa_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto).select_related('user')
+        anteproyecto_sigue_seguimiento = AntpSeguidoSeg.objects.filter(antp=anteproyecto).select_related('seg')
+
+        serialized_usuarios = UserParticipaAntpSerializer(usuario_participa_anteproyecto, many=True).data
+        serialized_seguimientos = AntpSeguidoSegSerializer(anteproyecto_sigue_seguimiento, many=True).data
+
+        data.append({
+            'anteproyecto': AnteProyectoSerializer(anteproyecto).data,
+            'usuarios': serialized_usuarios,
+            'seguimientos': serialized_seguimientos,
+        })
+    
+    return Response(data)
+        
+
+    
+
 

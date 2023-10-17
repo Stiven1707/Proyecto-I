@@ -198,3 +198,11 @@ class SeguimientoAnteproyectoUsuarioSerializer(serializers.ModelSerializer):
 
 
 
+class AnteproyectoUsuariosSeguimientos(serializers.ModelSerializer):
+    anteproyecto = AnteProyectoSerializer()  # Usa el serializador de anteproyectos
+    usuarios = UserSerializer(many=True)  # Usa el serializador de usuarios
+    seguimientos = SeguimientoSerializer(many=True)  # Usa el serializador de seguimientos
+
+    class Meta:
+        model = AnteProyecto
+        fields = '__all__'
