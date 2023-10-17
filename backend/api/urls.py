@@ -5,9 +5,9 @@ from api import views
 urlpatterns = [
     path('token/', views.MyTokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path('register/', views.RegisterView.as_view(), name='auth_register'),
-    path('user/update/<int:pk>/', views.ActualizarUsuarioView.as_view(), name='user_update'),
     path('dashboard/', views.dashboard, name='dashboard'),
+    path('user/', views.RegisterView.as_view(), name='auth_register'),
+    path('user/<int:pk>/', views.ActualizarUsuarioView.as_view(), name='user_update'),
     path('user/profesor/', views.UserProfesorList.as_view(), name='userprofesor-list'),
     path('user/estudiante/', views.UserEstudianteList.as_view(), name='userestudiante-list'),
     path('rol/', views.RolList.as_view(), name='rol-list'),

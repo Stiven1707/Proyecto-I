@@ -65,10 +65,27 @@ class RolSerializer(serializers.ModelSerializer):
 
 
 class ActualizarUsuarioSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=False)
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'rol')
+        fields = ('id', 'username', 'email', 'rol', 'password', 'password2')
+
+    def validate(self, attrs):
+        if 'password' in attrs and 'password2' in attrs and attrs['password'] != attrs['password2']:
+            raise serializers.ValidationError({"password": "Los campos de contraseña no coinciden."})
+        return attrs
+
+    def update(self, instance, validated_data):
+        if 'password' in validated_data:
+            instance.set_password(validated_data['password'])
+        instance.username = validated_data.get('username', instance.username)
+        instance.rol = validated_data.get('rol', instance.rol)
+        instance.email = validated_data.get('email', instance.email)
+        instance.save()
+        return instance
+
 
 
 class PropuestaSerializer(serializers.ModelSerializer):
