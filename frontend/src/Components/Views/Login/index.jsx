@@ -58,7 +58,7 @@ const Login = () => {
                         required/>
                     </div>
                     <div className="mt-4">
-                        <label className="block">contraseña</label>
+                        <label className="block">Contraseña</label>
                         <input type="password" placeholder="Digite contraseña" className="w-full px-4 py-3 rounded-lg bg-gray-800 mt-2 border focus:border-blue-500 focus:bg-gray-900 focus:outline-none" 
                         label='password'
                         value={body.password}

@@ -204,7 +204,6 @@ const Seguimiento = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Fecha Recepcion</th>
-                            <th scope='col' className='border px-6 py-3'>ID</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Modalidad</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
@@ -223,9 +222,27 @@ const Seguimiento = () => {
                             <td className='border px-6 py-4'>{propuesta.seguimiento.seg_fecha_recepcion}</td>
                             <td className='border px-6 py-4'>{propuesta.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4'>{propuesta.seg_fecha_recepcion}</td>
-                            <td className='border px-6 py-4'>{propuesta.seg_estado}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4'>
+                                {propuesta.usuarios.map(estudiante => {
+                                    if (estudiante.id === 2) {
+                                    console.log('Estudiante:', estudiante.user.username);
+                                    return <span key={estudiante.id}>{estudiante.user.username}</span>;
+                                    }
+                                    return null;
+                                })}    
+                            </td>
+                            <td className='border px-6 py-4'>
+                                {console.log('Profesores',propuesta.usuarios[0])}
+                                {
+                                    
+                                    propuesta.usuarios[0].id === 1 ?
+                                    propuesta.usuarios[0].user.username: 'No se encuentra asignado un profesor'
+                                }
+                            </td>
+                            
+                            <td className='border px-6 py-4'>
+                            
+                            </td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
                             <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>

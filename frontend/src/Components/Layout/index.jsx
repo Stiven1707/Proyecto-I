@@ -15,20 +15,24 @@ import SideBar from '../Layout/SideBar'
 import PropuestaTesis from '../Views/PropuestaTesis';
 import Anteproyecto from '../Views/Anteproyecto';
 import Seguimiento from './../Views/Seguimiento';
+import Usuarios from './../Views/Usuarios';
 
 
 const Layout = () => {
 	return (
 		<div className="flex h-100%">
-			<SideBar />
-		<div className="h-screen flex-1 p-7">
-			<Routes>
-				<Route path="/" element={<Dashboard />} />
-				<Route path="/propuestas" element={<PropuestaTesis />} />
-				<Route path="/anteproyectos" element={<Anteproyecto />} />
-				<Route path="/seguimiento" element={<Seguimiento />} />
-			</Routes>
-		</div>
+			<div className="sticky top-0">
+				<SideBar />
+			</div>
+			<div className="flex-1 p-7 overflow-y-auto overflow-x-auto">
+				<Routes>
+					<Route path="/" element={<Dashboard />} />
+					<Route path="/usuarios" element={<Usuarios />} />
+					<Route path="/propuestas" element={<PropuestaTesis />} />
+					<Route path="/anteproyectos" element={<Anteproyecto />} />
+					<Route path="/seguimiento" element={<Seguimiento />} />
+				</Routes>
+			</div>
 		</div>
 	);
 };
