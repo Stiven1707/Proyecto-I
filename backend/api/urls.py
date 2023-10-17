@@ -20,7 +20,7 @@ urlpatterns = [
     path('seguimientos/<int:pk>/', views.SeguimientoDetail.as_view(), name='seguimiento-detail'),
     path('documentos/', views.DocumentoList.as_view(), name='documento-list'),
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
-    path('trabajosdegrado/', views.TrabajoDeGradoList.as_view(), name='trabajodegrado-list'),
+    path('trabajosdegrado/', views.TrabajoGradoUsuariosCreate.as_view(), name='trabajodegrado-list'),
     path('trabajosdegrado/<int:pk>/', views.TrabajoDeGradoDetail.as_view(), name='trabajodegrado-detail'),
 ]+[
     path('anteproyectos/user/', views.UserParticipaAntpInfoCompleta.as_view(), name='UserParticipaAntpInfoCompleta-list'),

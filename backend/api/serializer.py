@@ -206,3 +206,12 @@ class AnteproyectoUsuariosSeguimientos(serializers.ModelSerializer):
     class Meta:
         model = AnteProyecto
         fields = '__all__'
+
+class TrabajoGradoUsuariosSerializer(serializers.ModelSerializer):
+    trabajo_grado = TrabajoDeGradoSerializer()  # Usa el serializador de trabajos de grado
+    usuarios = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
+    documentos = DocumentoSerializer(many=True)  # Usa el serializador de documentos
+
+    class Meta:
+        model = TrabajoGrado
+        fields = '__all__'
