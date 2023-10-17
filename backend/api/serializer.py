@@ -113,8 +113,7 @@ class TragSoporteDocSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TrabajoDeGradoSerializer(serializers.ModelSerializer):
-    tragsoportedoc_set = TragSoporteDocSerializer(many=True)
-
+    
     class Meta:
         model = TrabajoGrado
         fields = '__all__'
@@ -208,9 +207,8 @@ class AnteproyectoUsuariosSeguimientos(serializers.ModelSerializer):
         fields = '__all__'
 
 class TrabajoGradoUsuariosSerializer(serializers.ModelSerializer):
-    trabajo_grado = TrabajoDeGradoSerializer()  # Usa el serializador de trabajos de grado
-    usuarios = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), many=True)
-    documentos = DocumentoSerializer(many=True)  # Usa el serializador de documentos
+    usuarios = serializers.PrimaryKeyRelatedField(read_only=True, many=True)
+    documentos = DocumentoSerializer()  # Usa el serializador de documentos
 
     class Meta:
         model = TrabajoGrado
