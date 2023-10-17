@@ -86,28 +86,78 @@ const Anteproyecto = () => {
         //setSelectedPeriodo(value !== "");
     };
 
-    const onSubmit = async () => {
-        IdProfesores.push(parseInt(body.profesores))
-        IdEstudiantes.push(parseInt(body.estudiantes))
+
+    function saveFiles(event) {
+        // Obtener la lista de archivos seleccionados desde el evento
+        const selectedFiles = event.target.files;
+        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
+        fileData = [];
+        // Recorrer la lista de archivos y agregar los datos al arreglo
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
+            const fileName = file.name; // Nombre del archivo
+            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
+        }
+    }
+
+    const uploadFiles = async () => {
+        try {
+            const token = JSON.parse(localStorage.getItem('authTokens')).access;
+            const IdDocumentos = [];
+            const promises = fileData.map((file) => {
+                return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            });
+    
+            await Promise.all(promises).then((results) => {
+                results.forEach((data) => {
+                    console.log('Documentos subidos: ', data.data.id);
+                    IdDocumentos.push(parseInt(data.data.id));
+                });
+                console.log('Documentos subidos: ', IdDocumentos);
+                console.log('Documentos subidos JSON: ', JSON.stringify(IdDocumentos));
+            });
+    
+            onSubmit(IdDocumentos);
+        } catch (error) {
+            console.error('Fallo al subir el archivo: ', error);
+        }
+    };
+    
+    const onSubmit = async (IdDocumentos) => {
+        const IdProfesores = [];
+        const IdEstudiantes = [];
+        IdProfesores.push(parseInt(body.profesores));
+        IdEstudiantes.push(parseInt(body.estudiantes));
         body.profesores = IdProfesores;
         body.estudiantes = IdEstudiantes;
         body.Documentos = IdDocumentos;
-        console.log('Datos del body: ',body);
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        setShowModal(false)
-        axios.post('http://127.0.0.1:8000/api/anteproyectos/', body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            setBody(initialState)
-            getAnteproyectos()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
-    }
+        console.log('Datos del body: ', body);
+        console.log('Documentos que no guarda: ', IdDocumentos);
+        console.log('Estudiantes que no guarda: ', IdEstudiantes);
+        console.log('Documentos que no guarda: ', JSON.stringify(IdDocumentos));
+        console.log('Datos del body JSON: ', JSON.stringify(body));
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        setShowModal(false);
+        axios
+            .post('http://127.0.0.1:8000/api/anteproyectos/', body, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then(() => {
+                setBody(initialState);
+                getAnteproyectos();
+            })
+            .catch(({ response }) => {
+                console.log(response);
+            });
+    };
+    
 
         
     const onEdit = async () => {
@@ -133,46 +183,7 @@ const Anteproyecto = () => {
         }
     }
 
-    function saveFiles(event) {
-        // Obtener la lista de archivos seleccionados desde el evento
-        const selectedFiles = event.target.files;
-        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
-        fileData = [];
-        // Recorrer la lista de archivos y agregar los datos al arreglo
-        for (let i = 0; i < selectedFiles.length; i++) {
-            const file = selectedFiles[i];
-            const fileName = file.name; // Nombre del archivo
-            const filePath = URL.createObjectURL(file); // Ruta del archivo
-            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
-            //console.log('File path:', file);
-        }
-        // Hacer algo con el arreglo de datos, como enviarlo al servidor o realizar otras acciones necesarias
-        //console.log(fileData);
-        //console.log('Tamanio: ',fileData.length);
-        // Aquí puedes agregar el código para enviar los archivos al servidor u otras operaciones necesarias
-    }
 
-    const uploadFiles = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        for (let i = 0; i < fileData.length; i++) {
-            axios.post('http://127.0.0.1:8000/api/documentos/', fileData[i], {
-            headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'multipart/form-data',
-                }
-            })
-            .then((data) => {
-                IdDocumentos.push(data.data.id);
-                //console.log('Documentos subidos: ', IdDocumentos);
-                setBody(initialState)
-                getAnteproyectos()
-            })
-            .catch(({response})=>{
-                console.log('Fallo al subir el archivo: ',response)
-            })
-        }
-        
-    }
 
     return (
         <div >
@@ -346,7 +357,8 @@ const Anteproyecto = () => {
                                     </div>
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => {
                                         uploadFiles()
-                                        onSubmit()
+                                        onSubmit();
+
                                     }
                                     }>{title}</button>
                                 </form>
