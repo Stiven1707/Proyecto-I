@@ -33,12 +33,12 @@ const Usuario = () => {
     const getUsuarios = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         console.log(token);
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get propuestas: ',data);
+        console.log('Get usuarios: ',data);
 		setUsuarioList(data)
 	}
 
@@ -69,14 +69,8 @@ const Usuario = () => {
 
     const onSubmit = async () => {
         body.rol = parseInt(body.rol)
-        console.log('Datos creacion de usuario: ',body);
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false)
-        axios.post('http://127.0.0.1:8000/api/register/', body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
+        axios.post('http://127.0.0.1:8000/api/user/', body)
         .then(() => {
             setBody(initialState)
             getUsuarios()
@@ -89,7 +83,7 @@ const Usuario = () => {
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+        axios.post('http://127.0.0.1:8000/api/user/', body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
