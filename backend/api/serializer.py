@@ -98,6 +98,11 @@ class SeguimientoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Seguimiento
         fields = '__all__'
+class SeguimientoCortoSerializer(serializers.ModelSerializer):
+    seg_fecha_recepcion = serializers.DateField(required=False)
+    class Meta:
+        model = Seguimiento
+        fields = ('id','seg_fecha_recepcion','seg_estado',)
 
 
 class DocumentoSerializer(serializers.ModelSerializer):
@@ -122,6 +127,10 @@ class AnteProyectoSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnteProyecto
         fields = '__all__'
+class AnteProyectoCortoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = AnteProyecto
+        fields = ('id',)  
 
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
@@ -138,6 +147,8 @@ class TrabajoDeGradoSerializer(serializers.ModelSerializer):
 
 
 class UserParticipaAntpSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+    antp = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = UserParticipaAntp
         fields = '__all__'
@@ -195,6 +206,34 @@ class AntpSeguidoSegSerializer(serializers.ModelSerializer):
     class Meta:
         model = AntpSeguidoSeg
         fields = '__all__'
+class AntpSeguidoSegCreateSerializer(serializers.ModelSerializer):
+    antp = AnteProyectoCortoSerializer(read_only=True)
+    seg = SeguimientoCortoSerializer()
+
+    class Meta:
+        model = AntpSeguidoSeg
+        fields = '__all__'
+
+    def create(self, validated_data):
+        antp_id = validated_data.get('antp')
+        seg_id = validated_data.get('seg')
+
+        # Verificar que los IDs existan y correspondan a objetos válidos
+        antp = AnteProyecto.objects.filter(id=antp_id).first()
+        seg = Seguimiento.objects.filter(id=seg_id).first()
+
+        if not seg:
+            raise serializers.ValidationError(f"(AntpSeguidoSegCreateSerializer)El seguimiento con id {seg_id} no existe")
+        if not antp:
+            raise serializers.ValidationError(f"(AntpSeguidoSegCreateSerializer)El anteproyecto con id {antp_id} no existe")
+
+
+        # Crear el objeto AntpSeguidoSeg con las relaciones
+        antp_seguido_seg = AntpSeguidoSeg.objects.create(antp=antp, seg=seg)
+
+        return antp_seguido_seg
+
+
 
 class UserSigueSegSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -223,3 +262,10 @@ class AnteproyectoUsuariosSeguimientos(serializers.ModelSerializer):
     class Meta:
         model = AnteProyecto
         fields = '__all__'
+
+class NewSeguimientoSerializer(serializers.Serializer):
+    #la fk de anteproyecto =
+    anteproyecto = serializers.PrimaryKeyRelatedField(read_only=True)
+    #fecha de recepcion
+    seg_fecha_recepcion = serializers.DateField(format="%Y-%m-%d")
+    

@@ -16,7 +16,7 @@ urlpatterns = [
 ]+[
     path('anteproyectos/', views.AnteProyectoListCreate.as_view(), name='anteproyecto-list'),
     path('anteproyectos/<int:pk>/', views.AnteProyectoDetail.as_view(), name='anteproyecto-detail'),
-    path('seguimientos/', views.SeguimientoList.as_view(), name='seguimiento-list'),
+    path('seguimientos/', views.SeguimientoListAPIView.as_view(), name='seguimiento-list'),
     path('seguimientos/<int:pk>/', views.SeguimientoDetail.as_view(), name='seguimiento-detail'),
     path('documentos/', views.DocumentoList.as_view(), name='documento-list'),
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
@@ -26,8 +26,9 @@ urlpatterns = [
     path('anteproyectos/user/', views.UserParticipaAntpInfoCompleta.as_view(), name='UserParticipaAntpInfoCompleta-list'),
     path('seguimientos/user/', views.UserSigueSegInfoCompleta.as_view(), name='UserSigueSeg-list'),
     path('seguimientos/anteproyecto/', views.AntpSeguidoSegInfoCompleta.as_view(), name='AntpSeguidoSeg-list'),
+    path('seguimientos/anteproyecto/<int:pk>/', views.SeguimientoCreateView.as_view(), name='Seguimiento-create'),
     path('anteproyectos/documentos/', views.AntpSoporteDocInfoCompleta.as_view(), name='AntpSoporteDoc-list'),
-    path('segimientos/user_antp', views.list_seguimientos_anteproyecto_usuarios, name='Seg_user_antp-list'),
+    path('seguimientos/user_antp', views.list_seguimientos_anteproyecto_usuarios, name='Seg_user_antp-list'),
 ]+[
-    path('anteproyectos/user_seg/,', views.list_anteproyecto_usuarios_anteproyecto, name='Antp-user_seg-list'),
+    path('anteproyectos/user_seg/', views.list_anteproyecto_usuarios_seguimientos, name='Antp-user_seg-list'),
 ]
