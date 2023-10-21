@@ -20,7 +20,7 @@ urlpatterns = [
     path('seguimientos/<int:pk>/', views.SeguimientoDetail.as_view(), name='seguimiento-detail'),
     path('documentos/', views.DocumentoList.as_view(), name='documento-list'),
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
-    path('trabajosdegrado/', views.TrabajoDeGradoList.as_view(), name='trabajodegrado-list'),
+    path('trabajosdegrado/', views.UserRealizaTragList.as_view(), name='trabajodegrado-list'),
     path('trabajosdegrado/<int:pk>/', views.TrabajoDeGradoDetail.as_view(), name='trabajodegrado-detail'),
 ]+[
     path('anteproyectos/user/', views.UserParticipaAntpInfoCompleta.as_view(), name='UserParticipaAntpInfoCompleta-list'),
@@ -31,4 +31,7 @@ urlpatterns = [
     path('seguimientos/user_antp', views.list_seguimientos_anteproyecto_usuarios, name='Seg_user_antp-list'),
 ]+[
     path('anteproyectos/user_seg/', views.list_anteproyecto_usuarios_seguimientos, name='Antp-user_seg-list'),
+    path('trabajosdegrado/users_doscs/',views.UserRealizaTragList.as_view(), name='UserRealizaTrag-list-create'), 
+    path('trabajosdegrado/docs/', views.TragSoporteDocListCreate.as_view(), name='TragSoporteDoc-list-create'),
+    path('trabajosdegrado/users/', views.UserCortoList.as_view(), name='UserCorto-list'),
 ]
