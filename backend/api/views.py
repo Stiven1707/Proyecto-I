@@ -192,17 +192,7 @@ class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = DocumentoSerializer
     permission_classes = ([IsAuthenticated])
 
-class TrabajoDeGradoList(generics.ListCreateAPIView):
-    queryset = TrabajoGrado.objects.all()
-    serializer_class = TrabajoDeGradoSerializer
-    permission_classes = ([IsAuthenticated])
 
-
-
-class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = TrabajoGrado.objects.all()
-    serializer_class = TrabajoDeGradoSerializer
-    permission_classes = ([IsAuthenticated])
 
 #Para tablas intermedias que regresan info de joins
 #convinanciones
@@ -392,8 +382,30 @@ class UserCortoList(generics.ListAPIView):
     permission_classes = ([IsAuthenticated])
 
 
-class UserRealizaTragListCreate(generics.ListCreateAPIView):
+class UserRealizaTragCreateList(generics.ListCreateAPIView):
     queryset = TrabajoGrado.objects.all()
     serializer_class = UserRealizaTragSerializer
     permission_classes = ([IsAuthenticated])
 
+    def perform_create(self, serializer):
+        #mostrar la data que se envia
+        print("data: ", self.request.data)
+        #crear
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+
+
+class TrabajoDeGradoCreate(generics.CreateAPIView):
+    queryset = TrabajoGrado.objects.all()
+    serializer_class = UserRealizaTragSerializer
+    permission_classes = ([IsAuthenticated])
+
+    
+
+
+
+class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = TrabajoGrado.objects.all()
+    serializer_class = TrabajoDeGradoSerializer
+    permission_classes = ([IsAuthenticated])

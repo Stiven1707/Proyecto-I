@@ -43,7 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('rol', 'username', 'email', 'password', 'password2')
+        fields = ('id','rol', 'username', 'email', 'password', 'password2')
 
     def validate(self, attrs):
         if attrs['password'] != attrs['password2']:
@@ -165,20 +165,38 @@ class TragSoporteDocSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRealizaTragSerializer(serializers.ModelSerializer):
-    user = serializers.SerializerMethodField()
+    users = serializers.SerializerMethodField()
     docs = serializers.SerializerMethodField()  # Campo personalizado
 
     class Meta:
         model = TrabajoGrado
         fields = '__all__'
-
+        
+    def create(self, validated_data):
+        print('validated_data: ',validated_data)
+        print('context: ',self.context)
+        # Crea el trabajo de grado
+        trag = TrabajoGrado.objects.create(**validated_data)
+        #crea los documentos
+        docs = self.context['request'].data.get('docs')
+        for doc in docs:
+            doc = Documento.objects.get_or_create(**doc)
+            TragSoporteDoc.objects.create(trag=trag, doc=doc)
+        #busco los usuarios a asociar
+        users = self.context['request'].data.get('users')
+        for user in users:
+            user = User.objects.filter(id=user).first()
+            UserRealizaTrag.objects.create(trag=trag, user=user)
+        return trag
+    
     def get_docs(self, obj):
         # Obtén los documentos relacionados para el objeto UserRealizaTrag
         documentos = TragSoporteDoc.objects.filter(trag=obj.id)
         serialized_docs = TragSoporteDocSerializer(documentos, many=True).data
         return serialized_docs
     
-    def get_user(self, obj):
+    
+    def get_users(self, obj):
         # agrupe los usuarios asociados a un trabajo de grado
         usuarios = UserRealizaTrag.objects.filter(trag=obj.id)
         serialized_users = UserRealizaTragGETSerializer(usuarios, many=True).data
