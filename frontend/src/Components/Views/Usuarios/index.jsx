@@ -1,17 +1,12 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
-import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
 const Usuario = () => {
 
-    const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
-    const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    console.log(datosUsuario);
- //const url = 'http://localhost/4000/api';
     const initialState = {
-        rol: null,
+        rol: 0,
         username: "",
         email: "",
         password: "",
@@ -28,29 +23,29 @@ const Usuario = () => {
 	const [propuestaDelete, setPropuestaDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
+    const [isValid, setIsValid] = useState(true);
+	const [showMensaje, setShowMensaje] = useState('');
+
+
 
 
     const getUsuarios = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get usuarios: ',data);
 		setUsuarioList(data)
 	}
 
     const getRoles = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/rol/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get propuestas: ',data);
 		setRolList(data)
 	}
 
@@ -69,14 +64,18 @@ const Usuario = () => {
 
     const onSubmit = async () => {
         body.rol = parseInt(body.rol)
-        setShowModal(false)
+        console.log(body);
         axios.post('http://127.0.0.1:8000/api/user/', body)
         .then(() => {
+            //window.location.href = '/app/usuarios';
+            setShowModal(false)
             setBody(initialState)
             getUsuarios()
         })
         .catch(({response})=>{
             console.log(response)
+            setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
+            setIsValid(false);
         })
     }
 
@@ -104,10 +103,47 @@ const Usuario = () => {
         }
     }
 
+    const checkPasswordsMatch = () => {
+        if (body.password !== body.password2) {
+            setShowMensaje("Las contraseñas no coinciden. Por favor, asegúrese de escribir la misma contraseña en ambos campos.");
+            setIsValid(false);
+            return false;
+        }
+    
+        // Validaciones de contraseña
+        const password = body.password;
+        const username = body.username;
+        const commonPasswords = ['password', '123456', 'qwerty']; // agregar más contraseñas comunes si es necesario
+    
+        // Expresiones regulares para verificar los requisitos
+        const hasUpperCase = /[A-Z]/.test(password);
+        const hasLowerCase = /[a-z]/.test(password);
+        const hasNumber = /\d/.test(password);
+        const hasSymbol = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(password);
+        const isNumeric = /^\d+$/.test(password);
+        const isCommonPassword = commonPasswords.includes(password.toLowerCase());
+        const containsUsername = password.toLowerCase().includes(username.toLowerCase());
+    
+        if (password.length < 10 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol || isNumeric || isCommonPassword || containsUsername) {
+            setShowMensaje("La contraseña no cumple con los requisitos de seguridad. Asegúrese de que tenga al menos 10 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos, no sea completamente numérica y no contenga su nombre de usuario.");
+            setIsValid(false);
+            return false;
+        }
+        if (body.rol === 0) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, seleccione un rol');
+            setIsValid(false);
+            return false;
+        }
+
+        setIsValid(true);
+        onSubmit();
+    };
+
     return (
-        <div >
+        <div>
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
-                <div className="py-4 bg-gray-700 dark:bg-gray-900 ">
+                <div className="sticky top-0 py-4 bg-gray-700 dark:bg-gray-900">
                     <label htmlFor="table-search" className="sr-only">Search</label>
                         <div className='flex justify-between pl-5 pr-10'>
                             <div className="relative mt-1">
@@ -117,7 +153,6 @@ const Usuario = () => {
                                 <div className='flex items-center'>
                                     <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
                                         setIsId(e.target.value)
-                                        console.log(e.target.value);
                                     }} placeholder="Search"/>
                                     <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
                                         body.per_id = 0
@@ -134,7 +169,7 @@ const Usuario = () => {
                             </button>
                         </div>
                 </div>
-                <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
+                <table className=" w-full text-sm text-left text-gray-500 dark:text-gray-400 overflow-y-scroll h-screen">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope='col' className='border px-6 py-3'>#</th>
@@ -152,8 +187,9 @@ const Usuario = () => {
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        console.log(usuarioList);
+
                                         setBody(usuario)
+                                        console.log(usuario)
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setShowModal(true);}}
@@ -196,8 +232,10 @@ const Usuario = () => {
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
+                                                required 
                                                 >
-                                                    <option value={0}>Seleccionar Rol</option>
+                                                    
+                                                    <option value={0} disabled selected>Seleccionar Rol</option>
                                                         {rolList.map(rol => (
                                                     <option key={rol.id} value={rol.id}>
                                                         {rol.rol_nombre}
@@ -242,11 +280,18 @@ const Usuario = () => {
                                         name='password2'
                                         required/>
                                     </div>
+                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
+
                                     </>)}
-                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => {
-                                        onSubmit()
-                                    }
-                                    }>{title}</button>
+                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
+                                        if (isEdit) {
+                                            onEdit();
+                                        } else {
+                                            checkPasswordsMatch();
+                                        }
+                                        e.preventDefault(); // Previene el comportamiento predeterminado de envío del formulario
+                                    }}
+                                    >{title}</button>
                                 </form>
                             </div>
                         </div>

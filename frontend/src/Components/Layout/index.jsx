@@ -20,7 +20,7 @@ import Usuarios from './../Views/Usuarios';
 
 const Layout = () => {
 	return (
-		<div className="flex h-100%">
+		<div className="flex h-screen">
 			<div className="sticky top-0">
 				<SideBar />
 			</div>
