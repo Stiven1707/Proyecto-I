@@ -165,23 +165,22 @@ class TragSoporteDocSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class UserRealizaTragSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(read_only=True)
     user = serializers.SerializerMethodField()
     docs = serializers.SerializerMethodField()  # Campo personalizado
 
     class Meta:
-        model = UserRealizaTrag
+        model = TrabajoGrado
         fields = '__all__'
 
     def get_docs(self, obj):
         # Obtén los documentos relacionados para el objeto UserRealizaTrag
-        documentos = TragSoporteDoc.objects.filter(trag=obj.trag)
+        documentos = TragSoporteDoc.objects.filter(trag=obj.id)
         serialized_docs = TragSoporteDocSerializer(documentos, many=True).data
         return serialized_docs
     
     def get_user(self, obj):
         # agrupe los usuarios asociados a un trabajo de grado
-        usuarios = UserRealizaTrag.objects.filter(trag=obj.trag)
+        usuarios = UserRealizaTrag.objects.filter(trag=obj.id)
         serialized_users = UserRealizaTragGETSerializer(usuarios, many=True).data
         return serialized_users
     

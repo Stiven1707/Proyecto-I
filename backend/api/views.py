@@ -392,8 +392,8 @@ class UserCortoList(generics.ListAPIView):
     permission_classes = ([IsAuthenticated])
 
 
-class UserRealizaTragList(generics.ListAPIView):
-    queryset = UserRealizaTrag.objects.all()
+class UserRealizaTragListCreate(generics.ListCreateAPIView):
+    queryset = TrabajoGrado.objects.all()
     serializer_class = UserRealizaTragSerializer
     permission_classes = ([IsAuthenticated])
 
