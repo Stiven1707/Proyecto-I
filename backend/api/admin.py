@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.models import Permission
-from api.models import User, Profile, Propuesta, Rol, AnteProyecto, Seguimiento, AntpSeguidoSeg, Documento, UserParticipaAntp, AntpSoporteDoc, UserSigueSeg
+from api.models import User, Profile, Propuesta, Rol, AnteProyecto, Seguimiento, AntpSeguidoSeg, Documento, UserParticipaAntp, AntpSoporteDoc, UserSigueSeg, TrabajoGrado, TragSoporteDoc, UserRealizaTrag
 
 # Register your models here.
 class UserAdmin(admin.ModelAdmin):
@@ -46,6 +46,16 @@ class AntpSoporteDocAdmin(admin.ModelAdmin):
 
 class UserSigueSegAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'seg')
+
+class TrabajoDeGradoAdmin(admin.ModelAdmin):
+    list_display = ('id', 'trag_titulo', 'trag_modalidad')
+
+class TragSoporteDocAdmin(admin.ModelAdmin):
+    list_display = ('id', 'trag', 'doc')
+
+class UserRealizaTragAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'trag')
+
     
 
 admin.site.register(Permission)
@@ -61,3 +71,7 @@ admin.site.register(Documento, DocumentoAdmin)
 admin.site.register(UserParticipaAntp, UserParticipaAntpAdmin)
 admin.site.register(AntpSoporteDoc, AntpSoporteDocAdmin)
 admin.site.register(UserSigueSeg, UserSigueSegAdmin)
+#add admin modelos new
+admin.site.register(TrabajoGrado, TrabajoDeGradoAdmin)
+admin.site.register(TragSoporteDoc, TragSoporteDocAdmin)
+admin.site.register(UserRealizaTrag, UserRealizaTragAdmin)
