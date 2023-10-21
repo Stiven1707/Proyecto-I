@@ -2,13 +2,18 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer
 from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
 from django.utils import timezone
+from datetime import date, datetime
+from rest_framework.exceptions import ValidationError
+from django.http import QueryDict
+
+
 
 # Create your views here.
 class MyTokenObtainPairView(TokenObtainPairView):
@@ -167,7 +172,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = AnteProyectoSerializer
     permission_classes = ([IsAuthenticated])
 
-class SeguimientoList(generics.ListCreateAPIView):
+class SeguimientoList(generics.ListAPIView):
     queryset = Seguimiento.objects.all()
     serializer_class = SeguimientoSerializer
     permission_classes = ([IsAuthenticated])
@@ -279,7 +284,7 @@ def list_seguimientos_anteproyecto_usuarios(request):
 #listar el anteproyecto con sus estudiantes y profesores, ademas de sus seguimientos
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
-def list_anteproyecto_usuarios_anteproyecto(request):
+def list_anteproyecto_usuarios_seguimientos(request):
     anteproyecto = AnteProyecto.objects.all()
     data = []
 
@@ -299,6 +304,79 @@ def list_anteproyecto_usuarios_anteproyecto(request):
     return Response(data)
         
 
-    
+class SeguimientoListAPIView(generics.ListAPIView):
+    queryset = Seguimiento.objects.all()
+    serializer_class = SeguimientoSerializer  # Reemplaza con tu serializador
+    permission_classes = [IsAuthenticated]
 
 
+class SeguimientoCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
+    serializer_class = AntpSeguidoSegCreateSerializer
+    permission_classes = [IsAuthenticated]
+    def get_serializer_class(self):
+        if self.request and self.request.method == 'POST':
+            return AntpSeguidoSegCreateSerializer
+        return AnteProyectoSerializer
+
+    def get_queryset(self):
+        if self.request and self.request.method == 'POST':
+            return AntpSeguidoSeg.objects.all()
+        return AnteProyecto.objects.all()
+
+    def get_object(self):
+        anteproyecto_id = self.kwargs.get('pk')
+        anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id).first()
+
+        if not anteproyecto:
+            raise ValidationError(f"El anteproyecto con ID {anteproyecto_id} no existe")
+
+        return anteproyecto
+
+    def create(self, request, *args, **kwargs):
+        anteproyecto_id = kwargs.get('pk')
+        anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id).first()
+
+        if not anteproyecto:
+            raise ValidationError(f"El anteproyecto con ID {anteproyecto_id} no existe")
+        print("request: ", request.data)
+        if isinstance(request.data, QueryDict):
+            # Si la solicitud es un formulario, convertir los datos a un diccionario
+            seguimiento_data = {
+                'seg': {
+                    'seg_fecha_recepcion': request.data.get('seg.seg_fecha_recepcion', None),
+                    'seg_estado': request.data.get('seg.seg_estado', 'PENDIENTE'),
+                }
+            }
+            nueva_fecha_recepcion = seguimiento_data['seg']['seg_fecha_recepcion']
+        else:
+            # Si la solicitud es en formato JSON, usar los datos directamente
+            seguimiento_data = request.data.get('seg')
+            nueva_fecha_recepcion = seguimiento_data.get('seg_fecha_recepcion')
+        print("seguimiento_data: ", seguimiento_data)
+        print("nueva_fecha_recepcion: ", nueva_fecha_recepcion)
+        if nueva_fecha_recepcion:
+            nueva_fecha_recepcion = datetime.strptime(nueva_fecha_recepcion, '%Y-%m-%d').date()
+        else:
+            nueva_fecha_recepcion = date.today()
+        estado = seguimiento_data.get('seg_estado', 'PENDIENTE')
+        if not estado:
+            estado = 'PENDIENTE'
+        ultimo_seguimiento = Seguimiento.objects.filter(antpseguidoseg__antp=anteproyecto).order_by('-seg_fecha_recepcion').first()
+        print("valores del if: ", ultimo_seguimiento, type(ultimo_seguimiento), nueva_fecha_recepcion, type(nueva_fecha_recepcion), nueva_fecha_recepcion <= ultimo_seguimiento.seg_fecha_recepcion)
+        if ultimo_seguimiento and nueva_fecha_recepcion and nueva_fecha_recepcion < ultimo_seguimiento.seg_fecha_recepcion:
+            raise ValidationError({"seg_fecha_recepcion": "La fecha de recepción debe ser mayor que la fecha del último seguimiento ({})".format(ultimo_seguimiento.seg_fecha_recepcion)})
+        fecha_actual = date.today()
+
+        nuevo_seguimiento = Seguimiento.objects.create(
+            seg_fecha_recepcion=nueva_fecha_recepcion if nueva_fecha_recepcion else fecha_actual,
+            seg_estado=estado,
+        )
+
+        AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=nuevo_seguimiento)
+
+        usuarios_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
+
+        for usuario_id in usuarios_anteproyecto:
+            UserSigueSeg.objects.create(user_id=usuario_id, seg=nuevo_seguimiento)
+
+        return Response(SeguimientoSerializer(nuevo_seguimiento).data, status=status.HTTP_201_CREATED)
