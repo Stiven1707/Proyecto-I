@@ -159,7 +159,7 @@ const Anteproyecto = () => {
 
     const onDelete = async () => {
         try {
-            const { data } = await axios.post('http://127.0.0.1:8000/api/eliminar', { id: idDelete })
+            const { data } = await axios.delete('http://127.0.0.1:8000/api/eliminar', { id: idDelete })
         } catch ({ response }) {
         }
     }

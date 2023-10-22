@@ -70,26 +70,34 @@ const Seguimiento = () => {
   };
 
   const onEdit = async () => {
-    const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    axios
-      .post('http://127.0.0.1:8000/api/seguimientos/', body, {
+    const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+    axios.put('http://127.0.0.1:8000/api/seguimientos/', body, {
+        headers: {
+            'Authorization': `Bearer ${token}`
+        }
+    })
+    .then(() => {
+        setBody(initialState)
+        getSeguimientos()
+    })
+    .catch(({response})=>{
+        console.log(response)
+    })
+}
+  
+  const onDelete = async () => {
+    try {
+      const token = JSON.parse(localStorage.getItem('authTokens')).access;
+      await axios.delete(`http://127.0.0.1:8000/api/seguimientos/${idDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
-      })
-      .then(() => {
-        setBody(initialState);
-        getSeguimientos();
-      })
-      .catch(({ response }) => {
-        console.log(response);
       });
-  };
-
-  const onDelete = async () => {
-    try {
-      const { data } = await axios.post('http://127.0.0.1:8000/api/eliminar', { id: idDelete });
-    } catch ({ response }) {}
+      getSeguimientos();
+      setShowModalDelete(false); 
+    } catch (error) {
+      console.error("Error al eliminar el seguimiento:", error);
+    }
   };
 
   return (
@@ -202,8 +210,8 @@ const Seguimiento = () => {
                     <button
                       className="bg-red-700 text-gray-300 p-2 px-3 rounded"
                       onClick={() => {
-                        setIdDelete(seguimiento.per_id);
-                        setSeguimientoDelete(seguimiento.pro_titulo);
+                        setIdDelete(seguimiento.id);
+                        setSeguimientoDelete(seguimiento.id);
                         setShowModalDelete(true);
                       }}
                     >
@@ -379,8 +387,8 @@ const Seguimiento = () => {
                       type="button"
                       className="ml-2 bg-blue-700 text-white hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                       onClick={() => {
-                        setShowModalDelete(false);
                         onDelete();
+                        setShowModalDelete(false);
                       }}
                     >
                       Eliminar
