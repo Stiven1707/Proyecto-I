@@ -142,6 +142,9 @@ class Seguimiento(models.Model):
 class TrabajoGrado(models.Model):
     trag_titulo = models.CharField(max_length=255)
     trag_modalidad = models.CharField(max_length=45)
+    trag_fecha_recepcion = models.DateField(blank=True, null=True)
+    trag_fecha_sustentacion = models.DateField(blank=True, null=True)
+    trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
     
 
     def __str__(self):
@@ -159,9 +162,7 @@ class TragSoporteDoc(models.Model):
 class UserRealizaTrag(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
-    trag_fecha_recepcion = models.DateField(blank=True, null=True)
-    trag_fecha_sustentacion = models.DateField(blank=True, null=True)
-    trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
+    
 
     def __str__(self):
         return self.user.username + " - " + self.trag.trag_titulo
