@@ -31,10 +31,13 @@ const Seguimiento = () => {
   const [profesores, setProfesores] = useState([]);
   const [estudiantes, setEstudiantes] = useState([]);
 
+
   let fileData = [];
   let IdProfesores = [];
   let IdEstudiantes = [];
   let IdDocumentos = [];
+
+  
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -314,23 +317,23 @@ const Seguimiento = () => {
                   </h3>
                   <form className="space-y-6" action="#">
                     <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Fecha Recepcion
+                      <label for="fecha_recepcion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Fecha Recepción
                       </label>
-                      <textarea
-                        name="seg_fecha_recepcion"
-                        id="seg_fecha_recepcion"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={body.seg_fecha_recepcion}
-                        onChange={onChange}
+                      <input
+                        type="date"
+                        id="fecha_recepcion"
+                        name="fecha_recepcion"
+                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:ring-blue-500"
                         required
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <label for="fecha_asignacion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Fecha Asignacion
                       </label>
-                      <textarea
+                      <input
+                        type='date'
                         name="seg_fecha_asignacion"
                         id="seg_fecha_asignacion"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
@@ -340,10 +343,11 @@ const Seguimiento = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <label  for="fecha_recepcion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Fecha Concepto
                       </label>
-                      <textarea
+                      <input
+                        type='date'
                         name="seg_fecha_recepcion"
                         id="seg_fecha_recepcion"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
