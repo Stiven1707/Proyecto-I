@@ -6,14 +6,17 @@ import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icon
 const TrabajoDeGrado = () => {
 
     const initialState = {
-        rol: 0,
-        username: "",
-        email: "",
-        password: "",
-        password2: "",
+        id: 0,
+        users: [],
+        docs: [],
+        trag_titulo: "",
+        trag_modalidad: "",
+        trag_fecha_recepcion: "",
+        trag_fecha_sustentacion: null,
+        trag_estado: "",
 	}
 
-    const [usuarioList, setUsuarioList] = useState([]);
+    const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
     const [rolList, setRolList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
@@ -29,14 +32,14 @@ const TrabajoDeGrado = () => {
 
 
 
-    const getUsuarios = async () => {
+    const getTrabajosDeGrado = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/trabajosdegrado/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-		setUsuarioList(data)
+		setTrabajoDeGradoList(data)
 	}
 
     const getRoles = async () => {
@@ -51,7 +54,7 @@ const TrabajoDeGrado = () => {
 
 
     useEffect(()=>{
-		getUsuarios()}, [])
+		getTrabajosDeGrado()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -70,7 +73,7 @@ const TrabajoDeGrado = () => {
             //window.location.href = '/app/usuarios';
             setShowModal(false)
             setBody(initialState)
-            getUsuarios()
+            getTrabajosDeGrado()
         })
         .catch(({response})=>{
             console.log(response)
@@ -91,7 +94,7 @@ const TrabajoDeGrado = () => {
         .then(() => {
             setShowModal(false)
             setBody(initialState)
-            getUsuarios()
+            getTrabajosDeGrado()
         })
         .catch(({response})=>{
             console.log(response)
@@ -175,23 +178,33 @@ const TrabajoDeGrado = () => {
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope='col' className='border px-6 py-3'>#</th>
-                            <th scope='col' className='border px-6 py-3'>Username</th>
-                            <th scope='col' className='border px-6 py-3'>Email</th>
+                            <th scope='col' className='border px-6 py-3'>Participantes</th>
+                            <th scope='col' className='border px-6 py-3'>Documentos</th>
+                            <th scope='col' className='border px-6 py-3'>Titulo</th>
+                            <th scope='col' className='border px-6 py-3'>Modalidad</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha de recepcion</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha de sustentacion</th>
+                            <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
-                    {usuarioList.map((usuario)=>(
-                        <tr key={usuario.id}>
-                            <td className='border px-6 py-4'>{usuario.id}</td>
-                            <td className='border px-6 py-4'>{usuario.username}</td>
-                            <td className='border px-6 py-4'>{usuario.email}</td>
+                    {trabajoDeGradoList.map((trabajodegrado)=>(
+                        <tr key={trabajodegrado.id}>
+                            <td className='border px-6 py-4'>{trabajodegrado.id}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.users}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.docs}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.trag_titulo}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.trag_modalidad}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.trag_fecha_recepcion}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.trag_fecha_sustentacion}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.trag_estado}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
 
-                                        setBody(usuario)
-                                        console.log(usuario)
+                                        setBody(trabajodegrado)
+                                        console.log(trabajodegrado)
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setShowModal(true);}}
@@ -200,8 +213,8 @@ const TrabajoDeGrado = () => {
                                     </button>    
                                     &nbsp;
                                     <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(usuario.id)
-                                        setPropuestaDelete(usuario.username)
+                                        setIdDelete(trabajodegrado.id)
+                                        setPropuestaDelete(trabajodegrado.username)
                                         setShowModalDelete(true)
                                     }}>
                                         <FontAwesomeIcon icon={faTrash} />
@@ -223,7 +236,7 @@ const TrabajoDeGrado = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} usuario</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                 <div>
                                         <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>

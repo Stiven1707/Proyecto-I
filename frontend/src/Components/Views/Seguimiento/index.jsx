@@ -70,34 +70,37 @@ const Seguimiento = () => {
   };
 
   const onEdit = async () => {
-    const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-    axios.put('http://127.0.0.1:8000/api/seguimientos/', body, {
+    const token = JSON.parse(localStorage.getItem('authTokens')).access;
+    console.log(body);
+    axios
+      .put(`http://127.0.0.1:8000/api/seguimientos/${body.id}/`, body, {
         headers: {
-            'Authorization': `Bearer ${token}`
-        }
-    })
-    .then(() => {
-        setBody(initialState)
-        getSeguimientos()
-    })
-    .catch(({response})=>{
-        console.log(response)
-    })
-}
-  
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        setShowModal(false)
+        setBody(initialState);
+        getSeguimientos();
+      })
+      .catch(({ response }) => {
+        console.log(response);
+      });
+  };
+
   const onDelete = async () => {
-    try {
-      const token = JSON.parse(localStorage.getItem('authTokens')).access;
+    const token = JSON.parse(localStorage.getItem('authTokens')).access;
       await axios.delete(`http://127.0.0.1:8000/api/seguimientos/${idDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
+      })
+      .then(() => {
+        getSeguimientos();
+      })
+      .catch(({ response }) => {
+        console.log(response);
       });
-      getSeguimientos();
-      setShowModalDelete(false); 
-    } catch (error) {
-      console.error("Error al eliminar el seguimiento:", error);
-    }
   };
 
   return (
@@ -211,7 +214,7 @@ const Seguimiento = () => {
                       className="bg-red-700 text-gray-300 p-2 px-3 rounded"
                       onClick={() => {
                         setIdDelete(seguimiento.id);
-                        setSeguimientoDelete(seguimiento.id);
+                        setSeguimientoDelete(seguimiento.pro_titulo);
                         setShowModalDelete(true);
                       }}
                     >
@@ -255,19 +258,21 @@ const Seguimiento = () => {
                   </h3>
                   <form className="space-y-6" action="#">
                     <div>
-                      <label for="fecha_recepcion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="seg_fecha_recepcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Fecha Recepción
                       </label>
                       <input
                         type="date"
-                        id="fecha_recepcion"
-                        name="fecha_recepcion"
-                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:ring-blue-500"
+                        id="seg_fecha_recepcion"
+                        name="seg_fecha_recepcion"
+                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:ring-blue-500"
+                        value={body.seg_fecha_recepcion}
+                        onChange={onChange}
                         required
                       />
                     </div>
                     <div>
-                      <label for="fecha_asignacion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <label htmlFor="fecha_asignacion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Fecha Asignacion
                       </label>
                       <input
@@ -281,13 +286,13 @@ const Seguimiento = () => {
                       />
                     </div>
                     <div>
-                      <label  for="fecha_recepcion" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                      <label  htmlFor="fecha_recepcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                         Fecha Concepto
                       </label>
                       <input
                         type='date'
-                        name="seg_fecha_recepcion"
-                        id="seg_fecha_recepcion"
+                        name="seg_fecha_concepto"
+                        id="seg_fecha_concepto"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                         value={body.seg_fecha_concepto}
                         onChange={onChange}
@@ -309,15 +314,15 @@ const Seguimiento = () => {
                     </div>
                     <div>
                       <label
-                        htmlFor="lab_modalidad"
+                        htmlFor="seg_estado"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
                         Estado
                       </label>
                       <select
-                        name="lab_modalidad"
+                        name="seg_estado"
                         className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                        value={body.seg_fecha_concepto}
+                        value={body.seg_estado}
                         onChange={(e) => {
                           onChange(e);
                         }}
@@ -387,8 +392,8 @@ const Seguimiento = () => {
                       type="button"
                       className="ml-2 bg-blue-700 text-white hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                       onClick={() => {
-                        onDelete();
                         setShowModalDelete(false);
+                        onDelete();
                       }}
                     >
                       Eliminar
