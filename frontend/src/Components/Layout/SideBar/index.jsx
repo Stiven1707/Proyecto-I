@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Routes, Route, useNavigate, Navigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import Control from '../../../Assets/img/Control.png';
 import Logo from '../../../Assets/img/Logo.png';
 import Chart_fill from '../../../Assets/img/Chart_fill.png';
@@ -28,6 +28,7 @@ const Layout = () => {
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: 1, state: false },
 		{ title: 'Anteproyecto', src: `${Folder}`, path: '/app/anteproyectos', token: 1, state: false },
 		{ title: 'Seguimiento', src: `${Folder}`, path: '/app/seguimiento', token: 1, state: false },
+		{ title: 'Trabajo de Grado', src: `${Folder}`, path: '/app/trabajodegrado', token: 1, state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },
 	];
 

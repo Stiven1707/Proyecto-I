@@ -3,7 +3,7 @@ import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const Usuario = () => {
+const TrabajoDeGrado = () => {
 
     const initialState = {
         rol: 0,
@@ -339,4 +339,4 @@ const Usuario = () => {
 	)
 }
 
-export default Usuario
+export default TrabajoDeGrado

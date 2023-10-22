@@ -18,7 +18,6 @@ const Seguimiento = () => {
   };
 
   const [seguimientoList, setSeguimientoList] = useState([]);
-  const [profesorList, setProfesorList] = useState([]);
   const [body, setBody] = useState(initialState);
   const [title, setTitle] = useState('');
   const [showModal, setShowModal] = useState(false);
@@ -27,53 +26,19 @@ const Seguimiento = () => {
   const [seguimientoDelete, setSeguimientoDelete] = useState('');
   const [isId, setIsId] = useState('');
   const [isEdit, setIsEdit] = useState(false);
-  const [isFound, setIsFound] = useState(false);
-  const [profesores, setProfesores] = useState([]);
-  const [estudiantes, setEstudiantes] = useState([]);
 
-
-  let fileData = [];
-  let IdProfesores = [];
-  let IdEstudiantes = [];
-  let IdDocumentos = [];
-
-  
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    console.log(token);
     const { data } = await axios.get('http://127.0.0.1:8000/api/seguimientos/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
     });
-    console.log('Get seguimientos: ', data);
     setSeguimientoList(data);
   };
 
-  const getProfesores = async () => {
-    const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    console.log(token);
-    const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor/', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log('Get profesores: ', data);
-    setProfesorList(data);
-  };
 
-  const getEstudiantes = async () => {
-    const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    console.log(token);
-    const { data } = await axios.get('http://127.0.0.1:8000/api/user/estudiante/', {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    });
-    console.log('Get Estudiantes: ', data);
-    setEstudiantes(data);
-  };
   useEffect(() => {
     getSeguimientos();
   }, []);
@@ -127,41 +92,6 @@ const Seguimiento = () => {
     } catch ({ response }) {}
   };
 
-  function saveFiles(event) {
-    const selectedFiles = event.target.files;
-    fileData = [];
-    for (let i = 0; i < selectedFiles.length; i++) {
-      const file = selectedFiles[i];
-      const fileName = file.name;
-      const filePath = URL.createObjectURL(file);
-      fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
-    }
-    console.log(fileData);
-    console.log('Tamaño: ', fileData.length);
-  }
-
-  const uploadFiles = async () => {
-    const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    for (let i = 0; i < fileData.length; i++) {
-      axios
-        .post('http://127.0.0.1:8000/api/documentos/', fileData[i], {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            'Content-Type': 'multipart/form-data',
-          },
-        })
-        .then((data) => {
-          IdDocumentos.push(data.data.id);
-          console.log('Documentos subidos: ', IdDocumentos);
-          setBody(initialState);
-          getSeguimientos();
-        })
-        .catch(({ response }) => {
-          console.log('Fallo al subir el archivo: ', response);
-        });
-    }
-  };
-
   return (
     <div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -194,7 +124,6 @@ const Seguimiento = () => {
                   value={isId}
                   onChange={(e) => {
                     setIsId(e.target.value);
-                    console.log(e.target.value);
                   }}
                   placeholder="Search"
                 />
@@ -213,8 +142,6 @@ const Seguimiento = () => {
               onClick={() => {
                 setTitle('Crear');
                 setBody(initialState);
-                getProfesores();
-                getEstudiantes();
                 setIsEdit(false);
                 setShowModal(true);
               }}
@@ -243,6 +170,9 @@ const Seguimiento = () => {
               </th>
               <th scope="col" className="border px-6 py-3">
                 Estado
+              </th>
+              <th scope="col" className="border px-6 py-3">
+                Acciones
               </th>
             </tr>
           </thead>

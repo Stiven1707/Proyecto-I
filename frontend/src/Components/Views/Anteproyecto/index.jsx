@@ -8,8 +8,6 @@ const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    //console.log(datosUsuario);
- //const url = 'http://localhost/4000/api';
     const initialState = {
         user: datosUsuario.user_id,
         estudiantes: [],
@@ -19,14 +17,14 @@ const Anteproyecto = () => {
         Documentos: [],
 	}
 
-    const [propuestaList, setPropuestaList] = useState([]);
+    const [anteproyectoList, setAnteproyectoList] = useState([]);
     //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [idDelete, setIdDelete] = useState('');
-	const [propuestaDelete, setPropuestaDelete] = useState('');
+	const [anteproyectoDelete, setAnteproyectoDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
     //const [isFound, setIsFound] = useState(false);
@@ -35,43 +33,34 @@ const Anteproyecto = () => {
 
 
     let fileData = [];
-    let IdProfesores = [];
-    let IdEstudiantes = [];
-    let IdDocumentos = [];
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        //console.log('Get propuestas: ',data);
-		setPropuestaList(data)
+		setAnteproyectoList(data)
 	}
 
     const getProfesores = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        //console.log('Get profesores: ',data);
 		setProfesores(data)
 	}
 
     const getEstudiantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        //console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/user/estudiante/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        //console.log('Get Estudiantes: ',data);
 		setEstudiantes(data)
 	}
     useEffect(()=>{
@@ -115,11 +104,8 @@ const Anteproyecto = () => {
     
             await Promise.all(promises).then((results) => {
                 results.forEach((data) => {
-                    console.log('Documentos subidos: ', data.data.id);
                     IdDocumentos.push(parseInt(data.data.id));
                 });
-                console.log('Documentos subidos: ', IdDocumentos);
-                console.log('Documentos subidos JSON: ', JSON.stringify(IdDocumentos));
             });
     
             onSubmit(IdDocumentos);
@@ -136,11 +122,6 @@ const Anteproyecto = () => {
         body.profesores = IdProfesores;
         body.estudiantes = IdEstudiantes;
         body.Documentos = IdDocumentos;
-        console.log('Datos del body: ', body);
-        console.log('Documentos que no guarda: ', IdDocumentos);
-        console.log('Estudiantes que no guarda: ', IdEstudiantes);
-        console.log('Documentos que no guarda: ', JSON.stringify(IdDocumentos));
-        console.log('Datos del body JSON: ', JSON.stringify(body));
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         setShowModal(false);
         axios
@@ -162,7 +143,7 @@ const Anteproyecto = () => {
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+        axios.put('http://127.0.0.1:8000/api/anteproyectos/', body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -198,7 +179,6 @@ const Anteproyecto = () => {
                                 <div className='flex items-center'>
                                     <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
                                         setIsId(e.target.value)
-                                        //console.log(e.target.value);
                                     }} laceholder="Search"/>
                                     <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
                                         body.per_id = 0
@@ -230,19 +210,18 @@ const Anteproyecto = () => {
                         </tr>
                     </thead>
                     <tbody>
-                    {propuestaList.map((propuesta)=>(
-                        <tr key={propuesta.per_id}>
-                            <td className='border px-6 py-4'>{propuesta.id}</td>
-                            <td className='border px-6 py-4'>{propuesta.antp_titulo}</td>
-                            <td className='border px-6 py-4'>{propuesta.antp_descripcion}</td>
-                            <td className='border px-6 py-4'>{propuesta.profesores}</td>
-                            <td className='border px-6 py-4'>{propuesta.estudiantes}</td>
-                            <td className='border px-6 py-4'>{propuesta.Documentos}</td>
+                    {anteproyectoList.map((anteproyecto)=>(
+                        <tr key={anteproyecto.id}>
+                            <td className='border px-6 py-4'>{anteproyecto.id}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.antp_titulo}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.antp_descripcion}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.profesores}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.estudiantes}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.Documentos}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        //console.log(propuestaList);
-                                        setBody(propuesta)
+                                        setBody(anteproyecto)
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setShowModal(true);}}
@@ -251,8 +230,8 @@ const Anteproyecto = () => {
                                     </button>    
                                     &nbsp;
                                     <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(propuesta.antp_id)
-                                        setPropuestaDelete(propuesta.antp_titulo)
+                                        setIdDelete(anteproyecto.antp_id)
+                                        setAnteproyectoDelete(anteproyecto.antp_titulo)
                                         setShowModalDelete(true)
                                     }}>
                                         <FontAwesomeIcon icon={faTrash} />
@@ -379,7 +358,7 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el periodo {propuestaDelete}</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el periodo {anteproyectoDelete}</h3>
                                 <div className='border px-6 py-6 pl-10 flex justify-evenly'>
                                     <button className='bg-green-600 text-gray-300 p-2 px-10 rounded' onClick={() => {
                                         onDelete();
@@ -390,7 +369,7 @@ const Anteproyecto = () => {
                                     &nbsp;
                                     <button className='bg-red-700 text-gray-300 p-2 px-10 rounded'  onClick={() => {
                                         setIdDelete('')
-                                        setPropuestaDelete('')
+                                        setAnteproyectoDelete('')
                                         setShowModalDelete(false)
                                     }}>
                                         Cancelar
