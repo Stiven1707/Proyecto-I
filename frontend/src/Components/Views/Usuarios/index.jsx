@@ -81,13 +81,15 @@ const Usuario = () => {
 
         
     const onEdit = async () => {
+        console.log(body);
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.post('http://127.0.0.1:8000/api/user/', body, {
+        axios.put(`http://127.0.0.1:8000/api/user/${body.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(() => {
+            setShowModal(false)
             setBody(initialState)
             getUsuarios()
         })
