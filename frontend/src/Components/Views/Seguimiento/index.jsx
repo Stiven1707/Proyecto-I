@@ -251,11 +251,7 @@ const Seguimiento = () => {
                 <td className="border px-6 py-4">{seguimiento.seg_fecha_asignacion}</td>
                 <td className="border px-6 py-4">{seguimiento.seg_fecha_concepto}</td>
                 <td className="border px-6 py-4">{seguimiento.seg_observaciones}</td>
-                <td className="border px-6 py-4"></td>
-                <td className="border px-6 py-4">{seguimiento.seg_fecha_recepcion}</td>
-                <td className="border px-6 py-4">{seguimiento.pro_descripcion}</td>
-                <td className="border px-6 py-4">{seguimiento.pro_objetivos}</td>
-                <td className="border px-6 py-4">{seguimiento.pro_objetivos}</td>
+                <td className="border px-6 py-4">{seguimiento.seg_estado}</td>
                 <td className="border px-6 py-4">
                   <div className="flex">
                     <button
@@ -332,13 +328,39 @@ const Seguimiento = () => {
                     </div>
                     <div>
                       <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Titulo
+                        Fecha Asignacion
                       </label>
                       <textarea
-                        name="seg_titulo"
-                        id="seg_titulo"
+                        name="seg_fecha_asignacion"
+                        id="seg_fecha_asignacion"
                         className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={body.seg_titulo}
+                        value={body.seg_fecha_asignacion}
+                        onChange={onChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Fecha Concepto
+                      </label>
+                      <textarea
+                        name="seg_fecha_recepcion"
+                        id="seg_fecha_recepcion"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        value={body.seg_fecha_concepto}
+                        onChange={onChange}
+                        required
+                      />
+                    </div>
+                    <div>
+                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                        Observaciones
+                      </label>
+                      <textarea
+                        name="seg_observaciones"
+                        id="seg_observaciones"
+                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                        value={body.seg_observaciones}
                         onChange={onChange}
                         required
                       />
@@ -348,7 +370,7 @@ const Seguimiento = () => {
                         htmlFor="lab_modalidad"
                         className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
                       >
-                        Modalidad
+                        Estado
                       </label>
                       <select
                         name="lab_modalidad"
@@ -360,13 +382,14 @@ const Seguimiento = () => {
                           color: 'lighgray',
                           fontSize: '14px',
                         }}
-                        value={body.seg_modalidad}
+                        value={body.seg_fecha_concepto}
                         onChange={(e) => {
                           onChange(e);
                         }}
                       >
-                        <option value="Trabajo De Grado">trabajos de grado</option>
-                        <option value="Practica Laboral">Practica Laboral</option>
+                        <option value="En espera">En espera</option>
+                        <option value="Activo">Activo</option>
+                        <option value="Terminado">Terminado</option>
                       </select>
                     </div>
                     <button
