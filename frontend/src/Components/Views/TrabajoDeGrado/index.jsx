@@ -192,8 +192,14 @@ const TrabajoDeGrado = () => {
                     {trabajoDeGradoList.map((trabajodegrado)=>(
                         <tr key={trabajodegrado.id}>
                             <td className='border px-6 py-4'>{trabajodegrado.id}</td>
-                            <td className='border px-6 py-4'>{trabajodegrado.users}</td>
-                            <td className='border px-6 py-4'>{trabajodegrado.docs}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.users.map((user)=>{
+                                return <p key={user.id}>{user.user.email}</p>
+                                
+                            })}</td>
+                            <td className='border px-6 py-4'>{trabajodegrado.docs.map((doc)=>{
+                                return <p key={doc.id}>{doc.doc.doc_nombre}</p>
+                                
+                            })}</td>
                             <td className='border px-6 py-4'>{trabajodegrado.trag_titulo}</td>
                             <td className='border px-6 py-4'>{trabajodegrado.trag_modalidad}</td>
                             <td className='border px-6 py-4'>{trabajodegrado.trag_fecha_recepcion}</td>
