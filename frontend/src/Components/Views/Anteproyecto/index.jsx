@@ -211,13 +211,13 @@ const Anteproyecto = () => {
                     </thead>
                     <tbody>
                     {anteproyectoList.map((anteproyecto)=>(
-                        <tr key={anteproyecto.id}>
-                            <td className='border px-6 py-4'>{anteproyecto.id}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.antp_titulo}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.antp_descripcion}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.profesores}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.estudiantes}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.Documentos}</td>
+                        <tr key={anteproyecto.anteproyecto.id}>
+                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.id}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_titulo}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_descripcion}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.usuarios.email}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.usuarios.email}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.documentos.doc_nombre}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {

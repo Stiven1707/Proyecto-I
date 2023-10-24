@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg, UserRealizaTrag, TragSoporteDoc
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer, UserRealizaTragGETSerializer, UserRealizaTragPOSTSerializer
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer, UserRealizaTragGETSerializer, AntpUserDocsSerializer,UserRealizaTragPOSTSerializer
 from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -88,11 +88,30 @@ class PropuestaList(generics.ListCreateAPIView):
 
 class AnteProyectoListCreate(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
-    serializer_class = AnteProyectoSerializer
+    #serializer_class = AnteProyectoSerializer
     permission_classes = [IsAuthenticated]
 
     #para listar mediante una pk de ante proyecto quiero que muestre el ante proyecto, los estudiantes, los profesores y los 
-
+    def get_serializer_class(self):
+        if self.request and self.request.method == 'POST':
+            return AnteProyectoSerializer
+        return AntpUserDocsSerializer
+    #redefinir el getde list
+    def get(self, request, *args, **kwargs):
+        anteproyectos = AnteProyecto.objects.all()
+        data = []
+        for anteproyecto in anteproyectos:
+            usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).select_related('user')
+            documentos = AntpSoporteDoc.objects.filter(antp=anteproyecto).select_related('doc')
+            serialized_usuarios = UserParticipaAntpSerializer(usuarios, many=True).data
+            serialized_documentos = AntpSoporteDocSerializer(documentos, many=True).data
+            data.append({
+                'anteproyecto': AnteProyectoSerializer(anteproyecto).data,
+                'usuarios': serialized_usuarios,
+                'documentos': serialized_documentos,
+            })
+        return Response(data)
+        
     def perform_create(self, serializer):
         estudiantes_ids = self.request.data.get('estudiantes')
         profesores_ids = self.request.data.get('profesores')

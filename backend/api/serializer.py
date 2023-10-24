@@ -139,6 +139,7 @@ class DocumentoSerializer(serializers.ModelSerializer):
 
 
 class AntpSoporteDocSerializer(serializers.ModelSerializer):
+    doc = DocumentoSerializer()
     class Meta:
         model = AntpSoporteDoc
         fields = '__all__'
@@ -366,4 +367,11 @@ class NewSeguimientoSerializer(serializers.Serializer):
     anteproyecto = serializers.PrimaryKeyRelatedField(read_only=True)
     #fecha de recepcion
     seg_fecha_recepcion = serializers.DateField(format="%Y-%m-%d")
+
+class AntpUserDocsSerializer(serializers.Serializer):
+    anteproyecto = AnteProyectoSerializer()
+    usuarios = UserSerializer(many=True)
+    documentos = DocumentoSerializer(many=True)
+
+
     
