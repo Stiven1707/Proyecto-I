@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import axios from 'axios'
+import axios, { formToJSON } from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
@@ -7,17 +7,30 @@ const TrabajoDeGrado = () => {
 
     const initialState = {
         id: 0,
-        users: [],
+        users: [{
+            user: {
+                email: ""
+            }
+        },
+        {
+            user: {
+                email: "shigidio@gmail.com"
+            }
+        },
+        {
+            user: {
+                email: ""
+            }
+        }],
         docs: [],
         trag_titulo: "",
         trag_modalidad: "",
-        trag_fecha_recepcion: "",
+        trag_fecha_recepcion: new Date().toISOString().slice(0, 10),
         trag_fecha_sustentacion: null,
-        trag_estado: "",
+        trag_estado: "ACTIVO",
 	}
 
     const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
-    const [rolList, setRolList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -42,16 +55,6 @@ const TrabajoDeGrado = () => {
 		setTrabajoDeGradoList(data)
 	}
 
-    const getRoles = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/rol/',{
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-		setRolList(data)
-	}
-
 
     useEffect(()=>{
 		getTrabajosDeGrado()}, [])
@@ -66,9 +69,15 @@ const TrabajoDeGrado = () => {
     };
 
     const onSubmit = async () => {
-        body.rol = parseInt(body.rol)
-        console.log(body);
-        axios.post('http://127.0.0.1:8000/api/user/', body)
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        console.log('Datos body JSON: ',JSON.stringify(body));
+        console.log('Datos body: ',body);
+        axios.post('http://127.0.0.1:8000/api/trabajosdegrado/', body, {
+            headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
+            },
+        })
         .then(() => {
             //window.location.href = '/app/usuarios';
             setShowModal(false)
@@ -77,7 +86,7 @@ const TrabajoDeGrado = () => {
         })
         .catch(({response})=>{
             console.log(response)
-            setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
+            //setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
             setIsValid(false);
         })
     }
@@ -108,42 +117,24 @@ const TrabajoDeGrado = () => {
         }
     }
 
-    const checkPasswordsMatch = () => {
-        if (body.password !== body.password2) {
-            setShowMensaje("Las contraseñas no coinciden. Por favor, asegúrese de escribir la misma contraseña en ambos campos.");
-            setIsValid(false);
-            return false;
+    function saveFiles(event) {
+        // Obtener la lista de archivos seleccionados desde el evento
+        const selectedFiles = event.target.files;
+        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
+        body.docs = [];
+        // Recorrer la lista de archivos y agregar los datos al arreglo
+        for (let i = 0; i < selectedFiles.length; i++) {
+            const file = selectedFiles[i];
+            const fileName = file.name; // Nombre del archivo
+            body.docs.push(
+                { 
+                doc:{
+                        doc_nombre: fileName, doc_ruta: file 
+                    }
+                }
+            );
         }
-    
-        // Validaciones de contraseña
-        const password = body.password;
-        const username = body.username;
-        const commonPasswords = ['password', '123456', 'qwerty']; // agregar más contraseñas comunes si es necesario
-    
-        // Expresiones regulares para verificar los requisitos
-        const hasUpperCase = /[A-Z]/.test(password);
-        const hasLowerCase = /[a-z]/.test(password);
-        const hasNumber = /\d/.test(password);
-        const hasSymbol = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(password);
-        const isNumeric = /^\d+$/.test(password);
-        const isCommonPassword = commonPasswords.includes(password.toLowerCase());
-        const containsUsername = password.toLowerCase().includes(username.toLowerCase());
-    
-        if (password.length < 10 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol || isNumeric || isCommonPassword || containsUsername) {
-            setShowMensaje("La contraseña no cumple con los requisitos de seguridad. Asegúrese de que tenga al menos 10 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos, no sea completamente numérica y no contenga su nombre de usuario.");
-            setIsValid(false);
-            return false;
-        }
-        if (body.rol === 0) {
-            // Verifica si no se ha seleccionado ningún rol
-            setShowMensaje('Por favor, seleccione un rol');
-            setIsValid(false);
-            return false;
-        }
-
-        setIsValid(true);
-        onSubmit();
-    };
+    }
 
     return (
         <div>
@@ -167,7 +158,8 @@ const TrabajoDeGrado = () => {
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
                                     setTitle('Crear')
                                     setBody(initialState)
-                                    getRoles()
+                                    console.log('Datos body: ',body.users[1]);
+                                    console.log('Datos initial state: ',initialState);
                                     setIsEdit(false)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
@@ -245,70 +237,84 @@ const TrabajoDeGrado = () => {
                                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                 <div>
-                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Rol</label>
+                                    <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
+                                    <input type="text" placeholder="Digite nombre de titulo" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                    label='trag_titulo'
+                                    value={body.trag_titulo}
+                                    onChange={onChange}
+                                    name='trag_titulo'
+                                    required/>
+                                </div>
+                                
+                                <div>
+                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalidad</label>
                                         <select
-                                                name="rol"
+                                                name="trag_modalidad"
                                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.rol}
+                                                value={body.trag_modalidad}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 required 
                                                 >
                                                     
-                                                    <option value={0} disabled selected>Seleccionar Rol</option>
-                                                        {rolList.map(rol => (
-                                                    <option key={rol.id} value={rol.id}>
-                                                        {rol.rol_nombre}
-                                                    </option>
-                                            ))} 
+                                                <option value='' disabled selected>Seleccionar Modalidad</option>
+                                                <option value='tesis'>Tesis</option>
+                                                <option value='practicaLaboral'>Practica laboral</option>
                                             </select>
                                     </div>
+{/*                                     <div>
+                                        <label  htmlFor="trag_fecha_recepcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                            Fecha Recepcion
+                                        </label>
+                                        <input
+                                            type='date'
+                                            name="trag_fecha_recepcion"
+                                            id="trag_fecha_recepcion"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.trag_fecha_recepcion}
+                                            onChange={onChange}
+                                            required
+                                        />
+                                    </div> */}
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Username</label>
-                                        <input type="text" placeholder="Digite nombre de usuario" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        label='username'
-                                        value={body.username}
-                                        onChange={onChange}
-                                        name='username'
-                                        required/>
-                                    </div>
-                                    <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email</label>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email estudiante {body.trag_modalidad === 'tesis'? 1: ''}</label>
                                         <input type="email" placeholder="Digite su correo" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        label='email'
-                                        value={body.email}
+                                        label='email1'
+                                        value={body.users[1].user.email}
                                         onChange={onChange}
-                                        name='email'
+                                        name='email1'
                                         required/>
                                     </div>
-                                    {isEdit? null :
-                                    (<><div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
-                                        <input type="password" placeholder="Digite contraseña" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        label='password'
-                                        value={body.password}
-                                        onChange={onChange}
-                                        name='password'
-                                        required/>
-                                    </div>
+                                    {body.trag_modalidad === 'tesis'? 
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email estudiante 2</label>
+                                            <input type="email" placeholder="Digite su correo" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                                            label='email2'
+                                            value={body.users[2].user.email}
+                                            onChange={onChange}
+                                            name='email2'
+                                            required/>
+                                        </div>
+                                    : null}
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Confirmar Contraseña</label>
-                                        <input type="password" placeholder="Digite contraseña" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                                        label='password2'
-                                        value={body.password2}
-                                        onChange={onChange}
-                                        name='password2'
-                                        required/>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documento</label>
+                                        <input
+                                            type="file"
+                                            name="eva_evidencia"
+                                            id="eva_evidencia"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder={body.eva_evidencia}
+                                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                                            required
+                                            multiple
+                                        />
                                     </div>
-                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
-
-                                    </>)}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
                                         if (isEdit) {
                                             onEdit();
                                         } else {
-                                            checkPasswordsMatch();
+                                            onSubmit();
                                         }
                                         e.preventDefault(); // Previene el comportamiento predeterminado de envío del formulario
                                     }}
