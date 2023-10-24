@@ -14,7 +14,7 @@ const TrabajoDeGrado = () => {
         },
         {
             user: {
-                email: "shigidio@gmail.com"
+                email: ""
             }
         },
         {
