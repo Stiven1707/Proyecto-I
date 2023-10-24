@@ -2,6 +2,8 @@ import React, {useEffect, useState} from 'react'
 import axios, { formToJSON } from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import jwt_decode from "jwt-decode";
+
 
 const TrabajoDeGrado = () => {
 
@@ -14,7 +16,7 @@ const TrabajoDeGrado = () => {
         },
         {
             user: {
-                email: ""
+                email: "shigidio@gmail.com"
             }
         },
         {
@@ -25,6 +27,8 @@ const TrabajoDeGrado = () => {
         docs: [],
         trag_titulo: "",
         trag_modalidad: "",
+        email1: "",
+        email2: "",
         trag_fecha_recepcion: new Date().toISOString().slice(0, 10),
         trag_fecha_sustentacion: null,
         trag_estado: "ACTIVO",
@@ -70,6 +74,10 @@ const TrabajoDeGrado = () => {
 
     const onSubmit = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        console.log(jwt_decode(token));
+        body.users[0].user.email = '';
+        body.users[1].user.email = body.email1;
+        body.users[2].user.email = body.email2;
         console.log('Datos body JSON: ',JSON.stringify(body));
         console.log('Datos body: ',body);
         axios.post('http://127.0.0.1:8000/api/trabajosdegrado/', body, {
@@ -281,7 +289,7 @@ const TrabajoDeGrado = () => {
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email estudiante {body.trag_modalidad === 'tesis'? 1: ''}</label>
                                         <input type="email" placeholder="Digite su correo" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                         label='email1'
-                                        value={body.users[1].user.email}
+                                        value={body.email1}
                                         onChange={onChange}
                                         name='email1'
                                         required/>
@@ -291,7 +299,7 @@ const TrabajoDeGrado = () => {
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Email estudiante 2</label>
                                             <input type="email" placeholder="Digite su correo" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
                                             label='email2'
-                                            value={body.users[2].user.email}
+                                            value={body.email2}
                                             onChange={onChange}
                                             name='email2'
                                             required/>
