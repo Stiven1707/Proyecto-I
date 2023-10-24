@@ -202,8 +202,8 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Coordinador</th>
-                            <th scope='col' className='border px-6 py-3'>Estudiantes</th>
+                            <th scope='col' className='border px-6 py-3'>Participantes</th>
+                            {/* <th scope='col' className='border px-6 py-3'>Estudiantes</th> */}
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
@@ -215,13 +215,24 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.id}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_descripcion}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.usuarios.email}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.usuarios.email}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.documentos.doc_nombre}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.usuarios.map((user)=>{
+                                return <p key={user.id}>{user.user.email}</p>
+                                
+                            })}</td>
+                            
+                            <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
+                                return <p key={doc.id}>{doc.doc.doc_nombre}</p>
+                                
+                            })}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
+                                        console.log(body);
+                                        body.antp_titulo = anteproyecto.anteproyecto.antp_titulo;
+                                        body.antp_descripcion = anteproyecto.anteproyecto.antp_descripcion;
+                                        console.log(body);
+
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setShowModal(true);}}
@@ -257,7 +268,7 @@ const Anteproyecto = () => {
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                            <textarea name='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            <textarea name='antp_titulo' label='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.antp_titulo}
                                             onChange={onChange}
                                             required
@@ -265,7 +276,7 @@ const Anteproyecto = () => {
                                     </div>
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
-                                            <textarea name='antp_descripcion' id='antp_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            <textarea name='antp_descripcion' label='antp_descripcion' id='antp_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.antp_descripcion}
                                             onChange={onChange}
                                             required
