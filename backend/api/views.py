@@ -29,17 +29,18 @@ class ActualizarUsuarioView(generics.UpdateAPIView):
     permission_classes = ([IsAuthenticated])
     serializer_class = ActualizarUsuarioSerializer
 
-class UserProfesorList(generics.ListAPIView):
-    #solo listar los usuarios del rol profesor osea donde rol_nombre = profesor
-    queryset = User.objects.filter(rol__rol_nombre='profesor')
-    serializer_class = UserSerializer
+
+class UserRolList(generics.ListAPIView):
+    serializer_class = UserCortoSerializer
     permission_classes = ([IsAuthenticated])
 
-class UserEstudianteList(generics.ListAPIView):
-    #solo listar los usuarios del rol estudiantes osea donde rol_nombre = estudiante
-    queryset = User.objects.filter(rol__rol_nombre='estudiante')
-    serializer_class = UserSerializer
-    permission_classes = ([IsAuthenticated])
+    def get_queryset(self):
+        rol_id = self.kwargs.get('pk')
+        rol = Rol.objects.filter(id=rol_id).first()
+        if not rol:
+            raise ValidationError(f"El rol con ID {rol_id} no existe")
+        return User.objects.filter(rol=rol)
+
 
 class RolList(generics.ListAPIView):
     queryset = Rol.objects.all()
@@ -277,7 +278,10 @@ def list_seguimientos_anteproyecto_usuarios(request):
 
     for seguimiento in seguimientos:
         usuarios_sigue_seguimiento = UserSigueSeg.objects.filter(seg=seguimiento).select_related('user')
-        anteproyecto = AntpSeguidoSeg.objects.filter(seg=seguimiento).first().antp  # Supongo que hay un solo anteproyecto
+        anteproyecto = AntpSeguidoSeg.objects.filter(seg=seguimiento).first()  # Supongo que hay un solo 
+        if anteproyecto is None:
+            continue
+        anteproyecto = anteproyecto.antp
 
         serialized_usuarios = UserSigueSegSerializer(usuarios_sigue_seguimiento, many=True).data
         serialized_anteproyecto = AnteProyectoSerializer(anteproyecto).data 
@@ -406,11 +410,23 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
     permission_classes = ([IsAuthenticated])
 
     def create(self, request, *args, **kwargs):
-        # Datos del objeto TrabajoGrado
-        data = request.data
+        # Datos del objeto 
+        if isinstance(request.data, QueryDict):
+            data = request.data.dict()
+        else:
+            data = request.data
+         
         print("data: ", data)
-        users_data = data.pop("users", [])
-        docs_data = data.pop("docs", [])
+        # Extraer datos de usuarios y documentos
+        users_data = []
+        for key, value in data.items():
+            if key.startswith("users") and value.get("user"):
+                users_data.append(value.get("user"))
+
+        docs_data = []
+        for key, value in data.items():
+            if key.startswith("docs") and value.get("doc"):
+                docs_data.append(value.get("doc"))
 
         # Crear el objeto TrabajoGrado
         #si ña fecha de recepcion es nula se le asigna la fecha actual

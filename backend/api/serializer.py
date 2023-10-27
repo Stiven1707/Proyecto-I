@@ -13,7 +13,7 @@ class UserCortoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'email')   
+        fields = ('id', 'email', 'rol')   
 
 
 class ProfileSerializer(serializers.ModelSerializer):
