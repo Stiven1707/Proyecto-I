@@ -3,3 +3,4 @@ venv
 db.sqlite3
 user_images
 documentos_user
+media
