@@ -15,6 +15,7 @@ const Anteproyecto = () => {
         antp_titulo: "",
         antp_descripcion: "",
         Documentos: [],
+        antp_modalidad:""
 	}
 
     const [anteproyectoList, setAnteproyectoList] = useState([]);
@@ -44,30 +45,28 @@ const Anteproyecto = () => {
 		setAnteproyectoList(data)
 	}
 
-    const getProfesores = async () => {
+    const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/profesor/',{
+		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-		setProfesores(data)
+            // Dividir los datos según el rol
+        const profesoresData = data.filter((user) => user.rol === 1);
+        const estudiantesData = data.filter((user) => user.rol === 2);
+
+		setProfesores(profesoresData);
+        setEstudiantes(estudiantesData);
 	}
 
-    const getEstudiantes = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/estudiante/',{
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-		setEstudiantes(data)
-	}
     useEffect(()=>{
-		getAnteproyectos()}, [])
+		getAnteproyectos();
+        getParticipantes()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
+        console.log('Nombre del onchange: ',name);
         setBody({
             ...body,
             [name]: value
@@ -75,6 +74,15 @@ const Anteproyecto = () => {
         //setSelectedPeriodo(value !== "");
     };
 
+    const isWorking = () => {
+        console.log('Estudiantes: ', body.estudiantes);
+        console.log(estudiantes);
+        if (body.estudiantes.find((id) => id === estudiantes.id)) {
+            console.log('Es estudiante ya esta en un anteproyecto');
+        }else{
+            console.log('Safe');
+        }
+    }
 
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
@@ -143,7 +151,13 @@ const Anteproyecto = () => {
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.put('http://127.0.0.1:8000/api/anteproyectos/', body, {
+        const datos = []
+        body.usuarios.map((usuario) => {
+            return datos.push(usuario.user.id)
+        })
+        body.usuarios = datos
+        console.log('Actualizr: ',body);
+        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -163,7 +177,12 @@ const Anteproyecto = () => {
         } catch ({ response }) {
         }
     }
-
+    const addPropertyToBody = (name, value) => {
+        setBody(prevBody => ({
+            ...prevBody,
+            [name]: value
+        }));
+    };
 
 
     return (
@@ -188,8 +207,6 @@ const Anteproyecto = () => {
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
                                     setTitle('Crear')
                                     setBody(initialState)
-                                    getProfesores()
-                                    getEstudiantes()
                                     setIsEdit(false)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
@@ -202,7 +219,8 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Participantes</th>
+                            <th scope='col' className='border px-6 py-3'>Profesores</th>
+                            <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             {/* <th scope='col' className='border px-6 py-3'>Estudiantes</th> */}
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
@@ -215,11 +233,23 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.id}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_descripcion}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.usuarios.map((user)=>{
-                                return <p key={user.id}>{user.user.email}</p>
+                            <td className='border px-6 py-4'>{
+                            
+                            anteproyecto.usuarios.map((user)=>{
+                                console.log(anteproyecto)
+                                console.log('Usuarios: ',user)
+                                if (profesores.find((profesor) => profesor.id === user.user.id)) {
+                                    return <p key={user.user.id}>{user.user.email}</p>;
+                                }
+                                return null;
                                 
                             })}</td>
-                            
+                            <td className='border px-6 py-4'>{anteproyecto.usuarios.map((user)=>{
+                                if (estudiantes.find((estudiante) => estudiante.id === user.user.id)) {
+                                    return <p key={user.user.id}>{user.user.email}</p>;
+                                }
+                                return null;
+                            })}</td>
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}>{doc.doc.doc_nombre}</p>
                                 
@@ -228,13 +258,13 @@ const Anteproyecto = () => {
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
-                                        console.log(body);
-                                        body.antp_titulo = anteproyecto.anteproyecto.antp_titulo;
-                                        body.antp_descripcion = anteproyecto.anteproyecto.antp_descripcion;
-                                        console.log(body);
-
                                         setTitle('Modificar')
                                         setIsEdit(true)
+                                        if (isEdit) {
+                                            addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                            addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                            console.log('No se porque no entra');
+                                        }
                                         setShowModal(true);}}
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
@@ -268,6 +298,7 @@ const Anteproyecto = () => {
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
+                                        {isEdit? console.log('Prueba datos',body):null}
                                             <textarea name='antp_titulo' label='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.antp_titulo}
                                             onChange={onChange}
@@ -283,6 +314,23 @@ const Anteproyecto = () => {
                                             />
                                     </div>
                                     <div>
+                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalidad</label>
+                                        <select
+                                                name="antp_modalidad"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.antp_modalidad}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                required 
+                                                >
+                                                    
+                                                <option value='' disabled selected>Seleccionar Modalidad</option>
+                                                <option value='tesis'>Tesis</option>
+                                                <option value='practicaLaboral'>Practica laboral</option>
+                                            </select>
+                                    </div>
+                                    <div>
                                         <label htmlFor="profesores" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
                                         <select
                                                 name="profesores"
@@ -290,12 +338,13 @@ const Anteproyecto = () => {
                                                 value={body.profesores}
                                                 onChange={(e)=>{
                                                     onChange(e)
+                                                    
                                                 }}
                                                 >
                                                     <option value={0}>Seleccionar al profesor encargado</option>
                                                     {profesores.map(profesor => (
                                                     <option key={profesor.id} value={profesor.id}>
-                                                        {profesor.username}
+                                                        {profesor.email}
                                                     </option>
                                             ))} 
                                             </select>
@@ -308,18 +357,39 @@ const Anteproyecto = () => {
                                                 value={body.estudiantes}
                                                 onChange={(e)=>{
                                                     onChange(e)
+                                                    /* isWorking() */
                                                 }}
                                                 >
-                                                    <option value={0}>Seleccionar al estudiante</option>
+                                                    <option value={0}>Seleccionar al estudiante {body.trag_modalidad === 'tesis'? 1: ''}</option>
                                                         {estudiantes.map(estudiante => (
                                                     <option key={estudiante.id} value={estudiante.id}>
-                                                        {estudiante.username}
+                                                        {estudiante.email}
                                                     </option>
                                             ))} 
                                             </select>
                                     </div>
+                                    {body.antp_modalidad === 'tesis'?
+                                        <div>
+                                            <label htmlFor="estudiantes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
+                                            <select
+                                                name="estudiantes"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.estudiantes}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                >
+                                                    <option value={0}>Seleccionar al estudiante 2</option>
+                                                        {estudiantes.map(estudiante => (
+                                                    <option key={estudiante.id} value={estudiante.id}>
+                                                        {estudiante.email}
+                                                    </option>
+                                            ))} 
+                                            </select>
+                                        </div>
+                                    :null}
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documento</label>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
                                         <input
                                             type="file"
                                             name="eva_evidencia"
@@ -329,8 +399,23 @@ const Anteproyecto = () => {
                                             onChange={saveFiles} // Pasa la función como manejador de eventos
                                             required
                                             multiple
-                                        />
+                                            />
                                     </div>
+                                    {console.log('Documentos: ',body)}
+                                    {isEdit? 
+                                        <div>
+                                            <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
+                                                <div>
+                                                    {body.documentos.map((doc) => (
+                                                        <div key={doc.id}>
+                                                            <a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
+                                                                {doc.doc.doc_nombre}
+                                                            </a>
+                                                        </div>
+                                                    ))}
+                                                </div>
+                                        </div>
+                                    : null}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => {
                                         uploadFiles()
                                         onSubmit();

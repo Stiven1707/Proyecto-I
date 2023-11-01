@@ -1,5 +1,7 @@
 import React from 'react'
 import jwt_decode from "jwt-decode";
+import Logo from '../../../Assets/img/unicauca.jpg';
+
 
 const Dashboard = () => {
 
@@ -16,7 +18,7 @@ const Dashboard = () => {
                 <h4 className="mt-3 font-bold text-3xl">{datosUsuario.full_name}</h4>  
             </div> 
             <div className="mt-6 ">
-                <img src="https://agriperfiles.agri-d.net/file/n230433/uni-cauca.jpg" alt="..." className="flex items-center max-h-96 mt-6"/>
+                <img src={Logo} alt="..." className="flex items-center max-h-96 mt-6"/>
             </div>
         </div>
 

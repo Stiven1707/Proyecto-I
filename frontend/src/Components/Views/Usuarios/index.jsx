@@ -51,7 +51,8 @@ const Usuario = () => {
 
 
     useEffect(()=>{
-		getUsuarios()}, [])
+		getUsuarios();
+        getRoles()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -164,7 +165,6 @@ const Usuario = () => {
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
                                     setTitle('Crear')
                                     setBody(initialState)
-                                    getRoles()
                                     setIsEdit(false)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
