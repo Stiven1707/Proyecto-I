@@ -8,10 +8,14 @@ const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
+    console.log(datosUsuario)
     const initialState = {
         user: datosUsuario.user_id,
+        estudiante1: '',
+        estudiante2: '',
         estudiantes: [],
         profesores: [],
+        coprofesor: '',
         antp_titulo: "",
         antp_descripcion: "",
         Documentos: [],
@@ -31,6 +35,9 @@ const Anteproyecto = () => {
     //const [isFound, setIsFound] = useState(false);
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
+    const [isValid, setIsValid] = useState(true);
+	const [showMensaje, setShowMensaje] = useState('');
+
 
 
     let fileData = [];
@@ -66,7 +73,6 @@ const Anteproyecto = () => {
 
     const onChange = ({ target }) => {
         const { name, value } = target
-        console.log('Nombre del onchange: ',name);
         setBody({
             ...body,
             [name]: value
@@ -121,15 +127,54 @@ const Anteproyecto = () => {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
+
+    const checking = () => {
+        if (body.antp_titulo === '') {
+            setShowMensaje("Por favor llene el campo titulo");
+            setIsValid(false);
+            return false;
+        }
+        if (body.antp_descripcion === '') {
+            setShowMensaje("Por favor llene el campo descripcion");
+            setIsValid(false);
+            return false;
+        }
+        if (body.antp_modalidad === '') {
+            setShowMensaje("Por favor seleccione una modalidad");
+            setIsValid(false);
+            return false;
+        }
+        if (body.estudiante1 === '') {
+            setShowMensaje(`Por favor seleccione ${body.antp_modalidad==='tesis'? 'al menos un estudiante ': 'al estudiante'}`);
+            setIsValid(false);
+            return false;
+        }
+        if (body.estudiante1 === body.estudiante2) {
+            setShowMensaje('No se puede elegir el mismo estudiante');
+            setIsValid(false);
+            return false;
+        }
+        setIsValid(true);
+        uploadFiles();
+    };
     
     const onSubmit = async (IdDocumentos) => {
         const IdProfesores = [];
         const IdEstudiantes = [];
-        IdProfesores.push(parseInt(body.profesores));
-        IdEstudiantes.push(parseInt(body.estudiantes));
+        IdProfesores.push(datosUsuario.user_id)
+        if(!body.coprofesor===''){
+            IdProfesores.push(parseInt(body.coprofesor));
+        }
+        IdEstudiantes.push(parseInt(body.estudiante1));
+        console.log(body.estudiante2==='');
+        if(!body.estudiante2===''){
+            IdEstudiantes.push(parseInt(body.estudiante2));
+        }
         body.profesores = IdProfesores;
         body.estudiantes = IdEstudiantes;
         body.Documentos = IdDocumentos;
+        console.log('body', body);
+        console.log(JSON.parse(localStorage.getItem('authTokens')).access);
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         setShowModal(false);
         axios
@@ -156,7 +201,7 @@ const Anteproyecto = () => {
             return datos.push(usuario.user.id)
         })
         body.usuarios = datos
-        console.log('Actualizr: ',body);
+        console.log('Actualizar: ',body);
         axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -236,8 +281,6 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4'>{
                             
                             anteproyecto.usuarios.map((user)=>{
-                                console.log(anteproyecto)
-                                console.log('Usuarios: ',user)
                                 if (profesores.find((profesor) => profesor.id === user.user.id)) {
                                     return <p key={user.user.id}>{user.user.email}</p>;
                                 }
@@ -263,7 +306,6 @@ const Anteproyecto = () => {
                                         if (isEdit) {
                                             addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
                                             addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                            console.log('No se porque no entra');
                                         }
                                         setShowModal(true);}}
                                     >
@@ -330,37 +372,38 @@ const Anteproyecto = () => {
                                                 <option value='practicaLaboral'>Practica laboral</option>
                                             </select>
                                     </div>
+                                    {datosUsuario.rol === 1? null:
+                                        <div>
+                                            <label htmlFor="profesores" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
+                                            <select
+                                                    name="profesores"
+                                                    className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                    value={body.profesores[0]}
+                                                    onChange={(e)=>{
+                                                        onChange(e)
+                                                        
+                                                    }}
+                                                    >
+                                                        <option value={0}>Seleccionar al profesor encargado</option>
+                                                        {profesores.map(profesor => (
+                                                            <option key={profesor.id} value={profesor.id}>
+                                                            {profesor.email}
+                                                        </option>
+                                                ))} 
+                                                </select>
+                                        </div>
+                                    }
                                     <div>
-                                        <label htmlFor="profesores" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
+                                        <label htmlFor="estudiante1" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
                                         <select
-                                                name="profesores"
+                                                name="estudiante1"
                                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.profesores}
+                                                value={body.estudiante1}
                                                 onChange={(e)=>{
                                                     onChange(e)
-                                                    
                                                 }}
                                                 >
-                                                    <option value={0}>Seleccionar al profesor encargado</option>
-                                                    {profesores.map(profesor => (
-                                                    <option key={profesor.id} value={profesor.id}>
-                                                        {profesor.email}
-                                                    </option>
-                                            ))} 
-                                            </select>
-                                    </div>
-                                    <div>
-                                        <label htmlFor="estudiantes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
-                                        <select
-                                                name="estudiantes"
-                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.estudiantes}
-                                                onChange={(e)=>{
-                                                    onChange(e)
-                                                    /* isWorking() */
-                                                }}
-                                                >
-                                                    <option value={0}>Seleccionar al estudiante {body.trag_modalidad === 'tesis'? 1: ''}</option>
+                                                    <option value={0}>Seleccionar al estudiante {body.antp_modalidad === 'tesis'? 1: ''}</option>
                                                         {estudiantes.map(estudiante => (
                                                     <option key={estudiante.id} value={estudiante.id}>
                                                         {estudiante.email}
@@ -370,21 +413,23 @@ const Anteproyecto = () => {
                                     </div>
                                     {body.antp_modalidad === 'tesis'?
                                         <div>
-                                            <label htmlFor="estudiantes" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
+                                            <label htmlFor="estudiante2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
                                             <select
-                                                name="estudiantes"
+                                                name="estudiante2"
                                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.estudiantes}
+                                                value={body.estudiante2}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 >
-                                                    <option value={0}>Seleccionar al estudiante 2</option>
-                                                        {estudiantes.map(estudiante => (
-                                                    <option key={estudiante.id} value={estudiante.id}>
-                                                        {estudiante.email}
-                                                    </option>
-                                            ))} 
+                                                    <option value=''>Seleccionar al estudiante 2</option>
+                                                    {estudiantes
+                                                    .filter(estudiante => estudiante.id !== body.estudiante1) // Filtrar el estudiante seleccionado en el primer select
+                                                    .map(estudiante => (
+                                                        <option key={estudiante.id} value={estudiante.id}>
+                                                            {estudiante.email}
+                                                        </option>
+                                                    ))}
                                             </select>
                                         </div>
                                     :null}
@@ -416,10 +461,14 @@ const Anteproyecto = () => {
                                                 </div>
                                         </div>
                                     : null}
-                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => {
-                                        uploadFiles()
-                                        onSubmit();
-
+                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
+                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
+                                        if (isEdit) {
+                                            onEdit();
+                                        } else {
+                                            checking();
+                                        }
+                                        e.preventDefault(); // Previene el comportamiento predetermina
                                     }
                                     }>{title}</button>
                                 </form>
