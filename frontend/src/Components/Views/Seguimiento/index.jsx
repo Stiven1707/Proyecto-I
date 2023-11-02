@@ -213,7 +213,7 @@ const Seguimiento = () => {
                       className="bg-red-700 text-gray-300 p-2 px-3 rounded"
                       onClick={() => {
                         setIdDelete(seguimiento.id);
-                        setSeguimientoDelete(seguimiento.pro_titulo);
+                        setSeguimientoDelete(seguimiento.id);
                         setShowModalDelete(true);
                       }}
                     >
