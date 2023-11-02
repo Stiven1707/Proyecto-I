@@ -107,6 +107,31 @@ const Usuario = () => {
     }
 
     const checkPasswordsMatch = () => {
+        if (body.rol === 0) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, seleccione un rol');
+            setIsValid(false);
+            return false;
+        }
+        if (body.username === '') {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, rellene el campo de nombre de usuario');
+            setIsValid(false);
+            return false;
+        }
+        if (body.email === '') {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, rellene el campo de email');
+            setIsValid(false);
+            return false;
+        }
+        if (!body.email.includes("@")) {
+            // Verifica si se ha ingresado una dirección de correo electrónico válida
+            setShowMensaje('Por favor, coloque un email valido (@)');
+            setIsValid(false);
+            return false;
+        }
+
         if (body.password !== body.password2) {
             setShowMensaje("Las contraseñas no coinciden. Por favor, asegúrese de escribir la misma contraseña en ambos campos.");
             setIsValid(false);
@@ -116,7 +141,6 @@ const Usuario = () => {
         // Validaciones de contraseña
         const password = body.password;
         const username = body.username;
-        const commonPasswords = ['password', '123456', 'qwerty']; // agregar más contraseñas comunes si es necesario
     
         // Expresiones regulares para verificar los requisitos
         const hasUpperCase = /[A-Z]/.test(password);
@@ -152,12 +176,6 @@ const Usuario = () => {
         }
         if (containsUsername) {
             setShowMensaje("La contraseña no debe contener su nombre de usuario.");
-            setIsValid(false);
-            return false;
-        }
-        if (body.rol === 0) {
-            // Verifica si no se ha seleccionado ningún rol
-            setShowMensaje('Por favor, seleccione un rol');
             setIsValid(false);
             return false;
         }
