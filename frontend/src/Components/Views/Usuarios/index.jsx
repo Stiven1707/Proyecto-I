@@ -73,7 +73,15 @@ const Usuario = () => {
         })
         .catch(({response})=>{
             console.log(response)
-            setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
+            if (response.data.hasOwnProperty('username')) {
+                console.log("entro")
+                // Aquí puedes hacer algo si 'username' está presente en la respuesta
+                setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
+            }
+            if (response.data.hasOwnProperty('email')) {
+                // Aquí puedes hacer algo si 'email' está presente en la respuesta
+                setShowMensaje('Este email ya esta en uso. Prueba otro.');
+            }
             setIsValid(false);
         })
     }
@@ -93,7 +101,17 @@ const Usuario = () => {
             getUsuarios()
         })
         .catch(({response})=>{
-            console.log(response)
+            console.log(response.data.hasOwnProperty('username'))
+            if (response.data.hasOwnProperty('username')) {
+                console.log('Entrr');
+                // Aquí puedes hacer algo si 'username' está presente en la respuesta
+                setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
+            }
+            if (response.data.hasOwnProperty('email')) {
+                // Aquí puedes hacer algo si 'email' está presente en la respuesta
+                setShowMensaje('Este email ya esta en uso. Prueba otro.');
+            }
+            setIsValid(false);
         })
     }
 
@@ -201,6 +219,7 @@ const Usuario = () => {
                                     setTitle('Crear')
                                     setBody(initialState)
                                     setIsEdit(false)
+                                    setIsValid(true)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
                             </button>
@@ -229,6 +248,7 @@ const Usuario = () => {
                                         console.log(usuario)
                                         setTitle('Modificar')
                                         setIsEdit(true)
+                                        setIsValid(true)
                                         setShowModal(true);}}
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
@@ -310,9 +330,9 @@ const Usuario = () => {
                                         name='password2'
                                         required/>
                                     </div>
-                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
 
                                     </>)}
+                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
                                         if (isEdit) {
                                             onEdit();
