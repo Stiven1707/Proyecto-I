@@ -148,17 +148,6 @@ const Seguimiento = () => {
                 </button>
               </div>
             </div>
-            <button
-              className="px-4 py-2 bg-gray-700 text-white"
-              onClick={() => {
-                setTitle('Crear');
-                setBody(initialState);
-                setIsEdit(false);
-                setShowModal(true);
-              }}
-            >
-              <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-            </button>
           </div>
         </div>
         <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -198,7 +187,20 @@ const Seguimiento = () => {
                 <td className="border px-6 py-4">
                   <div className="flex">
                     <button
-                      className="bg-yellow-400 text-black p-2 px-3 rounded"
+                      className="px-4 py-2 bg-gray-700 text-white"
+                      onClick={() => {
+                        setTitle('Crear');
+                        setBody(initialState);
+                        setIsEdit(false);
+                        setShowModal(true);
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
+                    </button>
+                  </div>
+                  <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
+                    <button
+                      className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
                       onClick={() => {
                         setBody(seguimiento);
                         setTitle('Modificar');
@@ -208,7 +210,6 @@ const Seguimiento = () => {
                     >
                       <FontAwesomeIcon icon={faEdit} />
                     </button>
-                    &nbsp;
                     <button
                       className="bg-red-700 text-gray-300 p-2 px-3 rounded"
                       onClick={() => {
