@@ -200,7 +200,7 @@ const Usuario = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Username</th>
                             <th scope='col' className='border px-6 py-3'>Email</th>
-                            <th scope='col' className='border px-6 py-3'>Acciones</th>
+                            <th scope='col' className='border px-6 py-3'>Editar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -210,7 +210,7 @@ const Usuario = () => {
                             <td className='border px-6 py-4'>{usuario.username}</td>
                             <td className='border px-6 py-4'>{usuario.email}</td>
                             <td className='border px-6 py-4'>
-                                <div className='flex'>
+                                <div className='flex justify-center'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
 
                                         setBody(usuario)
@@ -221,14 +221,6 @@ const Usuario = () => {
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
                                     </button>    
-                                    &nbsp;
-                                    <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(usuario.id)
-                                        setPropuestaDelete(usuario.username)
-                                        setShowModalDelete(true)
-                                    }}>
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
                                 </div>
                             </td>
                         </tr>
