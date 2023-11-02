@@ -30,7 +30,7 @@ const Seguimiento = () => {
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    const { data } = await axios.get('http://127.0.0.1:8000/api/seguimientos/', {
+    const { data } = await axios.get('http://127.0.0.1:8000/api/seguimientos/anteproyecto/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -164,38 +164,37 @@ const Seguimiento = () => {
         <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
           <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
             <tr>
-              <th scope="col" className="border px-6 py-3">
-                #
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Fecha Recepcion
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Fecha asignacion
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Fecha Concepto
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Observaciones
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Estado
-              </th>
-              <th scope="col" className="border px-6 py-3">
-                Acciones
-              </th>
+              <th scope="col" className="border px-6 py-3">#</th>
+              <th scope="col" className="border px-6 py-3">Titulo</th>
+              <th scope="col" className="border px-6 py-3">Seguimientos</th>
+              <th scope="col" className="border px-6 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody>
             {seguimientoList.map((seguimiento) => (
               <tr key={seguimiento.id}>
-                <td className="border px-6 py-4">{seguimiento.id}</td>
-                <td className="border px-6 py-4">{seguimiento.seg_fecha_recepcion}</td>
-                <td className="border px-6 py-4">{seguimiento.seg_fecha_asignacion}</td>
-                <td className="border px-6 py-4">{seguimiento.seg_fecha_concepto}</td>
-                <td className="border px-6 py-4">{seguimiento.seg_observaciones}</td>
-                <td className="border px-6 py-4">{seguimiento.seg_estado}</td>
+                {console.log(seguimiento)}
+                <td className="border px-6 py-4">{seguimiento.antp.id}</td>
+                <td className="border px-6 py-4">{seguimiento.antp.antp_titulo}</td>
+                {/* {seguimiento.seg.forEach(seg => { */}
+                <table>
+                  <caption className='border px-6 py-3'>Segumiento 1</caption>
+                  <thead>
+                  <th scope="col" className="border px-6 py-3">Fecha Recepcion</th>
+                  <th scope="col" className="border px-6 py-3">Fecha asignacion</th>
+                  <th scope="col" className="border px-6 py-3">Fecha Concepto</th>
+                  <th scope="col" className="border px-6 py-3">Observaciones</th>
+                  <th scope="col" className="border px-6 py-3">Estado</th>
+                  </thead>
+                  <tbody>
+                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_recepcion}</td>
+                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_asignacion}</td>
+                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_concepto}</td>
+                    <td className="border px-6 py-4">{seguimiento.seg.seg_observaciones}</td>
+                    <td className="border px-6 py-4">{seguimiento.seg.seg_estado}</td>
+                  </tbody>
+                </table>
+                {/* })} */}
                 <td className="border px-6 py-4">
                   <div className="flex">
                     <button
