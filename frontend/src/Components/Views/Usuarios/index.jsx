@@ -22,19 +22,20 @@ const Usuario = () => {
 	const [isEdit, setIsEdit] = useState(false);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
+    const [searchTerm, setSearchTerm] = useState('');
 
 
 
 
     const getUsuarios = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        const response = await axios.get(`http://127.0.0.1:8000/api/user/?search=${searchTerm}`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
-        })
-		setUsuarioList(data)
-	}
+        });
+        setUsuarioList(response.data);
+    };
 
     const getRoles = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
@@ -99,6 +100,31 @@ const Usuario = () => {
     
 
     const checkPasswordsMatch = () => {
+        if (body.rol === 0) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, seleccione un rol');
+            setIsValid(false);
+            return false;
+        }
+        if (body.username === '') {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, rellene el campo de nombre de usuario');
+            setIsValid(false);
+            return false;
+        }
+        if (body.email === '') {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Por favor, rellene el campo de email');
+            setIsValid(false);
+            return false;
+        }
+        if (!body.email.includes("@")) {
+            // Verifica si se ha ingresado una dirección de correo electrónico válida
+            setShowMensaje('Por favor, coloque un email valido (@)');
+            setIsValid(false);
+            return false;
+        }
+
         if (body.password !== body.password2) {
             setShowMensaje("Las contraseñas no coinciden. Por favor, asegúrese de escribir la misma contraseña en ambos campos.");
             setIsValid(false);
@@ -108,25 +134,41 @@ const Usuario = () => {
         // Validaciones de contraseña
         const password = body.password;
         const username = body.username;
-        const commonPasswords = ['password', '123456', 'qwerty']; // agregar más contraseñas comunes si es necesario
     
         // Expresiones regulares para verificar los requisitos
         const hasUpperCase = /[A-Z]/.test(password);
         const hasLowerCase = /[a-z]/.test(password);
         const hasNumber = /\d/.test(password);
         const hasSymbol = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(password);
-        const isNumeric = /^\d+$/.test(password);
-        const isCommonPassword = commonPasswords.includes(password.toLowerCase());
         const containsUsername = password.toLowerCase().includes(username.toLowerCase());
     
-        if (password.length < 10 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol || isNumeric || isCommonPassword || containsUsername) {
-            setShowMensaje("La contraseña no cumple con los requisitos de seguridad. Asegúrese de que tenga al menos 10 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos, no sea completamente numérica y no contenga su nombre de usuario.");
+        if (password.length < 10 ) {
+            setShowMensaje("La contraseña debe contener al menos 10 caracteres");
             setIsValid(false);
             return false;
         }
-        if (body.rol === 0) {
-            // Verifica si no se ha seleccionado ningún rol
-            setShowMensaje('Por favor, seleccione un rol');
+        if (!hasUpperCase) {
+            setShowMensaje("La contraseña debe contener mayusculas");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasLowerCase) {
+            setShowMensaje("La contraseña debe contener minusculas");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasNumber) {
+            setShowMensaje("La contraseña debe contener al menos 1 numero");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasSymbol) {
+            setShowMensaje("La contraseña debe contener al menos 1 simbolo (-!$%^&*)");
+            setIsValid(false);
+            return false;
+        }
+        if (containsUsername) {
+            setShowMensaje("La contraseña no debe contener su nombre de usuario.");
             setIsValid(false);
             return false;
         }
@@ -146,12 +188,13 @@ const Usuario = () => {
                                     <svg className="w-5 h-5 text-gray-500 dark:text-gray-400" aria-hidden="true" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clipRule="evenodd"></path></svg>
                                 </div>
                                 <div className='flex items-center'>
-                                    <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
-                                        setIsId(e.target.value)
-                                    }} placeholder="Search"/>
-                                    <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
-                                        body.per_id = 0
-                                    }}>Buscar</button>
+                                    <input type="text" id="table-search" 
+                                    className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                    value={searchTerm}
+                                    onChange={(e)=> setSearchTerm(e.target.value)}
+                                    placeholder="Search"/>
+                                    <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={() => getUsuarios()}>Buscar</button>
+
                                 </div>
                             </div>
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
@@ -169,7 +212,7 @@ const Usuario = () => {
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Username</th>
                             <th scope='col' className='border px-6 py-3'>Email</th>
-                            <th scope='col' className='border px-6 py-3'>Acciones</th>
+                            <th scope='col' className='border px-6 py-3'>Editar</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -179,7 +222,7 @@ const Usuario = () => {
                             <td className='border px-6 py-4'>{usuario.username}</td>
                             <td className='border px-6 py-4'>{usuario.email}</td>
                             <td className='border px-6 py-4'>
-                                <div className='flex'>
+                                <div className='flex justify-center'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
 
                                         setBody(usuario)
@@ -276,7 +319,7 @@ const Usuario = () => {
                                         } else {
                                             checkPasswordsMatch();
                                         }
-                                        e.preventDefault(); // Previene el comportamiento predeterminado de envío del formulario
+                                        e.preventDefault(); 
                                     }}
                                     >{title}</button>
                                 </form>
