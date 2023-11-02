@@ -123,12 +123,35 @@ const Usuario = () => {
         const hasLowerCase = /[a-z]/.test(password);
         const hasNumber = /\d/.test(password);
         const hasSymbol = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(password);
-        const isNumeric = /^\d+$/.test(password);
-        const isCommonPassword = commonPasswords.includes(password.toLowerCase());
         const containsUsername = password.toLowerCase().includes(username.toLowerCase());
     
-        if (password.length < 10 || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSymbol || isNumeric || isCommonPassword || containsUsername) {
-            setShowMensaje("La contraseña no cumple con los requisitos de seguridad. Asegúrese de que tenga al menos 10 caracteres, incluyendo mayúsculas, minúsculas, números y símbolos, no sea completamente numérica y no contenga su nombre de usuario.");
+        if (password.length < 10 ) {
+            setShowMensaje("La contraseña debe contener al menos 10 caracteres");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasUpperCase) {
+            setShowMensaje("La contraseña debe contener mayusculas");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasLowerCase) {
+            setShowMensaje("La contraseña debe contener minusculas");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasNumber) {
+            setShowMensaje("La contraseña debe contener al menos 1 numero");
+            setIsValid(false);
+            return false;
+        }
+        if (!hasSymbol) {
+            setShowMensaje("La contraseña debe contener al menos 1 simbolo (-!$%^&*)");
+            setIsValid(false);
+            return false;
+        }
+        if (containsUsername) {
+            setShowMensaje("La contraseña no debe contener su nombre de usuario.");
             setIsValid(false);
             return false;
         }
