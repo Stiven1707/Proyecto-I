@@ -187,7 +187,7 @@ const Seguimiento = () => {
                 <td className="border px-6 py-4">
                   <div className="flex">
                     <button
-                      className="px-4 py-2 bg-gray-700 text-white"
+                      className="px-4 py-2 bg-gray-700 text-white rounded"
                       onClick={() => {
                         setTitle('Crear');
                         setBody(initialState);
