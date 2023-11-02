@@ -121,8 +121,11 @@ const Anteproyecto = () => {
                     IdDocumentos.push(parseInt(data.data.id));
                 });
             });
-    
-            onSubmit(IdDocumentos);
+            if (isEdit){
+                onEdit(IdDocumentos)
+            }else{
+                onSubmit(IdDocumentos);
+            }
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
@@ -217,11 +220,21 @@ const Anteproyecto = () => {
     }
 
     const onDelete = async () => {
-        try {
-            const { data } = await axios.delete('http://127.0.0.1:8000/api/eliminar', { id: idDelete })
-        } catch ({ response }) {
-        }
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+
+        axios.delete(`http://127.0.0.1:8000/api/anteproyectos/${idDelete}/`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(() => {
+            getAnteproyectos()
+        })
+        .catch(({response})=>{
+            console.log(response)
+        })
     }
+
     const addPropertyToBody = (name, value) => {
         setBody(prevBody => ({
             ...prevBody,
@@ -309,6 +322,9 @@ const Anteproyecto = () => {
                                         if (isEdit) {
                                             addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
                                             addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                            addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                            addPropertyToBody('estudiante1', anteproyecto.usuarios[0].user.id)
+                                            addPropertyToBody('estudiante2', anteproyecto.usuarios[1].user.id)
                                         }
                                         setShowModal(true);}}
                                     >
@@ -316,8 +332,8 @@ const Anteproyecto = () => {
                                     </button>    
                                     &nbsp;
                                     <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(anteproyecto.antp_id)
-                                        setAnteproyectoDelete(anteproyecto.antp_titulo)
+                                        setIdDelete(anteproyecto.anteproyecto.id)
+                                        setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
                                         setShowModalDelete(true)
                                     }}>
                                         <FontAwesomeIcon icon={faTrash} />
@@ -492,7 +508,7 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el anteproyecto {anteproyectoDelete}</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el anteproyecto "{anteproyectoDelete}"</h3>
                                 <div className='border px-6 py-6 pl-10 flex justify-evenly'>
                                     <button className='bg-green-600 text-gray-300 p-2 px-10 rounded' onClick={() => {
                                         onDelete();
