@@ -3,8 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import Control from '../../../Assets/img/Control.png';
 import Logo from '../../../Assets/img/Logo.png';
 import Chart_fill from '../../../Assets/img/Chart_fill.png';
+import Chat from "../../../Assets/img/Chat.png";
 import Folder from '../../../Assets/img/Folder.png';
+import Calendar from '../../../Assets/img/Calendar.png';
+import Chart from '../../../Assets/img/Chart.png'; 
 import Logout from '../../../Assets/img/Logout.png';
+import setting from '../../../Assets/img/Setting.png';
 import jwt_decode from "jwt-decode";
 
 
@@ -24,11 +28,11 @@ const Layout = () => {
 
 	const Menus = [
 		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 1, state: false },
-		{ title: 'Usuarios', src: `${Folder}`, path: '/app/usuarios', token: 1, state: false },
+		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: 1, state: false },
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: 1, state: false },
-		{ title: 'Anteproyecto', src: `${Folder}`, path: '/app/anteproyectos', token: 1, state: false },
-		{ title: 'Seguimiento', src: `${Folder}`, path: '/app/seguimiento', token: 1, state: false },
-		{ title: 'Trabajo de Grado', src: `${Folder}`, path: '/app/trabajodegrado', token: 1, state: false },
+		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: 1, state: false },
+		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: 1, state: false },
+		{ title: 'Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegrado', token: 1, state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },
 	];
 
