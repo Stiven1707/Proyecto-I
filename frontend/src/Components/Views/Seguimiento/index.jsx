@@ -30,7 +30,7 @@ const Seguimiento = () => {
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    const { data } = await axios.get('http://127.0.0.1:8000/api/seguimientos/anteproyecto/', {
+    const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/user_seg/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -51,11 +51,18 @@ const Seguimiento = () => {
     });
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async (idAnteproyecto) => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
+    const datosSeguimiento = {
+      seg: {
+        seg_fecha_recepcion: null,
+        seg_estado: '',
+      }
+    }
     setShowModal(false);
+    console.log('datos body: ', body, ' id: ', idAnteproyecto);
     axios
-      .post('http://127.0.0.1:8000/api/seguimientos/', body, {
+      .post(`http://127.0.0.1:8000/api/seguimientos/anteproyecto/${idAnteproyecto}/`, datosSeguimiento, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -90,6 +97,7 @@ const Seguimiento = () => {
 
   const onDelete = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
+    console.log('id eliminar: ', idDelete);
       await axios.delete(`http://127.0.0.1:8000/api/seguimientos/${idDelete}`, {
         headers: {
           Authorization: `Bearer ${token}`,
@@ -161,13 +169,14 @@ const Seguimiento = () => {
           </thead>
           <tbody>
             {seguimientoList.map((seguimiento) => (
-              <tr key={seguimiento.id}>
+              <tr key={seguimiento.anteproyecto.id}>
                 {console.log(seguimiento)}
-                <td className="border px-6 py-4">{seguimiento.antp.id}</td>
-                <td className="border px-6 py-4">{seguimiento.antp.antp_titulo}</td>
-                {/* {seguimiento.seg.forEach(seg => { */}
-                <table>
-                  <caption className='border px-6 py-3'>Segumiento 1</caption>
+                <td className="border px-6 py-4">{seguimiento.anteproyecto.id}</td>
+                <td className="border px-6 py-4">{seguimiento.anteproyecto.antp_titulo}</td>
+                {seguimiento.seguimientos.map((seg, index)=> (
+
+                <table key={index}>
+                  <caption className='border px-6 py-3'>{`Segumiento ${index + 1}`}</caption>
                   <thead>
                   <th scope="col" className="border px-6 py-3">Fecha Recepcion</th>
                   <th scope="col" className="border px-6 py-3">Fecha asignacion</th>
@@ -176,28 +185,12 @@ const Seguimiento = () => {
                   <th scope="col" className="border px-6 py-3">Estado</th>
                   </thead>
                   <tbody>
-                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_recepcion}</td>
-                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_asignacion}</td>
-                    <td className="border px-6 py-4">{seguimiento.seg.seg_fecha_concepto}</td>
-                    <td className="border px-6 py-4">{seguimiento.seg.seg_observaciones}</td>
-                    <td className="border px-6 py-4">{seguimiento.seg.seg_estado}</td>
-                  </tbody>
-                </table>
-                {/* })} */}
+                    <td className="border px-6 py-4">{seg.seg.seg_fecha_recepcion}</td>
+                    <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
+                    <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
+                    <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
+                    <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
                 <td className="border px-6 py-4">
-                  <div className="flex">
-                    <button
-                      className="px-4 py-2 bg-gray-700 text-white rounded"
-                      onClick={() => {
-                        setTitle('Crear');
-                        setBody(initialState);
-                        setIsEdit(false);
-                        setShowModal(true);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                    </button>
-                  </div>
                   <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
                     <button
                       className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
@@ -221,6 +214,22 @@ const Seguimiento = () => {
                       <FontAwesomeIcon icon={faTrash} />
                     </button>
                   </div>
+                </td>
+                  </tbody>
+                </table>
+                ))}
+                {/* {seguimiento.seg.forEach(seg => { */}
+                {/* })} */}
+                <td className="border px-6 py-4">
+                <button
+                      className="px-4 py-2 bg-gray-700 text-white rounded"
+                      onClick={() => {
+                        setBody(initialState);
+                        onSubmit(seguimiento.anteproyecto.id)
+                      }}
+                    >
+                      <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
+                    </button>
                 </td>
               </tr>
             ))}

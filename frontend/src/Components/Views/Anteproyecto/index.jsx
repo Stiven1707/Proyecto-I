@@ -293,8 +293,11 @@ const Anteproyecto = () => {
                                 }
                                 return null;
                             })}</td>
+                            
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
-                                return <p key={doc.id}>{doc.doc.doc_nombre}</p>
+                                return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
+                                {doc.doc.doc_nombre}
+                            </a></p>
                                 
                             })}</td>
                             <td className='border px-6 py-4'>
@@ -489,7 +492,7 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el periodo {anteproyectoDelete}</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el anteproyecto {anteproyectoDelete}</h3>
                                 <div className='border px-6 py-6 pl-10 flex justify-evenly'>
                                     <button className='bg-green-600 text-gray-300 p-2 px-10 rounded' onClick={() => {
                                         onDelete();
