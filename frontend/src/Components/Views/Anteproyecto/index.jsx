@@ -9,6 +9,7 @@ const Anteproyecto = () => {
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
     console.log(datosUsuario)
+    let IdDocumentos = [];
     const initialState = {
         user: datosUsuario.user_id,
         estudiante1: '',
@@ -106,25 +107,48 @@ const Anteproyecto = () => {
     const uploadFiles = async () => {
         try {
             const token = JSON.parse(localStorage.getItem('authTokens')).access;
-            const IdDocumentos = [];
-            const promises = fileData.map((file) => {
-                return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
-                    headers: {
-                        Authorization: `Bearer ${token}`,
-                        'Content-Type': 'multipart/form-data',
-                    },
+            if (!(Array.isArray(fileData) && fileData.length === 0)) {
+
+                IdDocumentos = [];
+                console.log('Entro a editar1: ', body);
+
+                const promises = fileData.map((file) => {
+                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                        headers: {
+                            Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data',
+                        },
+                    });
                 });
-            });
-    
-            await Promise.all(promises).then((results) => {
-                results.forEach((data) => {
-                    IdDocumentos.push(parseInt(data.data.id));
+                console.log('Entro a editar2: ', body);
+        
+                await Promise.all(promises).then((results) => {
+                    results.forEach((data) => {
+                        IdDocumentos.push(parseInt(data.data.id));
+                    });
                 });
-            });
+        }
+            const IdProfesores = [];
+            const IdEstudiantes = [];
+            IdProfesores.push(datosUsuario.user_id)
+            if(!body.coprofesor===''){
+                IdProfesores.push(parseInt(body.coprofesor));
+            }
+            IdEstudiantes.push(parseInt(body.estudiante1));
+            console.log(body.estudiante2==='');
+            if(!body.estudiante2===''){
+                IdEstudiantes.push(parseInt(body.estudiante2));
+            }
+            body.profesores = IdProfesores;
+            body.estudiantes = IdEstudiantes;
+            body.Documentos = IdDocumentos;
             if (isEdit){
-                onEdit(IdDocumentos)
+                console.log('Entro a editar: ', body);
+                onEdit()
             }else{
-                onSubmit(IdDocumentos);
+                console.log('Entro a crear: ', body);
+
+                onSubmit();
             }
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
@@ -161,23 +185,7 @@ const Anteproyecto = () => {
         uploadFiles();
     };
     
-    const onSubmit = async (IdDocumentos) => {
-        const IdProfesores = [];
-        const IdEstudiantes = [];
-        IdProfesores.push(datosUsuario.user_id)
-        if(!body.coprofesor===''){
-            IdProfesores.push(parseInt(body.coprofesor));
-        }
-        IdEstudiantes.push(parseInt(body.estudiante1));
-        console.log(body.estudiante2==='');
-        if(!body.estudiante2===''){
-            IdEstudiantes.push(parseInt(body.estudiante2));
-        }
-        body.profesores = IdProfesores;
-        body.estudiantes = IdEstudiantes;
-        body.Documentos = IdDocumentos;
-        console.log('body', body);
-        console.log(JSON.parse(localStorage.getItem('authTokens')).access);
+    const onSubmit = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         setShowModal(false);
         axios
@@ -199,12 +207,8 @@ const Anteproyecto = () => {
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        const datos = []
-        body.usuarios.map((usuario) => {
-            return datos.push(usuario.user.id)
-        })
-        body.usuarios = datos
-        console.log('Actualizar: ',body);
+        setShowModal(false);
+        console.log('Se pudo actualizar correctamente ', JSON.stringify(body));
         axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -266,6 +270,7 @@ const Anteproyecto = () => {
                                     setTitle('Crear')
                                     setBody(initialState)
                                     setIsEdit(false)
+                                    setIsValid(true)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
                             </button>
@@ -279,7 +284,6 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Profesores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
-                            {/* <th scope='col' className='border px-6 py-3'>Estudiantes</th> */}
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
@@ -318,14 +322,15 @@ const Anteproyecto = () => {
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
                                         setTitle('Modificar')
+                                        addPropertyToBody('user', datosUsuario.user_id)
+                                        addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                        addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                        addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                        addPropertyToBody('estudiante1', anteproyecto.usuarios[0].user.id)
+                                        
+                                        //addPropertyToBody('estudiante2', anteproyecto.usuarios[1].user.id)
+                                        setIsValid(true)
                                         setIsEdit(true)
-                                        if (isEdit) {
-                                            addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                            addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                            addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
-                                            addPropertyToBody('estudiante1', anteproyecto.usuarios[0].user.id)
-                                            addPropertyToBody('estudiante2', anteproyecto.usuarios[1].user.id)
-                                        }
                                         setShowModal(true);}}
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
@@ -386,7 +391,7 @@ const Anteproyecto = () => {
                                                 required 
                                                 >
                                                     
-                                                <option value='' disabled selected>Seleccionar Modalidad</option>
+                                                <option value='' disabled>Seleccionar Modalidad</option>
                                                 <option value='tesis'>Tesis</option>
                                                 <option value='practicaLaboral'>Practica laboral</option>
                                             </select>
@@ -466,27 +471,28 @@ const Anteproyecto = () => {
                                             />
                                     </div>
                                     {console.log('Documentos: ',body)}
-                                    {isEdit? 
+                                    {isEdit && Array.isArray(body.documentos)? 
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
                                                 <div>
-                                                    {body.documentos.map((doc) => (
-                                                        <div key={doc.id}>
+                                                    {
+                                                    body.documentos.map((doc) => {
+                                                        IdDocumentos.push(parseInt(doc.doc.id))
+                                                        console.log(body.documentos);
+                                                        return (
+                                                            <div key={doc.doc.id}>
                                                             <a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
                                                                 {doc.doc.doc_nombre}
                                                             </a>
                                                         </div>
-                                                    ))}
+                                                        )
+                                                    })}
                                                 </div>
                                         </div>
                                     : null}
                                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
-                                        if (isEdit) {
-                                            onEdit();
-                                        } else {
-                                            checking();
-                                        }
+                                        checking();
                                         e.preventDefault(); // Previene el comportamiento predetermina
                                     }
                                     }>{title}</button>
