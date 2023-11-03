@@ -164,7 +164,6 @@ const Seguimiento = () => {
               <th scope="col" className="border px-6 py-3">#</th>
               <th scope="col" className="border px-6 py-3">Titulo</th>
               <th scope="col" className="border px-6 py-3">Seguimientos</th>
-              <th scope="col" className="border px-6 py-3">Acciones</th>
             </tr>
           </thead>
           <tbody>
@@ -174,63 +173,68 @@ const Seguimiento = () => {
                 <td className="border px-6 py-4">{seguimiento.anteproyecto.id}</td>
                 <td className="border px-6 py-4">{seguimiento.anteproyecto.antp_titulo}</td>
                 {seguimiento.seguimientos.map((seg, index)=> (
-
-                <table key={index}>
-                  <caption className='border px-6 py-3'>{`Segumiento ${index + 1}`}</caption>
-                  <thead>
-                  <th scope="col" className="border px-6 py-3">Fecha Recepcion</th>
-                  <th scope="col" className="border px-6 py-3">Fecha asignacion</th>
-                  <th scope="col" className="border px-6 py-3">Fecha Concepto</th>
-                  <th scope="col" className="border px-6 py-3">Observaciones</th>
-                  <th scope="col" className="border px-6 py-3">Estado</th>
-                  </thead>
-                  <tbody>
-                    <td className="border px-6 py-4">{seg.seg.seg_fecha_recepcion}</td>
-                    <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
-                    <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
-                    <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
-                    <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
-                <td className="border px-6 py-4">
-                  <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
-                    <button
-                      className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
-                      onClick={() => {
-                        setBody(seguimiento);
-                        setTitle('Modificar');
-                        setIsEdit(true);
-                        setShowModal(true);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faEdit} />
-                    </button>
-                    <button
-                      className="bg-red-700 text-gray-300 p-2 px-3 rounded"
-                      onClick={() => {
-                        setIdDelete(seguimiento.id);
-                        setSeguimientoDelete(seguimiento.id);
-                        setShowModalDelete(true);
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faTrash} />
-                    </button>
-                  </div>
-                </td>
-                  </tbody>
-                </table>
+                  
+                  <table key={index}>
+                    <caption className='border px-6 py-3'>{`Segumiento ${index + 1}`}</caption>
+                    <thead>
+                      <th scope="col" className="border px-6 py-3">Fecha Recepcion</th>
+                      <th scope="col" className="border px-6 py-3">Fecha asignacion</th>
+                      <th scope="col" className="border px-6 py-3">Fecha Concepto</th>
+                      <th scope="col" className="border px-6 py-3">Observaciones</th>
+                      <th scope="col" className="border px-6 py-3">Estado</th>
+                      <th scope="col" className="border px-6 py-3">Acciones</th>
+                    </thead>
+                    <tbody>
+                      <td className="border px-6 py-4">{seg.seg.seg_fecha_recepcion}</td>
+                      <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
+                      <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
+                      <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
+                      <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
+                      <td className="border px-6 py-4">
+                        
+                        {seg.seg.seg_estado === 'Terminado'?
+                          seguimiento.seguimientos.length === (index+1) ? 
+                            <div>
+                              <button
+                                  className="px-4 py-2 bg-gray-700 text-white rounded"
+                                  onClick={() => {
+                                    setBody(initialState);
+                                    onSubmit(seguimiento.anteproyecto.id)
+                                  }}
+                                  >
+                                  <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
+                              </button>
+                            </div>
+                          :null
+                        :
+                          <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
+                            <button
+                              className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
+                              onClick={() => {
+                                setBody(seg.seg);
+                                setTitle('Modificar');
+                                setIsEdit(true);
+                                setShowModal(true);
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                            <button
+                              className="bg-red-700 text-gray-300 p-2 px-3 rounded"
+                              onClick={() => {
+                                setIdDelete(seg.seg.id);
+                                setSeguimientoDelete(seguimiento.anteproyecto.antp_titulo);
+                                setShowModalDelete(true);
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </div>
+                        }
+                      </td>
+                    </tbody>
+                  </table>
                 ))}
-                {/* {seguimiento.seg.forEach(seg => { */}
-                {/* })} */}
-                <td className="border px-6 py-4">
-                <button
-                      className="px-4 py-2 bg-gray-700 text-white rounded"
-                      onClick={() => {
-                        setBody(initialState);
-                        onSubmit(seguimiento.anteproyecto.id)
-                      }}
-                    >
-                      <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                    </button>
-                </td>
               </tr>
             ))}
           </tbody>
