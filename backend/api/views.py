@@ -222,14 +222,11 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
             if not documento:
                 raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
         #validar que no se repitan los estudiantes
-        if len(estudiantes_ids) != len(set(estudiantes_ids)):
-            raise serializers.ValidationError("No se puede repetir estudiantes")
+        
         #validar que no se repitan los profesores
-        if len(profesores_ids) != len(set(profesores_ids)):
-            raise serializers.ValidationError("No se puede repetir profesores")
+        
         #validar que no se repitan los documentos
-        if len(documentos_ids) != len(set(documentos_ids)):
-            raise serializers.ValidationError("No se puede repetir documentos")
+        
         #validar que no se repitan los estudiantes y profesores
         if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
             raise serializers.ValidationError("No se puede repetir estudiantes y profesores")
@@ -245,70 +242,76 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 
         # Obtener una lista de objetos "User" correspondientes a los IDs de estudiantes
         estudiantes = User.objects.filter(id__in=estudiantes_ids)
+        print("estudiantes: ", estudiantes)
 
         # Obtener una lista de objetos "UserParticipaAntp" relacionados al anteproyecto
-        estudiantes_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto)
-        if estudiantes_anteproyecto.exists():
-            # Serializar la lista de estudiantes antiguos para su posterior comparación
-            estudiantes_viejos = UserParticipaAntpSerializer(estudiantes_anteproyecto, many=True).data
-            print("estudiantes_anteproyecto: ", estudiantes_viejos)
+        usuarios_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto)
+        print("usuarios_anteproyecto: ", usuarios_anteproyecto)
+         # obtener los id de los roles de los estudiantes y profesores
+        id_rol_estudiantes = Rol.objects.filter(rol_nombre="estudiante").first().id
+        id_rol_profesores = Rol.objects.filter(rol_nombre="profesor").first().id
+        # Serializar la lista de estudiantes antiguos para su posterior comparación
+        estudiantes_viejos = UserParticipaAntpSerializer(usuarios_anteproyecto, many=True).data
+        #filtro por rol
+        estudiantes_viejos = list(filter(lambda x: x['user']['rol'] == id_rol_estudiantes, estudiantes_viejos))
+        # Crear una lista de IDs de estudiantes antiguos
+        ids_estudiantes_antiguos = [estudiante['user']['id'] for estudiante in estudiantes_viejos]
+        
+        print("estudiantes_viejos: ", estudiantes_viejos)
+        # Crear una lista de IDs de estudiantes nuevos
+        ids_estudiantes_nuevos = [estudiante.id for estudiante in estudiantes]
 
-            # Crear una lista de IDs de estudiantes antiguos
-            ids_estudiantes_antiguos = [estudiante['user']['id'] for estudiante in estudiantes_viejos]
+        # Verificar si hay estudiantes antiguos que no están en la lista de estudiantes nuevos
+        estudiantes_a_eliminar = UserParticipaAntp.objects.filter(antp=anteproyecto, user__id__in=ids_estudiantes_antiguos).exclude(user__id__in=ids_estudiantes_nuevos)
+        print("estudiantes_a_eliminar: ", estudiantes_a_eliminar)
+        estudiantes_a_eliminar.delete()
+        # Verificar si hay estudiantes nuevos que no estaban en la lista de estudiantes antiguos
+        estudiantes_a_agregar = estudiantes.exclude(id__in=ids_estudiantes_antiguos)
+        if estudiantes_a_agregar.exists():
 
-            # Crear una lista de IDs de estudiantes nuevos
-            ids_estudiantes_nuevos = [estudiante.id for estudiante in estudiantes]
-
-            # Verificar si hay estudiantes antiguos que no están en la lista de estudiantes nuevos
-            estudiantes_a_eliminar = UserParticipaAntp.objects.filter(antp=anteproyecto, user__id__in=ids_estudiantes_antiguos).exclude(user__id__in=ids_estudiantes_nuevos)
-            print("estudiantes_a_eliminar: ", estudiantes_a_eliminar)
-            estudiantes_a_eliminar.delete()
-
-            # Verificar si hay estudiantes nuevos que no estaban en la lista de estudiantes antiguos
-            estudiantes_a_agregar = estudiantes.exclude(id__in=ids_estudiantes_antiguos)
             for estudiante in estudiantes_a_agregar:
                 UserParticipaAntp.objects.create(user=estudiante, antp=anteproyecto)
                 print("Estudiante agregado: ", estudiante)
         else:
-            # Si no hay estudiantes antiguos, simplemente crea los nuevos
-            for estudiante in estudiantes:
-                UserParticipaAntp.objects.create(user=estudiante, antp=anteproyecto)
-                print("Estudiante agregado: ", estudiante)
-
+            # no hay estudiantes nuevos
+            print("no hay estudiantes nuevos que agregar")
+        
         # Actualizar profesores
         # Verificar si los profesores nuevos son diferentes a los viejos
 
         # Obtener una lista de objetos "User" correspondientes a los IDs de profesores
         profesores = User.objects.filter(id__in=profesores_ids)
+        print("profesores: ", profesores)
 
         # Obtener una lista de objetos "UserParticipaAntp" relacionados al anteproyecto para profesores
-        profesores_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto)
-        if profesores_anteproyecto.exists():
-            # Serializar la lista de profesores antiguos para su posterior comparación
-            profesores_viejos = UserParticipaAntpSerializer(profesores_anteproyecto, many=True).data
-            print("profesores_viejos: ", profesores_viejos)
+        usuarios_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto)
+        print("usuarios_anteproyecto: ", usuarios_anteproyecto)
+        # Serializar la lista de profesores antiguos para su posterior comparación
+        profesores_viejos = UserParticipaAntpSerializer(usuarios_anteproyecto, many=True).data
+        #filtro por rol
+        profesores_viejos = list(filter(lambda x: x['user']['rol'] == id_rol_profesores, profesores_viejos))
+        print("profesores_viejos: ", profesores_viejos)
 
-            # Crear una lista de IDs de profesores antiguos
-            ids_profesores_antiguos = [profesor['user']['id'] for profesor in profesores_viejos]
+        # Crear una lista de IDs de profesores antiguos
+        ids_profesores_antiguos = [profesor['user']['id'] for profesor in profesores_viejos]
 
-            # Crear una lista de IDs de profesores nuevos
-            ids_profesores_nuevos = [profesor.id for profesor in profesores]
+        # Crear una lista de IDs de profesores nuevos
+        ids_profesores_nuevos = [profesor.id for profesor in profesores]
 
-            # Verificar si hay profesores antiguos que no están en la lista de profesores nuevos
-            profesores_a_eliminar = UserParticipaAntp.objects.filter(antp=anteproyecto, user__id__in=ids_profesores_antiguos).exclude(user__id__in=ids_profesores_nuevos)
-            print("profesores_a_eliminar: ", profesores_a_eliminar)
-            profesores_a_eliminar.delete()
+        # Verificar si hay profesores antiguos que no están en la lista de profesores nuevos
+        profesores_a_eliminar = UserParticipaAntp.objects.filter(antp=anteproyecto, user__id__in=ids_profesores_antiguos).exclude(user__id__in=ids_profesores_nuevos)
+        print("profesores_a_eliminar: ", profesores_a_eliminar)
+        profesores_a_eliminar.delete()
 
-            # Verificar si hay profesores nuevos que no estaban en la lista de profesores antiguos
-            profesores_a_agregar = profesores.exclude(id__in=ids_profesores_antiguos)
+        # Verificar si hay profesores nuevos que no estaban en la lista de profesores antiguos
+        profesores_a_agregar = profesores.exclude(id__in=ids_profesores_antiguos)
+        if profesores_a_agregar.exists():
             for profesor in profesores_a_agregar:
                 UserParticipaAntp.objects.create(user=profesor, antp=anteproyecto)
                 print("Profesor actualizado: ", profesor)
         else:
-            # Si no hay profesores antiguos, simplemente crea los nuevos
-            for profesor in profesores:
-                UserParticipaAntp.objects.create(user=profesor, antp=anteproyecto)
-                print("Profesor actualizado: ", profesor)
+            # no hay estudiantes nuevos
+            print("no hay profesores nuevos que agregar")
 
         # Actualizar documentos
         # Verificar si los documentos nuevos son diferentes a los viejos

@@ -157,7 +157,7 @@ class AnteProyectoCortoSerializer(serializers.ModelSerializer):
 
 
 class UserParticipaAntpSerializer(serializers.ModelSerializer):
-    user = UserSerializer()
+    user = UserCortoSerializer()
     antp = serializers.PrimaryKeyRelatedField(read_only=True)
     class Meta:
         model = UserParticipaAntp
