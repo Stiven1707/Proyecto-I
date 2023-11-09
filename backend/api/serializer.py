@@ -145,7 +145,7 @@ class AntpSoporteDocSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class AnteProyectoPOSTSerializer(serializers.ModelSerializer):
-    
+    evaluadores = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)  # Ajusta según tu modelo de usuario
     class Meta:
         model = AnteProyecto
         fields = '__all__'
