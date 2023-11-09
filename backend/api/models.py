@@ -117,6 +117,7 @@ class Propuesta(models.Model):
 class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
+    evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados')
 
     def __str__(self):
         return self.antp_titulo
