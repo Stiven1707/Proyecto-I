@@ -128,11 +128,11 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             estudiante = User.objects.filter(id=estudiante_id).first()
             if estudiante.rol.rol_nombre != 'estudiante':
                 raise serializers.ValidationError(f"El usuario {estudiante.username} no es estudiante")
-        #validar que si sean profesores
-        for profesor_id in profesores_ids:
-            profesor = User.objects.filter(id=profesor_id).first()
-            if profesor.rol.rol_nombre != 'profesor':
-                raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
+        # #validar que si sean profesores
+        # for profesor_id in profesores_ids:
+        #     profesor = User.objects.filter(id=profesor_id).first()
+        #     if profesor.rol.rol_nombre != 'profesor':
+        #         raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
         #validar que si sean documentos
         for documento_id in documentos_ids:
             documento = Documento.objects.filter(id=documento_id).first()
@@ -222,10 +222,14 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
             if not documento:
                 raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
         #validar que no se repitan los estudiantes
-        
+        if len(estudiantes_ids) != len(set(estudiantes_ids)):
+            raise serializers.ValidationError("No se puede repetir estudiantes")
         #validar que no se repitan los profesores
-        
+        if len(profesores_ids) != len(set(profesores_ids)):
+            raise serializers.ValidationError("No se puede repetir profesores")
         #validar que no se repitan los documentos
+        if len(documentos_ids) != len(set(documentos_ids)):
+            raise serializers.ValidationError("No se puede repetir documentos")
         
         #validar que no se repitan los estudiantes y profesores
         if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
