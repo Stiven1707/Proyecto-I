@@ -144,6 +144,11 @@ class AntpSoporteDocSerializer(serializers.ModelSerializer):
         model = AntpSoporteDoc
         fields = '__all__'
 
+class AnteProyectoPOSTSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = AnteProyecto
+        fields = '__all__'
 class AnteProyectoSerializer(serializers.ModelSerializer):
     evaluadores = UserCortoSerializer(many=True)
     
