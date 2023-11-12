@@ -24,7 +24,7 @@ class TestCreateTokenAPI(unittest.TestCase):
     def test_create_token_Email_NoExist(self):
         data = {
             "email": "jnauta@unicauca.edu.co",
-            "password": "juancarlos123"
+            "password": "Juancarlos.123"
         }
         
         response = requests.post(self.base_url, json=data)
@@ -34,7 +34,7 @@ class TestCreateTokenAPI(unittest.TestCase):
     def test_create_token_wrongPassword(self):
         data = {
             "email": "jneuta@unicauca.edu.co",
-            "password": "juanclos123"
+            "password": "Juancarlos.23"
         }
         
         response = requests.post(self.base_url, json=data)
@@ -44,7 +44,7 @@ class TestCreateTokenAPI(unittest.TestCase):
     def test_create_token_Valid(self):
         data = {
             "email": "jneuta@unicauca.edu.co",
-            "password": "juancarlos123"
+            "password": "Juancarlos.123"
         }
         
         response = requests.post(self.base_url, json=data)
@@ -57,7 +57,7 @@ class TestCreateUserAPI(unittest.TestCase):
         # Configuración común para todas las pruebas
         self.base_url = 'http://127.0.0.1:8000/api/user/'
         self.headers = {
-            'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NTY1Mjk4LCJpYXQiOjE2OTk1NjQ5OTgsImp0aSI6IjFkMDdhMDcyZjM3ZjQ2MGQ4ZDdiYTE1YmM0NTFmZDE5IiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJqbmV1dGEiLCJpZCI6MSwiZnVsbF9uYW1lIjoiSnVhbiBDYXJsb3MgTmV1dGEgTW9udGVuZWdybyIsInJvbCI6MX0.ulKP0xGYfhYRITu1BvEijted8_TOosknOb5VSukrCFs'
+            'Authorization': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5NjI2NzA2LCJpYXQiOjE2OTk2MjY0MDYsImp0aSI6IjFiMDBiODZiNTU4NzQyZDY4MDVmN2FiZWI3NTE5NmE3IiwidXNlcl9pZCI6MSwidXNlcm5hbWUiOiJramltZW5leiIsImlkIjoxLCJmdWxsX25hbWUiOiJLZXZpbiBTdGl2ZW4gSmltZW5leiBQZXJhZmFuIiwicm9sIjoxfQ.GATTVmC4K6c94Qc6K-EJbgIITIpS1oBNbk0OcszWqoo'
         }
 
     def print_test_result(self, test_name, response):
@@ -76,7 +76,7 @@ class TestCreateUserAPI(unittest.TestCase):
 
     def test_create_user_invalid_username_length(self):
         data = {
-            "rol": 3,
+            "rol": 2,
             "username": "TheQuickBrownFoxJumpedOverTheLazyDogAndContinuedRunningThroughTheMeadowWhileEnjoyingTheBeautifulSunse123456",
             "email": "jmontes@unicauca.edu.co",
             "password": "jmontes123",
@@ -90,7 +90,7 @@ class TestCreateUserAPI(unittest.TestCase):
     
     def test_create_user_invalid_email_format(self):
         data = {
-            "rol": 3,
+            "rol": 2,
             "username": "jmontes", 
             "email": "jmontes.unicauca.edu.co", 
             "password": "jmontes123", 
@@ -103,7 +103,7 @@ class TestCreateUserAPI(unittest.TestCase):
 
     def test_create_user_invalid_password_length(self):
         data = {
-            "rol": 3,
+            "rol": 2,
             "username": "jmontes",
             "email": "jmontes@unicauca.edu.co",
             "password": "jmontes",
@@ -117,7 +117,7 @@ class TestCreateUserAPI(unittest.TestCase):
 
     def test_create_user_valid(self):
         data = {
-            "rol": 3,
+            "rol": 2,
             "username": "jmontes",
             "email": "jmontes@unicauca.edu.co",
             "password": "jmontes123",

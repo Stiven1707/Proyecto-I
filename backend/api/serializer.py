@@ -10,7 +10,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 class UserCortoSerializer(serializers.ModelSerializer):
-
+    rol = serializers.StringRelatedField()
     class Meta:
         model = User
         fields = ('id', 'email', 'rol')   
@@ -32,7 +32,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['username'] = user.username
         token['id'] = user.id
         token['full_name'] = user.profile.full_name
-        token['rol'] = user.rol.id
+        token['rol'] = user.rol.rol_nombre
 
         return token
 
@@ -40,7 +40,8 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
-
+    rol = serializers.StringRelatedField()
+    
     class Meta:
         model = User
         fields = ('id','rol', 'username', 'email', 'password', 'password2')
