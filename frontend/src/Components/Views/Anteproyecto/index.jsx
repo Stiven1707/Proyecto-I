@@ -50,7 +50,16 @@ const Anteproyecto = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-		setAnteproyectoList(data)
+        if (datosUsuario.rol === 'profesor'){
+            const entradaConIdEspecifico = data.filter(entry => {
+                // Verificar si el id buscado está presente en el array de usuarios
+                return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
+            });
+            setAnteproyectoList(entradaConIdEspecifico)
+
+        }else{
+            setAnteproyectoList(data)
+        }
 	}
 
     const getParticipantes = async () => {
@@ -61,8 +70,9 @@ const Anteproyecto = () => {
             }
         })
             // Dividir los datos según el rol
-        const profesoresData = data.filter((user) => user.rol === 1);
-        const estudiantesData = data.filter((user) => user.rol === 2);
+            console.log('data: ', data);
+        const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
+        const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
 
 		setProfesores(profesoresData);
         setEstudiantes(estudiantesData);
@@ -322,6 +332,10 @@ const Anteproyecto = () => {
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
                                         setTitle('Modificar')
+                                        console.log('Datos body: ', anteproyecto)
+                                        console.log('Estructura usuarios: ', anteproyecto.usuarios[0])
+                                        console.log('Estructura body body: ', body)
+
                                         addPropertyToBody('user', datosUsuario.user_id)
                                         addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
                                         addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
@@ -392,22 +406,23 @@ const Anteproyecto = () => {
                                                 >
                                                     
                                                 <option value='' disabled>Seleccionar Modalidad</option>
-                                                <option value='tesis'>Tesis</option>
-                                                <option value='practicaLaboral'>Practica laboral</option>
+                                                <option value='Trabajo de Investigación'>Trabajo de Investigación</option>
+                                                <option value='Práctica Profesional'>Práctica Profesional</option>
                                             </select>
                                     </div>
-                                    {datosUsuario.rol === 1? null:
+                                    {datosUsuario.rol === 'profesor'? null:
                                         <div>
                                             <label htmlFor="profesores" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
                                             <select
                                                     name="profesores"
                                                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                    value={body.profesores[0]}
+                                                    value={body.profesores}
                                                     onChange={(e)=>{
                                                         onChange(e)
                                                         
                                                     }}
                                                     >
+                                                        {console.log('Datos body: ', body)}
                                                         <option value={0}>Seleccionar al profesor encargado</option>
                                                         {profesores.map(profesor => (
                                                             <option key={profesor.id} value={profesor.id}>
@@ -435,7 +450,7 @@ const Anteproyecto = () => {
                                             ))} 
                                             </select>
                                     </div>
-                                    {body.antp_modalidad === 'tesis'?
+                                    {body.antp_modalidad === 'Trabajo de Investigación'?
                                         <div>
                                             <label htmlFor="estudiante2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
                                             <select
