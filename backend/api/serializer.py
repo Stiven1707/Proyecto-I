@@ -13,6 +13,7 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'username', 'email')
+
 class UserCortoSerializer(serializers.ModelSerializer):
     rol = RolSerializer()
     class Meta:
@@ -169,107 +170,80 @@ class UserParticipaAntpSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserParticipaAntp
         fields = '__all__'
-class UserRealizaTragGETSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(read_only=True)
-    user = UserCortoSerializer()
-    
-    class Meta:
-        model = UserRealizaTrag
-        fields = '__all__'
 
 
     
         
 class TrabajoDeGradoSerializer(serializers.ModelSerializer):
+    antp = AnteProyectoSerializer()
+    class Meta:
+        model = TrabajoGrado
+        fields = '__all__'
+
+class TrabajoDeGradoPOSTSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = TrabajoGrado
         fields = '__all__'
-class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset = TrabajoGrado.objects.all())
-    user = serializers.PrimaryKeyRelatedField(queryset = User.objects.all())
-    
-    class Meta:
-        model = UserRealizaTrag
-        fields = '__all__'
-    def is_valid(self, *, raise_exception=False):
-        # verifico que enviaron los campos requeridos
-        if not self.initial_data.get('user'):
-            raise serializers.ValidationError(f"(UserRealizaTragPOSTSerializer)El campo user es requerido")
-        if not self.initial_data.get('trag'):
-            raise serializers.ValidationError(f"(UserRealizaTragPOSTSerializer)El campo trag es requerido")
-        print('self.initial_data:',self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
-
-
-    def create(self, validated_data):
-        user_obj = validated_data.get('user')
-        trag_obj = validated_data.get('trag')
-        print('validated_data:',validated_data)
-
-
-        #teneindo en cuenta que: validated_data: {'trag': <TrabajoGrado: Trabajo2>, 'user': <User: kjimenez@unicauca.edu.co>} 
-
-
-
-        # Crear el objeto UserRealizaTrag con las relaciones
-        user_realiza_trag = UserRealizaTrag.objects.create(user=user_obj, trag=trag_obj)
-
-        return user_realiza_trag
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset = TrabajoGrado.objects.all())
-    doc = serializers.PrimaryKeyRelatedField(queryset = Documento.objects.all())
+    trag = TrabajoDeGradoSerializer()
+    doc = DocumentoSerializer(many=True)
     class Meta:
         model = TragSoporteDoc
         fields = '__all__'
 
-    def is_valid(self, *, raise_exception=False):
-        # verifico que enviaron los campos requeridos
-        if not self.initial_data.get('trag'):
-            raise serializers.ValidationError(f"(TragSoporteDocSerializer)El campo trag es requerido")
-        if not self.initial_data.get('doc'):
-            raise serializers.ValidationError(f"(TragSoporteDocSerializer)El campo doc es requerido")
-        print('self.initial_data:',self.initial_data)
-        return super().is_valid(raise_exception=raise_exception)
-    
-    def create(self, validated_data):
-        trag_obj = validated_data.get('trag')
-        doc_obj = validated_data.get('doc')
-        print('validated_data:',validated_data)
-
-
-        trag_soporte_doc = TragSoporteDoc.objects.create(trag=trag_obj, doc=doc_obj)
-        return trag_soporte_doc
-
-class UserRealizaTragSerializer(serializers.ModelSerializer):
-    users = serializers.SerializerMethodField()
-    docs = serializers.SerializerMethodField()  # Campo personalizado
+class TragSoporteDocPOSTSerializer(serializers.ModelSerializer):
+    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
+    doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
 
     class Meta:
-        model = TrabajoGrado
+        model = TragSoporteDoc
         fields = '__all__'
+
+class UserRealizaTragSerializer(serializers.ModelSerializer):
+    trag = TrabajoDeGradoSerializer()
+    user = UserCortoSerializer(many=True)
+
+    class Meta:
+        model = UserRealizaTrag
+        fields = '__all__'
+
+class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
+    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
+    user = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
+    
+    class Meta:
+        model = UserRealizaTrag
+        fields = '__all__'
+    
+class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.Serializer):
+    trag = TrabajoDeGradoSerializer()
+    user = UserCortoSerializer(many=True)
+    doc = DocumentoSerializer(many=True)
+
+class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.Serializer):
+    trag = TrabajoDeGradoPOSTSerializer()
+    doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
+
+    def create(self, validated_data):
+        trag = validated_data.get('trag')
+        docs = validated_data.get('doc')
+
+        # Creo el trabajo de grado 
+        trag = TrabajoGrado.objects.create(trag_fecha_recepcion=trag['trag_fecha_recepcion'], trag_fecha_sustentacion=trag['trag_fecha_sustentacion'], trag_estado=trag['trag_estado'], antp=trag['antp'])
+
+        
+
+        # Crear los objetos TragSoporteDoc con las relaciones
+        for doc in docs:
+            trag_soporte_doc = TragSoporteDoc.objects.create(trag=trag, doc=doc)
+
+        return trag
+
         
     
-    def get_docs(self, obj):
-        # Obtén los documentos relacionados para el objeto UserRealizaTrag
-        documentos = TragSoporteDoc.objects.filter(trag=obj.id)
-        serialized_docs = TragSoporteDocSerializer(documentos, many=True).data
-        return serialized_docs
     
-    
-    def get_users(self, obj):
-        # agrupe los usuarios asociados a un trabajo de grado
-        usuarios = UserRealizaTrag.objects.filter(trag=obj.id)
-        serialized_users = UserRealizaTragGETSerializer(usuarios, many=True).data
-        return serialized_users
-    
-
-
-# class UserSigueSegSerializer(serializers.ModelSerializer):
-#     class Meta:
-#         model = UserSigueSeg
-#         fields = '__all__'
 
 #info completa en base a tablas intermedias
 class UserParticipaAntpInfoCompletaSerializer(serializers.ModelSerializer):
