@@ -154,6 +154,7 @@ const Anteproyecto = () => {
             body.Documentos = IdDocumentos;
             if (isEdit){
                 console.log('Entro a editar: ', body);
+                prompt('da')
                 onEdit()
             }else{
                 console.log('Entro a crear: ', body);
