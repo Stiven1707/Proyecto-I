@@ -22,7 +22,11 @@ class MyTokenObtainPairView(TokenObtainPairView):
 class RegisterView(generics.ListCreateAPIView):
     queryset = User.objects.all()
     permission_classes = ([AllowAny])
-    serializer_class = RegisterSerializer
+
+    def get_serializer_class(self):
+        if self.request and self.request.method == 'POST':
+            return RegisterSerializer
+        return UserCortoSerializer
 
 class ActualizarUsuarioView(generics.UpdateAPIView):
     queryset = User.objects.all()

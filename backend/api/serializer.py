@@ -3,6 +3,10 @@ from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
+class RolSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Rol
+        fields = ('id', 'rol_nombre', 'rol_descripcion', 'rol_estado')
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -10,7 +14,7 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = ('id', 'username', 'email')
 class UserCortoSerializer(serializers.ModelSerializer):
-    rol = serializers.StringRelatedField()
+    rol = RolSerializer()
     class Meta:
         model = User
         fields = ('id', 'email', 'rol')   
@@ -37,11 +41,14 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         return token
 
 
+
+
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
     password2 = serializers.CharField(write_only=True, required=True)
-    rol = serializers.StringRelatedField()
-    
+
     class Meta:
         model = User
         fields = ('id','rol', 'username', 'email', 'password', 'password2')
@@ -61,13 +68,6 @@ class RegisterSerializer(serializers.ModelSerializer):
         user.save()
 
         return user
-
-
-class RolSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Rol
-        fields = ('id', 'rol_nombre', 'rol_descripcion', 'rol_estado')
-
 
 class ActualizarUsuarioSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
