@@ -17,7 +17,7 @@ class UserCortoSerializer(serializers.ModelSerializer):
     rol = RolSerializer()
     class Meta:
         model = User
-        fields = ('id', 'email', 'rol')   
+        fields = ('id','username', 'email', 'rol')   
 
 
 class ProfileSerializer(serializers.ModelSerializer):
