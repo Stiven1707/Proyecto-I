@@ -117,6 +117,11 @@ class Propuesta(models.Model):
 class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
+    #la modalidad es un dominio que conta de Trabajo de Investigación y Práctica Profesional
+    MODALIDADES = (
+    ('Trabajo de Investigación', 'Trabajo de Investigación'),
+    ('Práctica Profesional', 'Práctica Profesional'),)
+    antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados')
 
     def __str__(self):
@@ -141,8 +146,7 @@ class Seguimiento(models.Model):
         return str(self.id) + " - " + self.seg_fecha_recepcion.strftime("%d/%m/%Y")
 
 class TrabajoGrado(models.Model):
-    trag_titulo = models.CharField(max_length=255)
-    trag_modalidad = models.CharField(max_length=45)
+    antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE, related_name='trabajos_grado')
     trag_fecha_recepcion = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
     trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)

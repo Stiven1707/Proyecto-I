@@ -48,7 +48,7 @@ class UserSigueSegAdmin(admin.ModelAdmin):
     list_display = ('id', 'user', 'seg')
 
 class TrabajoDeGradoAdmin(admin.ModelAdmin):
-    list_display = ('id', 'trag_titulo', 'trag_modalidad')
+    list_display = ('id', 'antp', 'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
 
 class TragSoporteDocAdmin(admin.ModelAdmin):
     list_display = ('id', 'trag', 'doc')
