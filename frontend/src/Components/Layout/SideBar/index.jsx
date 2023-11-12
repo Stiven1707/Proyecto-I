@@ -27,17 +27,17 @@ const Layout = () => {
 
 
 	const Menus = [
-		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 1, state: false },
-		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: 1, state: false },
-		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: 1, state: false },
-		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: 1, state: false },
-		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: 1, state: false },
-		{ title: 'Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegrado', token: 1, state: false },
+		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 0, state: false },
+		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: ['profesor','admin'], state: false },
+		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor','admin'], state: false },
+		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: ['profesor','admin'], state: false },
+		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: ['','admin'], state: false },
+		{ title: 'Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegrado', token: ['profesor','admin'], state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },
 	];
 
 	Menus.map((Menu, index) => {
-		if (token === Menu.token || Menu.token === 0) {
+		if (Menu.token === 0 || Menu.token.includes(token)) {
 			Menu.state = true;
 		}
 		return Menu;
