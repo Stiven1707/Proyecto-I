@@ -226,6 +226,23 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.Serial
     trag = TrabajoDeGradoPOSTSerializer()
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
 
+    def validate(self, data):
+        trag = data.get('trag')
+        doc = data.get('doc')
+
+        # valido que el trag sea correcto
+        if not trag:
+            raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El trabajo de grado no puede ser nulo")
+        if not trag.get('antp'):
+            raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El anteproyecto no puede ser nulo")
+
+        for doc_id in doc:
+            doc = Documento.objects.filter(id=doc_id).first()
+            if not doc:
+                raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El documento con id {doc_id} no existe")
+
+        return data
+
     def create(self, validated_data):
         trag = validated_data.get('trag')
         docs = validated_data.get('doc')

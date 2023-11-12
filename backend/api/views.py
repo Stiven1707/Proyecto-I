@@ -167,8 +167,8 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         # Crear el AnteProyecto
         anteproyecto = serializer.save()
 
-        # Crear el seguimiento con fecha de hoy
-        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_estado='PENDIENTE')
+        # Crear el seguimiento con fecha de hoy y concepto hoy mas 10 dias
+        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_fecha_concepto=timezone.now() + timezone.timedelta(days=10), seg_estado='PENDIENTE')
         # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
         AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
 
