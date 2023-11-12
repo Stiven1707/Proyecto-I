@@ -222,43 +222,27 @@ class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.Serializer
     user = UserCortoSerializer(many=True)
     doc = DocumentoSerializer(many=True)
 
-class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.Serializer):
-    trag = TrabajoDeGradoPOSTSerializer()
+class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
 
-    def validate(self, data):
-        trag = data.get('trag')
-        doc = data.get('doc')
-
-        # valido que el trag sea correcto
-        if not trag:
-            raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El trabajo de grado no puede ser nulo")
-        if not trag.get('antp'):
-            raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El anteproyecto no puede ser nulo")
-
-        for doc_id in doc:
-            doc = Documento.objects.filter(id=doc_id).first()
-            if not doc:
-                raise serializers.ValidationError(f"(UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador)El documento con id {doc_id} no existe")
-
-        return data
+    class Meta:
+        model = TrabajoGrado
+        fields = '__all__'
 
     def create(self, validated_data):
-        trag = validated_data.get('trag')
-        docs = validated_data.get('doc')
+        # Extraer la información del campo 'doc'
+        documentos_data = validated_data.pop('doc', [])
 
-        # Creo el trabajo de grado 
-        trag = TrabajoGrado.objects.create(trag_fecha_recepcion=trag['trag_fecha_recepcion'], trag_fecha_sustentacion=trag['trag_fecha_sustentacion'], trag_estado=trag['trag_estado'], antp=trag['antp'])
+        # Crear la instancia de TrabajoGrado
+        trabajo_grado = TrabajoGrado.objects.create(**validated_data)
 
-        
+        # Asociar TrabajoGrado con Documento
+        for doc_id in documentos_data:
+            #documento = Documento.objects.get(id=doc_id)
+            TragSoporteDoc.objects.create(trag=trabajo_grado, doc=doc_id)
 
-        # Crear los objetos TragSoporteDoc con las relaciones
-        for doc in docs:
-            trag_soporte_doc = TragSoporteDoc.objects.create(trag=trag, doc=doc)
-
-        return trag
-
-        
+        return trabajo_grado
+   
     
     
 
