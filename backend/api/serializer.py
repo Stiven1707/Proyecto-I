@@ -187,8 +187,8 @@ class TrabajoDeGradoPOSTSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
-    trag = TrabajoDeGradoSerializer()
-    doc = DocumentoSerializer(many=True)
+    
+    doc = DocumentoSerializer()
     class Meta:
         model = TragSoporteDoc
         fields = '__all__'
