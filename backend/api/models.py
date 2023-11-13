@@ -122,7 +122,7 @@ class AnteProyecto(models.Model):
     ('Trabajo de Investigación', 'Trabajo de Investigación'),
     ('Práctica Profesional', 'Práctica Profesional'),)
     antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
-    evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados')
+    evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados',null=True, blank=True)
 
     def __str__(self):
         return self.antp_titulo
@@ -160,7 +160,7 @@ class TragSoporteDoc(models.Model):
     doc = models.ForeignKey(Documento, on_delete=models.CASCADE)
 
     def __str__(self):
-        return self.trag.trag_titulo + " - " + self.doc.doc_nombre
+        return self.trag.antp.antp_titulo + " - " + self.doc.doc_nombre
 
 
 
@@ -170,7 +170,8 @@ class UserRealizaTrag(models.Model):
     
 
     def __str__(self):
-        return self.user.username + " - " + self.trag.trag_titulo
+        return self.user.username + " - " + self.trag.antp.antp_titulo
+    
 class UserParticipaAntp(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     antp = models.ForeignKey(AnteProyecto, on_delete=models.CASCADE)

@@ -587,17 +587,17 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
         return UserParticipaAntpRealizaTragSoporteDocsSerializador
     
     def get(self, request, *args, **kwargs):
-        trabajos_grado = TrabajoGrado.objects.all()
+        trabajo_grado = TrabajoGrado.objects.all()
         data = []
-        for trabajo_grado in trabajos_grado:
+        for trabajo_grado in trabajo_grado:
             users_realiza_trag = UserRealizaTrag.objects.filter(trag=trabajo_grado).select_related('user')
             documentos = TragSoporteDoc.objects.filter(trag=trabajo_grado).select_related('doc')
             serialized_users_realiza_trag = UserRealizaTragSerializer(users_realiza_trag, many=True).data
             serialized_documentos = TragSoporteDocSerializer(documentos, many=True).data
             data.append({
-                'trabajo_grado': TrabajoDeGradoSerializer(trabajo_grado).data,
-                'users_realiza_trag': serialized_users_realiza_trag,
-                'documentos': serialized_documentos,
+                'trag': TrabajoDeGradoSerializer(trabajo_grado).data,
+                'users': serialized_users_realiza_trag,
+                'doc': serialized_documentos,
             })
         return Response(data)
 
@@ -715,6 +715,28 @@ class TrabajoDeGradoCreate(generics.CreateAPIView):
 
 
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
-    queryset = TrabajoGrado.objects.all()
-    serializer_class = TrabajoDeGradoSerializer
+    #serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
+
+    def get_queryset(self):
+        return TrabajoGrado.objects.filter(id=self.kwargs.get('pk')).first()
+
+    def get_serializer_class(self, *args, **kwargs):
+        if self.request and self.request.method == 'POST':
+            return UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
+        return UserParticipaAntpRealizaTragSoporteDocsSerializador
+    
+    def get(self, request, *args, **kwargs):
+        trabajo_grado = self.get_queryset()
+        data = []
+        users_realiza_trag = UserRealizaTrag.objects.filter(trag=trabajo_grado).select_related('user')
+        documentos = TragSoporteDoc.objects.filter(trag=trabajo_grado).select_related('doc')
+        serialized_users_realiza_trag = UserRealizaTragSerializer(users_realiza_trag, many=True).data
+        serialized_documentos = TragSoporteDocSerializer(documentos, many=True).data
+        data.append({
+            'trag': TrabajoDeGradoSerializer(trabajo_grado).data,
+            'users': serialized_users_realiza_trag,
+            'doc': serialized_documentos,
+        })
+        
+        return Response(data)
