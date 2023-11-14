@@ -187,39 +187,36 @@ class TrabajoDeGradoPOSTSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
-    
     doc = DocumentoSerializer()
+    
     class Meta:
         model = TragSoporteDoc
-        fields = '__all__'
+        fields = ('doc',)
 
 class TragSoporteDocPOSTSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
 
     class Meta:
         model = TragSoporteDoc
-        fields = '__all__'
+        fields =  ('doc',)
 
 class UserRealizaTragSerializer(serializers.ModelSerializer):
-    trag = TrabajoDeGradoSerializer()
-    user = UserCortoSerializer(many=True)
+    user = UserCortoSerializer()
 
     class Meta:
         model = UserRealizaTrag
-        fields = '__all__'
+        fields = ('user',)
 
 class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
-    user = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     
     class Meta:
         model = UserRealizaTrag
-        fields = '__all__'
+        fields = ('user',)
     
 class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
-    user = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())
-    doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all())
+    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set', read_only=True)
+    #user = serializers.PrimaryKeyRelatedField(source='userrealizatrag_set', read_only=True)
 
     class Meta:
         model = TrabajoGrado
@@ -242,7 +239,7 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
         # Del trabajo de grado, extraer el anteproyecto y con el los usuarios a asociar
         anteproyecto = trabajo_grado.antp
         usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
-
+        print('usuarios:',usuarios)
         # Asociar TrabajoGrado con Usuarios
         for user_id in usuarios:
             user = User.objects.get(id=user_id)

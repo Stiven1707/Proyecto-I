@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg, UserRealizaTrag, TragSoporteDoc
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer,  AntpUserDocsSerializer,UserRealizaTragPOSTSerializer,AnteProyectoPOSTSerializer, UserParticipaAntpRealizaTragSoporteDocsSerializador, UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer,  AntpUserDocsSerializer,AnteProyectoPOSTSerializer, UserParticipaAntpRealizaTragSoporteDocsSerializador, UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
 from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -715,18 +715,22 @@ class TrabajoDeGradoCreate(generics.CreateAPIView):
 
 
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
-    #serializer_class = TrabajoDeGradoSerializer
     permission_classes = ([IsAuthenticated])
-
-    def get_queryset(self):
-        return TrabajoGrado.objects.filter(id=self.kwargs.get('pk')).first()
+    serializer_class = UserParticipaAntpRealizaTragSoporteDocsSerializador
+    queryset = TrabajoGrado.objects.all()
 
     def get_serializer_class(self, *args, **kwargs):
         if self.request and self.request.method == 'POST':
             return UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
         return UserParticipaAntpRealizaTragSoporteDocsSerializador
     
-    def get(self, request, *args, **kwargs):
+    
+    def get_tal_vez(self, request, *args, **kwargs):
+        trabajo_grado = self.get_queryset()
+        serializer = UserParticipaAntpRealizaTragSoporteDocsSerializador(trabajo_grado)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    def get_not(self, request, *args, **kwargs):
         trabajo_grado = self.get_queryset()
         data = []
         users_realiza_trag = UserRealizaTrag.objects.filter(trag=trabajo_grado).select_related('user')

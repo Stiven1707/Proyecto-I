@@ -122,7 +122,7 @@ class AnteProyecto(models.Model):
     ('Trabajo de Investigación', 'Trabajo de Investigación'),
     ('Práctica Profesional', 'Práctica Profesional'),)
     antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
-    evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados',null=True, blank=True)
+    evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
 
     def __str__(self):
         return self.antp_titulo
