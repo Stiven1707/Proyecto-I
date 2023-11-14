@@ -215,12 +215,26 @@ class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
         fields = ('user',)
     
 class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
-    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set',queryset=Documento.objects.all(), required=False)
+    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set.',queryset=Documento.objects.all(), required=False)
     user = serializers.PrimaryKeyRelatedField(many=True, source='userrealizatrag_set',queryset=User.objects.all(), required=False)
 
     class Meta:
         model = TrabajoGrado
         fields = '__all__'
+
+class updateUserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
+    doc_ids = serializers.SerializerMethodField()
+    user_ids = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrabajoGrado
+        fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+    
+    def get_doc_ids(self, obj):
+        return list(obj.tragsoportedoc_set.all().values_list('doc_id', flat=True))
+
+    def get_user_ids(self, obj):
+        return list(obj.userrealizatrag_set.all().values_list('user_id', flat=True))
 
 class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
