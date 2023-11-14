@@ -110,10 +110,13 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             documentos = AntpSoporteDoc.objects.filter(antp=anteproyecto).select_related('doc')
             serialized_usuarios = UserParticipaAntpSerializer(usuarios, many=True).data
             serialized_documentos = AntpSoporteDocSerializer(documentos, many=True).data
+            seguimientos = AntpSeguidoSeg.objects.filter(antp=anteproyecto).select_related('seg')
+            serialized_seguimientos = AntpSeguidoSegSerializer(seguimientos, many=True).data
             data.append({
                 'anteproyecto': AnteProyectoSerializer(anteproyecto).data,
                 'usuarios': serialized_usuarios,
                 'documentos': serialized_documentos,
+                'seguimientos': serialized_seguimientos,
             })
         return Response(data)
         
