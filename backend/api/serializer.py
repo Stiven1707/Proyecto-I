@@ -188,7 +188,7 @@ class TrabajoDeGradoPOSTSerializer(serializers.ModelSerializer):
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
     doc = DocumentoSerializer()
-    
+
     class Meta:
         model = TragSoporteDoc
         fields = ('doc',)
@@ -215,8 +215,8 @@ class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
         fields = ('user',)
     
 class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
-    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set', read_only=True)
-    #user = serializers.PrimaryKeyRelatedField(source='userrealizatrag_set', read_only=True)
+    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set',queryset=Documento.objects.all(), required=False)
+    user = serializers.PrimaryKeyRelatedField(many=True, source='userrealizatrag_set',queryset=User.objects.all(), required=False)
 
     class Meta:
         model = TrabajoGrado
