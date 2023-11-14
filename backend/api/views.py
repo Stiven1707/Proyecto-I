@@ -597,7 +597,7 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
             data.append({
                 'trag': TrabajoDeGradoSerializer(trabajo_grado).data,
                 'users': serialized_users_realiza_trag,
-                'doc': serialized_documentos,
+                'docs': serialized_documentos,
             })
         return Response(data)
 
