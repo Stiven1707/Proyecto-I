@@ -2,7 +2,7 @@ from django.shortcuts import render
 
 # Create your views here.
 from .models import Profile, User, Rol, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, UserParticipaAntp, AntpSoporteDoc, AntpSeguidoSeg, UserSigueSeg, UserRealizaTrag, TragSoporteDoc
-from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer,  AntpUserDocsSerializer,AnteProyectoPOSTSerializer, UserParticipaAntpRealizaTragSoporteDocsSerializador, UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador,updateUserParticipaAntpRealizaTragSoporteDocsSerializador
+from .serializer import UserSerializer, RolSerializer, ProfileSerializer, MyTokenObtainPairSerializer, RegisterSerializer, ActualizarUsuarioSerializer, PropuestaSerializer , AnteProyectoSerializer, SeguimientoSerializer, DocumentoSerializer, TrabajoDeGradoSerializer, UserParticipaAntpSerializer, AntpSoporteDocSerializer, AntpSeguidoSegSerializer, AntpSeguidoSegCreateSerializer, UserSigueSegSerializer,UserParticipaAntpInfoCompletaSerializer, AntpSeguidoSegInfoCompleSerializer, AntpSoporteDocInfoCompleSerializer, UserSigueSegInfoCompleSerializer, SeguimientoAnteproyectoUsuarioSerializer, NewSeguimientoSerializer, UserRealizaTragSerializer, TragSoporteDocSerializer, UserCortoSerializer,  AntpUserDocsSerializer,AnteProyectoPOSTSerializer, UserParticipaAntpRealizaTragSoporteDocsSerializador, UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador,updateUserParticipaAntpRealizaTragSoporteDocsSerializador,updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
 from rest_framework import generics, status, serializers
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
@@ -718,29 +718,62 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
     permission_classes = ([IsAuthenticated])
     serializer_class = updateUserParticipaAntpRealizaTragSoporteDocsSerializador
     queryset = TrabajoGrado.objects.all()
-
-    def get_serializer_class(self, *args, **kwargs):
+    def get_serializer_class(self):
         if self.request and self.request.method == 'POST':
-            return UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
+            return updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
         return updateUserParticipaAntpRealizaTragSoporteDocsSerializador
-    
 
-    def get_tal_vez(self, request, *args, **kwargs):
-        trabajo_grado = self.get_queryset()
-        serializer = UserParticipaAntpRealizaTragSoporteDocsSerializador(trabajo_grado)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-    
-    def get_not(self, request, *args, **kwargs):
-        trabajo_grado = self.get_queryset()
-        data = []
-        users_realiza_trag = UserRealizaTrag.objects.filter(trag=trabajo_grado).select_related('user')
-        documentos = TragSoporteDoc.objects.filter(trag=trabajo_grado).select_related('doc')
-        serialized_users_realiza_trag = UserRealizaTragSerializer(users_realiza_trag, many=True).data
-        serialized_documentos = TragSoporteDocSerializer(documentos, many=True).data
-        data.append({
-            'trag': TrabajoDeGradoSerializer(trabajo_grado).data,
-            'users': serialized_users_realiza_trag,
-            'doc': serialized_documentos,
-        })
+    def update(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
         
-        return Response(data)
+        doc_ids = request.data.get('doc_ids', None)
+        user_ids = request.data.get('user_ids', None)
+        print("doc_ids: ", doc_ids)
+        print("user_ids: ", user_ids)
+        documentos = []
+        usuarios = []
+        # buscar los docs 
+        for doc in doc_ids:
+            documento = Documento.objects.filter(id=doc).first()
+            if not documento:
+                raise serializers.ValidationError(f"El documento con id {doc} no existe")
+            else:
+                print("documento: ", documento)
+                # agrego en una lista de documentos
+                documentos.append(documento)
+          
+        # buscar los users
+        for user in user_ids:
+            usuario = User.objects.filter(id=user).first()
+            if not usuario:
+                raise serializers.ValidationError(f"El usuario con id {user} no existe")
+            else:
+                print("usuario: ", usuario)
+                # agrego en una lista de usuarios
+                usuarios.append(usuario)
+        # buacar en la tabla intermedia TragSoporteDoc
+        documentos_TragSoporteDoc = TragSoporteDoc.objects.filter(trag=instance)
+        # buacar en la tabla intermedia UserRealizaTrag
+        usuarios_UserRealizaTrag = UserRealizaTrag.objects.filter(trag=instance)
+        # eliminar los documentos que no esten en la lista de documentos
+        documentos_a_eliminar = documentos_TragSoporteDoc.exclude(doc__in=documentos)
+        documentos_a_eliminar.delete()
+        # eliminar los usuarios que no esten en la lista de usuarios
+        usuarios_a_eliminar = usuarios_UserRealizaTrag.exclude(user__in=usuarios)
+        usuarios_a_eliminar.delete()
+        # crear los documentos que no esten en la tabla intermedia TragSoporteDoc
+        for documento in documentos:
+            if not TragSoporteDoc.objects.filter(trag=instance, doc=documento).exists():
+                TragSoporteDoc.objects.create(trag=instance, doc=documento)
+        # crear los usuarios que no esten en la tabla intermedia UserRealizaTrag
+        for usuario in usuarios:
+            if not UserRealizaTrag.objects.filter(trag=instance, user=usuario).exists():
+                UserRealizaTrag.objects.create(trag=instance, user=usuario)
+        # actualizar el trabajo de grado y responder apropiadamente
+        self.perform_update(serializer)
+        return Response(serializer.data)
+
+    
+    
