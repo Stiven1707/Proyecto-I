@@ -4,13 +4,12 @@ import Dashboard from "../Views/Dashboard";
 import SideBar from "../Layout/SideBar";
 import PropuestaTesis from "../Views/PropuestaTesis";
 import Anteproyecto from "../Views/Anteproyecto";
+import EvaluacionAnteproyecto from "../Views/AnteproyectoJurado";
 import Seguimiento from "./../Views/Seguimiento";
 import Usuarios from "./../Views/Usuarios";
 import TrabajoDeGrado from "../Views/TrabajoDeGrado";
 import jwt_decode from "jwt-decode";
-//import PrivateRoute from "./PrivateRoute";
 
-// Function to get the user role from the token
 const comprobarAcceso = (accesoUsuario) => {
     const datosUsuarioCifrados = JSON.parse(
         localStorage.getItem("authTokens")
@@ -19,8 +18,6 @@ const comprobarAcceso = (accesoUsuario) => {
 
     return accesoUsuario.includes(datosUsuario.rol); // Adjust this based on your data structure
 };
-
-
 
 const Layout = () => {
     return (
@@ -37,6 +34,7 @@ const Layout = () => {
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','admin'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso([])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso([])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
