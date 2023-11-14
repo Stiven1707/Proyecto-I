@@ -249,7 +249,8 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
         for doc_id in documentos_data:
             #documento = Documento.objects.get(id=doc_id)
             TragSoporteDoc.objects.create(trag=trabajo_grado, doc=doc_id)
-
+        # para la respuesta quiero añadirle el campo doc
+        trabajo_grado.doc = documentos_data
         return trabajo_grado
     
     def update(self, instance, validated_data):
