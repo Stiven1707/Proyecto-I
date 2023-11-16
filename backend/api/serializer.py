@@ -187,40 +187,62 @@ class TrabajoDeGradoPOSTSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class TragSoporteDocSerializer(serializers.ModelSerializer):
-    
     doc = DocumentoSerializer()
+
     class Meta:
         model = TragSoporteDoc
-        fields = '__all__'
+        fields = ('doc',)
 
 class TragSoporteDocPOSTSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
 
     class Meta:
         model = TragSoporteDoc
-        fields = '__all__'
+        fields =  ('doc',)
 
 class UserRealizaTragSerializer(serializers.ModelSerializer):
-    trag = TrabajoDeGradoSerializer()
-    user = UserCortoSerializer(many=True)
+    user = UserCortoSerializer()
 
     class Meta:
         model = UserRealizaTrag
-        fields = '__all__'
+        fields = ('user',)
 
 class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
-    trag = serializers.PrimaryKeyRelatedField(queryset=TrabajoGrado.objects.all(), required=True)
-    user = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
+    user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
     
     class Meta:
         model = UserRealizaTrag
-        fields = '__all__'
+        fields = ('user',)
     
-class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.Serializer):
-    trag = TrabajoDeGradoSerializer()
-    user = UserCortoSerializer(many=True)
-    doc = DocumentoSerializer(many=True)
+class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
+    doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set.',queryset=Documento.objects.all(), required=False)
+    user = serializers.PrimaryKeyRelatedField(many=True, source='userrealizatrag_set',queryset=User.objects.all(), required=False)
+
+    class Meta:
+        model = TrabajoGrado
+        fields = '__all__'
+
+class updateUserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
+    doc_ids = serializers.SerializerMethodField()
+    user_ids = serializers.SerializerMethodField()
+
+    class Meta:
+        model = TrabajoGrado
+        fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+    
+    def get_doc_ids(self, obj):
+        return list(obj.tragsoportedoc_set.all().values_list('doc_id', flat=True))
+
+    def get_user_ids(self, obj):
+        return list(obj.userrealizatrag_set.all().values_list('user_id', flat=True))
+
+class updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
+    doc_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
+    user_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
+
+    class Meta:
+        model = TrabajoGrado
+        fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
 
 class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
@@ -236,12 +258,58 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
         # Crear la instancia de TrabajoGrado
         trabajo_grado = TrabajoGrado.objects.create(**validated_data)
 
+        # Del trabajo de grado, extraer el anteproyecto y con el los usuarios a asociar
+        anteproyecto = trabajo_grado.antp
+        usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
+        print('usuarios:',usuarios)
+        # Asociar TrabajoGrado con Usuarios
+        for user_id in usuarios:
+            user = User.objects.get(id=user_id)
+            UserRealizaTrag.objects.create(trag=trabajo_grado, user=user)
+
         # Asociar TrabajoGrado con Documento
         for doc_id in documentos_data:
             #documento = Documento.objects.get(id=doc_id)
             TragSoporteDoc.objects.create(trag=trabajo_grado, doc=doc_id)
-
+        # para la respuesta quiero añadirle el campo doc
+        trabajo_grado.doc = documentos_data
         return trabajo_grado
+    
+    def update(self, instance, validated_data):
+        # Extraer la información del campo 'doc'
+        documentos_data = validated_data.pop('doc', [])
+         # extraer de "user": [], los usuarios a asociar
+        users_data = validated_data.pop('user', [])
+        
+
+
+        # Actualizar la instancia de TrabajoGrado
+        instance.trag_fecha_recepcion = validated_data.get('trag_fecha_recepcion', instance.trag_fecha_recepcion)
+        instance.trag_fecha_sustentacion = validated_data.get('trag_fecha_sustentacion', instance.trag_fecha_sustentacion)
+        instance.trag_estado = validated_data.get('trag_estado', instance.trag_estado)
+        # Actualizar la relacion con el antp
+        instance.antp = validated_data.get('antp', instance.antp)
+        instance.save()
+
+        
+
+        # Actualizar los usuarios asociados
+        for user_id in users_data:
+            user = User.objects.get(id=user_id)
+            UserRealizaTrag.objects.get_or_create(trag=instance, user=user)
+
+        # anteproyecto = instance.antp
+        # usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
+        # for user_id in usuarios:
+        #     user = User.objects.get(id=user_id)
+        #     UserRealizaTrag.objects.get_or_create(trag=instance, user=user)
+
+        # Actualizar los documentos asociados
+        for doc_id in documentos_data:
+            documento = Documento.objects.get(id=doc_id)
+            TragSoporteDoc.objects.get_or_create(trag=instance, doc=documento)
+
+        return instance
    
     
     
