@@ -31,7 +31,7 @@ const Layout = () => {
 		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: ['profesor','admin'], state: false },
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor','admin'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: ['profesor','admin'], state: false },
-		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: ['','admin'], state: false },
+		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: ['profesor','admin'], state: false },
 		{ title: 'Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegrado', token: ['profesor','admin'], state: false },
 		{ title: 'Evaluar Anteproyectos', src: `${Chat}`, path: '/app/anteproyectosJ', token: ['profesor','admin'], state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },

@@ -8,7 +8,7 @@ const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    console.log(datosUsuario)
+    
     let IdDocumentos = [];
     const initialState = {
         user: datosUsuario.user_id,
@@ -69,8 +69,6 @@ const Anteproyecto = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-            // Dividir los datos según el rol
-            console.log('data: ', data);
         const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
         const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
 
@@ -80,7 +78,7 @@ const Anteproyecto = () => {
 
     useEffect(()=>{
 		getAnteproyectos();
-        getParticipantes()}, )
+        getParticipantes()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -140,7 +138,6 @@ const Anteproyecto = () => {
                 IdProfesores.push(parseInt(body.coprofesor));
             }
             IdEstudiantes.push(parseInt(body.estudiante1));
-            console.log(body.estudiante2==='');
             if(!body.estudiante2===''){
                 IdEstudiantes.push(parseInt(body.estudiante2));
             }
@@ -210,7 +207,6 @@ const Anteproyecto = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        console.log('Se pudo actualizar correctamente ', JSON.stringify(body));
         axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -281,12 +277,12 @@ const Anteproyecto = () => {
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Profesores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
+                            <th scope='col' className='border px-6 py-3'>Observaciones</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -294,7 +290,6 @@ const Anteproyecto = () => {
                     <tbody>
                     {anteproyectoList.map((anteproyecto)=>(
                         <tr key={anteproyecto.anteproyecto.id}>
-                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.id}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_descripcion}</td>
                             <td className='border px-6 py-4'>{
@@ -315,19 +310,15 @@ const Anteproyecto = () => {
                             
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
-                                {doc.doc.doc_nombre}
+                                {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
-                                
                             })}</td>
+                            <td className='border px-6 py-4'>{anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
                                         setTitle('Modificar')
-                                        console.log('Datos body: ', anteproyecto)
-                                        console.log('Estructura usuarios: ', anteproyecto.usuarios[0])
-                                        console.log('Estructura body body: ', body)
-
                                         addPropertyToBody('user', datosUsuario.user_id)
                                         addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
                                         addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
@@ -370,7 +361,6 @@ const Anteproyecto = () => {
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                        {isEdit? console.log('Prueba datos',body):null}
                                             <textarea name='antp_titulo' label='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.antp_titulo}
                                             onChange={onChange}
@@ -414,7 +404,6 @@ const Anteproyecto = () => {
                                                         
                                                     }}
                                                     >
-                                                        {console.log('Datos body: ', body)}
                                                         <option value={0}>Seleccionar al profesor encargado</option>
                                                         {profesores.map(profesor => (
                                                             <option key={profesor.id} value={profesor.id}>
@@ -477,7 +466,6 @@ const Anteproyecto = () => {
                                             multiple
                                             />
                                     </div>
-                                    {console.log('Documentos: ',body)}
                                     {isEdit && Array.isArray(body.documentos)? 
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
@@ -485,7 +473,6 @@ const Anteproyecto = () => {
                                                     {
                                                     body.documentos.map((doc) => {
                                                         IdDocumentos.push(parseInt(doc.doc.id))
-                                                        console.log(body.documentos);
                                                         return (
                                                             <div key={doc.doc.id}>
                                                             <a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

@@ -14,6 +14,7 @@ const Anteproyecto = () => {
         user: datosUsuario.user_id,
         antp_titulo: "",
         antp_descripcion: "",
+        seg_observaciones: "",
         Documentos: [],
 	}
 
@@ -22,7 +23,6 @@ const Anteproyecto = () => {
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
 	const [isId, setIsId] = useState('');
-	const [isEdit, setIsEdit] = useState(false);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
@@ -48,7 +48,7 @@ const Anteproyecto = () => {
 
     useEffect(()=>{
 		getAnteproyectos();
-        }, )
+        }, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -56,7 +56,6 @@ const Anteproyecto = () => {
             ...body,
             [name]: value
         });
-        //setSelectedPeriodo(value !== "");
     };
 
 
@@ -87,87 +86,24 @@ const Anteproyecto = () => {
                         },
                     });
                 });
-        
                 await Promise.all(promises).then((results) => {
                     results.forEach((data) => {
                         IdDocumentos.push(parseInt(data.data.id));
                     });
                 });
         }
-            const IdProfesores = [];
-            const IdEstudiantes = [];
-            IdProfesores.push(datosUsuario.user_id)
-            if(!body.coprofesor===''){
-                IdProfesores.push(parseInt(body.coprofesor));
-            }
-            IdEstudiantes.push(parseInt(body.estudiante1));
-            console.log(body.estudiante2==='');
-            if(!body.estudiante2===''){
-                IdEstudiantes.push(parseInt(body.estudiante2));
-            }
-            body.profesores = IdProfesores;
-            body.estudiantes = IdEstudiantes;
             body.Documentos = IdDocumentos;
-            if (isEdit){
-                onEdit()
-            }else{
-                onSubmit();
-            }
+            onEdit();
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
 
     const checking = () => {
-        if (body.antp_titulo === '') {
-            setShowMensaje("Por favor llene el campo titulo");
-            setIsValid(false);
-            return false;
-        }
-        if (body.antp_descripcion === '') {
-            setShowMensaje("Por favor llene el campo descripcion");
-            setIsValid(false);
-            return false;
-        }
-        if (body.antp_modalidad === '') {
-            setShowMensaje("Por favor seleccione una modalidad");
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === '') {
-            setShowMensaje(`Por favor seleccione ${body.antp_modalidad==='tesis'? 'al menos un estudiante ': 'al estudiante'}`);
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === body.estudiante2) {
-            setShowMensaje('No se puede elegir el mismo estudiante');
-            setIsValid(false);
-            return false;
-        }
         setIsValid(true);
         uploadFiles();
     };
-    
-    const onSubmit = async () => {
-        const token = JSON.parse(localStorage.getItem('authTokens')).access;
-        setShowModal(false);
-        axios
-            .post('http://127.0.0.1:8000/api/anteproyectos/', body, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then(() => {
-                setBody(initialState);
-                getAnteproyectos();
-            })
-            .catch(({ response }) => {
-                console.log(response);
-            });
-    };
-    
 
-        
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
@@ -192,8 +128,6 @@ const Anteproyecto = () => {
             [name]: value
         }));
     };
-
-
     return (
         <div >
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -244,9 +178,9 @@ const Anteproyecto = () => {
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody(anteproyecto)
                                         setTitle('Modificar')
-                                        console.log('Datos body: ', anteproyecto)
+                                        /* console.log('Datos body: ', anteproyecto)
                                         console.log('Estructura usuarios: ', anteproyecto.usuarios[0])
-                                        console.log('Estructura body body: ', body)
+                                        console.log('Estructura body body: ', body) */
 
                                         addPropertyToBody('user', datosUsuario.user_id)
                                         addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
@@ -256,7 +190,6 @@ const Anteproyecto = () => {
                                         
                                         //addPropertyToBody('estudiante2', anteproyecto.usuarios[1].user.id)
                                         setIsValid(true)
-                                        setIsEdit(true)
                                         setShowModal(true);}}
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
@@ -282,7 +215,6 @@ const Anteproyecto = () => {
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                        {isEdit? console.log('Prueba datos',body):null}
                                             <textarea name='antp_titulo' label='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.antp_titulo}
                                             onChange={onChange}
@@ -328,15 +260,14 @@ const Anteproyecto = () => {
                                             multiple
                                             />
                                     </div>
-                                    {console.log('Documentos: ',body)}
-                                    {isEdit && Array.isArray(body.documentos)? 
+                                    {Array.isArray(body.documentos)? 
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
                                                 <div>
                                                     {
                                                     body.documentos.map((doc) => {
                                                         IdDocumentos.push(parseInt(doc.doc.id))
-                                                        console.log(body.documentos);
+                                                        
                                                         return (
                                                             <div key={doc.doc.id}>
                                                             <a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

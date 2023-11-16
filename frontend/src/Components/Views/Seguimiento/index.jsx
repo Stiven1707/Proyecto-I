@@ -60,7 +60,6 @@ const Seguimiento = () => {
       }
     }
     setShowModal(false);
-    console.log('datos body: ', body, ' id: ', idAnteproyecto);
     axios
       .post(`http://127.0.0.1:8000/api/seguimientos/anteproyecto/${idAnteproyecto}/`, datosSeguimiento, {
         headers: {
