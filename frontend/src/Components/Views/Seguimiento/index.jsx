@@ -14,6 +14,8 @@ const Seguimiento = () => {
     seg_fecha_asignacion: '',
     seg_fecha_concepto: '',
     seg_observaciones: '',
+    evaluador1: '',
+    evaluador2: '',
     seg_estado: 'En espera',
   };
 
@@ -26,6 +28,10 @@ const Seguimiento = () => {
   const [seguimientoDelete, setSeguimientoDelete] = useState('');
   const [isId, setIsId] = useState('');
   const [isEdit, setIsEdit] = useState(false);
+  const [isActive, setIsActive] = useState(false);
+  const [profesores, setProfesores] = useState([]);
+  const [estudiantes, setEstudiantes] = useState([]);
+
 
 
   const getSeguimientos = async () => {
@@ -38,9 +44,25 @@ const Seguimiento = () => {
     setSeguimientoList(data);
   };
 
+  const getParticipantes = async () => {
+    const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+    const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+      const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
+      const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
+      
+      setProfesores(profesoresData);
+      setEstudiantes(estudiantesData);
+
+    }
+
 
   useEffect(() => {
     getSeguimientos();
+    getParticipantes();
   }, []);
 
   const onChange = ({ target }) => {
@@ -110,6 +132,13 @@ const Seguimiento = () => {
       });
   };
 
+  const addPropertyToBody = (name, value) => {
+    setBody(prevBody => ({
+        ...prevBody,
+        [name]: value
+    }));
+  };
+
   return (
     <div>
       <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -158,24 +187,55 @@ const Seguimiento = () => {
           </div>
         </div>
         <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
-            <tr>
-              <th scope="col" className="border px-6 py-3">#</th>
-              <th scope="col" className="border px-6 py-3">Titulo</th>
-              <th scope="col" className="border px-6 py-3">Seguimientos</th>
-            </tr>
-          </thead>
           <tbody>
             {seguimientoList.map((seguimiento) => (
               <tr key={seguimiento.anteproyecto.id}>
-                {console.log(seguimiento)}
-                <td className="border px-6 py-4">{seguimiento.anteproyecto.id}</td>
-                <td className="border px-6 py-4">{seguimiento.anteproyecto.antp_titulo}</td>
+                <table className='sticky w-full text-sm text-left text-gray-500 dark:text-gray-400'>
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+                      <tr>
+                        <th scope="col" className="border px-6 py-3">Titulo</th>
+                        <th scope="col" className="border px-6 py-3">Modalidad</th>
+                        <th scope="col" className="border px-6 py-3">Estudiantes</th>
+                        <th scope="col" className="border px-6 py-3">Coodinador</th>
+                        <th scope="col" className="border px-6 py-3">Evaluadores</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr>
+                      <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_titulo}</td>
+                        <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_modalidad}</td>
+                        <td className="border px-6 py-4">
+                          {seguimiento.usuarios.map((user)=>{
+                            if (estudiantes.find((estudiante) => estudiante.id === user.user.id)) {
+                                return <p key={user.user.id}>{user.user.email}</p>;
+                            }
+                            return null;
+                          })}
+                        </td>
+                        <td className="border px-6 py-4">
+                          {seguimiento.usuarios.map((user)=>{
+                            if (profesores.find((profesor) => profesor.id === user.user.id)) {
+                                return <p key={user.user.id}>{user.user.email}</p>;
+                            }
+                            return null;
+                          })}
+                        </td>
+                        <td className="border px-6 py-4">
+                          {seguimiento.anteproyecto.evaluadores.map((user)=>{
+                            if (profesores.find((profesor) => profesor.id === user.user.id)) {
+                                return <p key={user.user.id}>{user.user.email}</p>;
+                            }
+                            return null;
+                          })}
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
                 {seguimiento.seguimientos.map((seg, index)=> (
                   
                   <table key={index} className='table-auto w-full'>
-                    <caption className='border px-6 py-3'>{`Segumiento ${index + 1}`}</caption>
-                    <thead>
+                    <caption className='border px-6 py-3 dark:bg-cyan-900 dark:text-gray-100'>{`Segumiento ${index + 1}`}</caption>
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-100 dark:text-gray-800">
                       <tr>
                         <th scope="col" className="border px-6 py-3 w-1/6">Fecha Recepcion</th>
                         <th scope="col" className="border px-6 py-3 w-1/6">Fecha asignacion</th>
@@ -215,6 +275,13 @@ const Seguimiento = () => {
                                 onClick={() => {
                                   setBody(seg.seg);
                                   setTitle('Modificar');
+                                  console.log(seguimiento);
+                                  seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
+                                  addPropertyToBody(`profesor${index+1}`, usuario.user.id)
+                                  ))
+                                  seguimiento.anteproyecto.evaluadores.map((usuario, index)=>(
+                                    addPropertyToBody(`evaluador${index+1}`, usuario.user.id)
+                                  ))
                                   setIsEdit(true);
                                   setShowModal(true);
                                 }}
@@ -282,7 +349,7 @@ const Seguimiento = () => {
                         type="date"
                         id="seg_fecha_recepcion"
                         name="seg_fecha_recepcion"
-                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:ring-blue-500"
+                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
                         value={body.seg_fecha_recepcion}
                         onChange={onChange}
                         required
@@ -317,17 +384,49 @@ const Seguimiento = () => {
                       />
                     </div>
                     <div>
-                      <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Observaciones
-                      </label>
-                      <textarea
-                        name="seg_observaciones"
-                        id="seg_observaciones"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={body.seg_observaciones}
-                        onChange={onChange}
-                        required
-                      />
+                      <label htmlFor="evaluador1" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Evaluador 1</label>
+                      <select
+                              name="evaluador1"
+                              className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                              value={body.evaluador1}
+                              onChange={(e)=>{
+                                  onChange(e)
+                                  
+                              }}
+                              >
+                                <option value={0}>Seleccionar al evaluador 1</option>
+                                  {profesores.map(profesor => {
+                                    if(profesor.id !== body.profesor1 && profesor.id !== body.profesor2){
+                                      return <option key={profesor.id} value={profesor.id}>
+                                      {profesor.email}
+                                    </option>
+                                    }
+                                    else{
+                                      return null
+                                    }
+                                  })}
+                          </select>
+                  </div>
+                  <div>
+                      <label htmlFor="evaluador2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Evaluador 2</label>
+                      <select name="evaluador2" className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        value={body.evaluador2}
+                        onChange={(e)=>{
+                            onChange(e)
+                        }}
+                      >
+                      <option value={0}>Seleccionar al evaluador 2</option>
+                          {profesores.map(profesor => {
+                            if(profesor.id !== body.profesor1 && profesor.id !== body.profesor2){
+                              return <option key={profesor.id} value={profesor.id}>
+                              {profesor.email}
+                            </option>
+                            }
+                            else{
+                              return null
+                            }
+                        })}
+                      </select>
                     </div>
                     <div>
                       <label
@@ -344,9 +443,9 @@ const Seguimiento = () => {
                           onChange(e);
                         }}
                       >
-                        <option value="En espera">En espera</option>
-                        <option value="Activo">Activo</option>
-                        <option value="Terminado">Terminado</option>
+                        <option value="A revisión">A revisión</option>
+                        <option value="No Aprobado">No Aprobado</option>
+                        <option value="Aprobado">Aprobado</option>
                       </select>
                     </div>
                     <button
