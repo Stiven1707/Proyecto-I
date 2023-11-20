@@ -17,6 +17,7 @@ const Seguimiento = () => {
     evaluador1: '',
     evaluador2: '',
     seg_estado: 'En espera',
+    evaluaciones: []
   };
 
   const [seguimientoList, setSeguimientoList] = useState([]);
@@ -31,12 +32,14 @@ const Seguimiento = () => {
   const [isActive, setIsActive] = useState(false);
   const [profesores, setProfesores] = useState([]);
   const [estudiantes, setEstudiantes] = useState([]);
+  const [isValid, setIsValid] = useState(true);
+	const [showMensaje, setShowMensaje] = useState('');
 
 
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/user_seg/', {
+    const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/', {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -97,9 +100,69 @@ const Seguimiento = () => {
       });
   };
 
+  const checking = () => {
+    if(body.seg_estado === 'PENDIENTE'){
+      setIsValid(false);
+	    setShowMensaje('Por favor elija un estado distinto a PENDIENTE');
+      return false
+    }
+    if(body.seg_fecha_asignacion){
+      setIsValid(false);
+	    setShowMensaje('Por favor asigne una fecha');
+      return false
+    }
+    if(body.seg_fecha_concepto){
+      setIsValid(false);
+	    setShowMensaje('Por favor seleccione la fecha de concepto');
+      return false
+    }
+    if(body.evaluador1){
+      setIsValid(false);
+	    setShowMensaje('Por favor seleccione al evaluador 1');
+      return false
+    }
+    if(body.evaluador2){
+      setIsValid(false);
+	    setShowMensaje('Por favor seleccione al evaluador 2');
+      return false
+    }
+    if(body.evaluador1 === body.evaluador2){
+      setIsValid(false);
+	    setShowMensaje('No puede elegir al mismo evaluador');
+      return false
+    }
+  }
+
+
   const onEdit = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    console.log(body);
+    alert(body.seg_estado === 'PENDIENTE')
+
+    const IdEvaluadores = [];
+    if(body.evaluador1 && body.evaluador2){
+      IdEvaluadores.push(parseInt(body.evaluador1));
+      IdEvaluadores.push(parseInt(body.evaluador2));
+      body.evaluadores = IdEvaluadores
+    }
+    console.log(JSON.stringify(body));
+
+    axios
+      .patch(`http://127.0.0.1:8000/api/anteproyectos/${body.idAnteproyecto}/`, body, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
+      .then(() => {
+        onEdit2()
+      })
+      .catch(({ response }) => {
+        console.log(response);
+      });
+  };
+
+  const onEdit2 = async () => {
+    const token = JSON.parse(localStorage.getItem('authTokens')).access;
+    console.log('Seguimiento: ',body);
     axios
       .put(`http://127.0.0.1:8000/api/seguimientos/${body.id}/`, body, {
         headers: {
@@ -220,10 +283,11 @@ const Seguimiento = () => {
                             return null;
                           })}
                         </td>
+                        {console.log(seguimiento)}
                         <td className="border px-6 py-4">
                           {seguimiento.anteproyecto.evaluadores.map((user)=>{
-                            if (profesores.find((profesor) => profesor.id === user.user.id)) {
-                                return <p key={user.user.id}>{user.user.email}</p>;
+                            if (profesores.find((profesor) => profesor.id === user.id)) {
+                                return <p key={user.id}>{user.email}</p>;
                             }
                             return null;
                           })}
@@ -276,12 +340,24 @@ const Seguimiento = () => {
                                   setBody(seg.seg);
                                   setTitle('Modificar');
                                   console.log(seguimiento);
+                                  console.log('seg: ',seg);
+                                  addPropertyToBody('idAnteproyecto', seg.antp)
+                                  
                                   seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
                                   addPropertyToBody(`profesor${index+1}`, usuario.user.id)
                                   ))
                                   seguimiento.anteproyecto.evaluadores.map((usuario, index)=>(
-                                    addPropertyToBody(`evaluador${index+1}`, usuario.user.id)
+                                    addPropertyToBody(`evaluador${index+1}`, usuario.id)
                                   ))
+                                  addPropertyToBody('estudiantes', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "estudiante")
+                                  .map(usuario => usuario.user.id))
+
+                                  addPropertyToBody('profesores', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
+                                  .map(usuario => usuario.user.id)) 
+
+                                  console.log(seguimiento.documentos);
+                                  addPropertyToBody('Documentos', seguimiento.documentos.map(documento => documento.doc.id)) 
+
                                   setIsEdit(true);
                                   setShowModal(true);
                                 }}
@@ -443,15 +519,17 @@ const Seguimiento = () => {
                           onChange(e);
                         }}
                       >
+                        <option value='PENDIENTE' disabled>PENDIENTE</option>
                         <option value="A revisión">A revisión</option>
                         <option value="No Aprobado">No Aprobado</option>
                         <option value="Aprobado">Aprobado</option>
                       </select>
                     </div>
+                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                     <button
                       type="submit"
                       className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
-                      onClick={isEdit ? () => onEdit() : () => onSubmit()}
+                      onClick={isEdit ? () => {onEdit(); onEdit2()} : () => onSubmit()}
                     >
                       {title}
                     </button>
