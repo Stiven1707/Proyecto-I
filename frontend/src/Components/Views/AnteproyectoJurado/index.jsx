@@ -223,7 +223,7 @@ const Anteproyecto = () => {
                                             addPropertyToBody('profesores', anteproyecto.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
                                             .map(usuario => usuario.user.id)) 
 
-                                            addPropertyToBody('seg_id', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].id)
+                                            addPropertyToBody('seg_id', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.id)
 
                                             setIsValid(true)
                                             setIsEdit(true)
