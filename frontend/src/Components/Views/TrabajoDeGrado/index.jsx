@@ -264,7 +264,7 @@ const TrabajoDeGrado = () => {
                             <th scope='col' className='border px-6 py-3'>Profesores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
-                            <th scope='col' className='border px-6 py-3'>Observaciones</th>
+                            <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -296,7 +296,7 @@ const TrabajoDeGrado = () => {
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
                             })}</td>
-                            
+                            <td className='border px-6 py-4'></td>
                                 <td className='border px-6 py-4'>
                                     <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
