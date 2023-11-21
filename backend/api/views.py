@@ -392,25 +392,7 @@ class DocumentoDetail(generics.RetrieveUpdateDestroyAPIView):
 
 #Para tablas intermedias que regresan info de joins
 #convinanciones
-class UserParticipaAntpInfoCompleta( generics.ListAPIView):
-    queryset = UserParticipaAntp.objects.all()
-    serializer_class = UserParticipaAntpInfoCompletaSerializer
-    permission_classes = ([IsAuthenticated])
 
-class AntpSeguidoSegInfoCompleta( generics.ListAPIView):
-    queryset = AntpSeguidoSeg.objects.all()
-    serializer_class = AntpSeguidoSegInfoCompleSerializer
-    permission_classes = ([IsAuthenticated])
-
-class AntpSoporteDocInfoCompleta( generics.ListAPIView):
-    queryset = AntpSoporteDoc.objects.all()
-    serializer_class = AntpSoporteDocInfoCompleSerializer
-    permission_classes = ([IsAuthenticated])
-
-class UserSigueSegInfoCompleta( generics.ListAPIView):
-    queryset = UserSigueSeg.objects.all()
-    serializer_class = UserSigueSegInfoCompleSerializer
-    permission_classes = ([IsAuthenticated])
 
 
 #prueba conbinar tablas intermedias
@@ -446,52 +428,9 @@ class UserSigueSegList(generics.ListAPIView):
     permission_classes = ([IsAuthenticated])
 
 
-@api_view(['GET'])
-@permission_classes([IsAuthenticated]) 
-def list_seguimientos_anteproyecto_usuarios(request):
-    seguimientos = Seguimiento.objects.all()
-    data = []
 
-    for seguimiento in seguimientos:
-        usuarios_sigue_seguimiento = UserSigueSeg.objects.filter(seg=seguimiento).select_related('user')
-        anteproyecto = AntpSeguidoSeg.objects.filter(seg=seguimiento).first()  # Supongo que hay un solo 
-        if anteproyecto is None:
-            continue
-        anteproyecto = anteproyecto.antp
 
-        serialized_usuarios = UserSigueSegSerializer(usuarios_sigue_seguimiento, many=True).data
-        serialized_anteproyecto = AnteProyectoSerializer(anteproyecto).data 
- 
-        data.append({
-            'seguimiento': SeguimientoSerializer(seguimiento).data,
-            'anteproyecto': serialized_anteproyecto,
-            'usuarios': serialized_usuarios,
-        })
 
-    return Response(data)
-
-#listar el anteproyecto con sus estudiantes y profesores, ademas de sus seguimientos
-@api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def list_anteproyecto_usuarios_seguimientos(request):
-    anteproyecto = AnteProyecto.objects.all()
-    data = []
-
-    for anteproyecto in anteproyecto:
-        usuario_participa_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto).select_related('user')
-        anteproyecto_sigue_seguimiento = AntpSeguidoSeg.objects.filter(antp=anteproyecto).select_related('seg')
-
-        serialized_usuarios = UserParticipaAntpSerializer(usuario_participa_anteproyecto, many=True).data
-        serialized_seguimientos = AntpSeguidoSegSerializer(anteproyecto_sigue_seguimiento, many=True).data
-
-        data.append({
-            'anteproyecto': AnteProyectoSerializer(anteproyecto).data,
-            'usuarios': serialized_usuarios,
-            'seguimientos': serialized_seguimientos,
-        })
-    
-    return Response(data)
-        
 
 class SeguimientoListAPIView(generics.ListAPIView):
     queryset = Seguimiento.objects.all()
@@ -570,15 +509,7 @@ class SeguimientoCreateView(generics.CreateAPIView, generics.RetrieveAPIView):
 
         return Response(SeguimientoSerializer(nuevo_seguimiento).data, status=status.HTTP_201_CREATED)
 
-class TragSoporteDocListCreate(generics.ListCreateAPIView):
-    queryset = TragSoporteDoc.objects.all()
-    serializer_class = TragSoporteDocSerializer
-    permission_classes = ([IsAuthenticated])
 
-class UserCortoList(generics.ListAPIView):
-    queryset = UserRealizaTrag.objects.all()
-    serializer_class = UserCortoSerializer
-    permission_classes = ([IsAuthenticated])
 
 class UserRealizaTragListCreate(generics.ListCreateAPIView):
     queryset = TrabajoGrado.objects.all()
