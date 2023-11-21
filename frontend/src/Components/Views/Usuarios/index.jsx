@@ -243,7 +243,6 @@ const Usuario = () => {
                 <table className=" w-full text-sm text-left text-gray-500 dark:text-gray-400 overflow-y-scroll">{/* h-screen */}
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Username</th>
                             <th scope='col' className='border px-6 py-3'>Rol</th>
                             <th scope='col' className='border px-6 py-3'>Email</th>
@@ -253,9 +252,8 @@ const Usuario = () => {
                     <tbody>
                     {usuarioList.map((usuario)=>(
                         <tr key={usuario.id}>
-                            <td className='border px-6 py-4'>{usuario.id}</td>
-                            <td className='border px-6 py-4'>{usuario.rol? usuario.rol.rol_nombre : ''}</td>
                             <td className='border px-6 py-4'>{usuario.username}</td>
+                            <td className='border px-6 py-4'>{usuario.rol? usuario.rol.rol_nombre : ''}</td>
                             <td className='border px-6 py-4'>{usuario.email}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex justify-center'>
