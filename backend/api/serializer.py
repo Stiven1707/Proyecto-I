@@ -181,6 +181,7 @@ class UserParticipaAntpSerializer(serializers.ModelSerializer):
         
 class TrabajoDeGradoSerializer(serializers.ModelSerializer):
     antp = AnteProyectoSerializer()
+    jurados = UserCortoSerializer(many=True)
     class Meta:
         model = TrabajoGrado
         fields = '__all__'
@@ -214,8 +215,7 @@ class UserRealizaTragSerializer(serializers.ModelSerializer):
 
 class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
-    jurados = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
-    
+
     class Meta:
         model = UserRealizaTrag
         fields = ('user',)
@@ -232,24 +232,25 @@ class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSeria
 class updateUserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
     doc_ids = serializers.SerializerMethodField()
     user_ids = serializers.SerializerMethodField()
-    jurados = UserCortoSerializer(many=True)
     class Meta:
         model = TrabajoGrado
-        fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
     
     def get_doc_ids(self, obj):
         return list(obj.tragsoportedoc_set.all().values_list('doc_id', flat=True))
 
     def get_user_ids(self, obj):
         return list(obj.userrealizatrag_set.all().values_list('user_id', flat=True))
+    
+    def get_jurados_ids(self, obj):
+        return list(obj.jurados.all().values_list('id', flat=True))
 
 class updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
     user_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
-
     class Meta:
         model = TrabajoGrado
-        fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
 
 class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
