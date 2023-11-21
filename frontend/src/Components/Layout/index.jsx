@@ -28,7 +28,7 @@ const Layout = () => {
             <div className="flex-1 p-7 overflow-y-auto overflow-x-auto">
                 <Routes>
 					<Route path="/" element={<Dashboard />} />
-					<Route path="/usuarios" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
+					<Route path="/usuarios" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso([])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>

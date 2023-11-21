@@ -63,7 +63,6 @@ const Usuario = () => {
 
     const onSubmit = async () => {
         body.rol = parseInt(body.rol)
-        console.log(body);
         axios.post('http://127.0.0.1:8000/api/user/', body)
         .then(() => {
             //window.location.href = '/app/usuarios';
@@ -74,7 +73,6 @@ const Usuario = () => {
         .catch(({response})=>{
             console.log(response)
             if (response.data.hasOwnProperty('username')) {
-                console.log("entro")
                 // Aquí puedes hacer algo si 'username' está presente en la respuesta
                 setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
             }
@@ -88,9 +86,8 @@ const Usuario = () => {
 
         
     const onEdit = async () => {
-        console.log(body);
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.put(`http://127.0.0.1:8000/api/user/${body.id}/`, body, {
+        axios.patch(`http://127.0.0.1:8000/api/user/${body.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -101,9 +98,8 @@ const Usuario = () => {
             getUsuarios()
         })
         .catch(({response})=>{
-            console.log(response.data.hasOwnProperty('username'))
+            console.log(response)
             if (response.data.hasOwnProperty('username')) {
-                console.log('Entrr');
                 // Aquí puedes hacer algo si 'username' está presente en la respuesta
                 setShowMensaje('Este nombre de usuario ya esta en uso. Prueba otro.');
             }
@@ -249,6 +245,7 @@ const Usuario = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Username</th>
+                            <th scope='col' className='border px-6 py-3'>Rol</th>
                             <th scope='col' className='border px-6 py-3'>Email</th>
                             <th scope='col' className='border px-6 py-3'>Editar</th>
                         </tr>
@@ -257,14 +254,16 @@ const Usuario = () => {
                     {usuarioList.map((usuario)=>(
                         <tr key={usuario.id}>
                             <td className='border px-6 py-4'>{usuario.id}</td>
+                            <td className='border px-6 py-4'>{usuario.rol? usuario.rol.rol_nombre : ''}</td>
                             <td className='border px-6 py-4'>{usuario.username}</td>
                             <td className='border px-6 py-4'>{usuario.email}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex justify-center'>
                                 <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-
-                                        setBody(usuario)
-                                        console.log(usuario)
+                                        setBody({id: usuario.id,
+                                            username: usuario.username,
+                                            email: usuario.email,
+                                            rol: usuario.rol.id})
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setIsValid(true)
@@ -306,7 +305,7 @@ const Usuario = () => {
                                                     
                                                     <option value={0} disabled selected>Seleccionar Rol</option>
                                                         {rolList.map(rol => (
-                                                    <option key={rol.id} value={rol.id}>
+                                                    <option key={rol.rol_id} value={rol.id}>
                                                         {rol.rol_nombre}
                                                     </option>
                                             ))} 
