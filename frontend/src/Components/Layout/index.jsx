@@ -4,6 +4,7 @@ import Dashboard from "../Views/Dashboard";
 import SideBar from "../Layout/SideBar";
 import PropuestaTesis from "../Views/PropuestaTesis";
 import Anteproyecto from "../Views/Anteproyecto";
+import AnteproyectoEstudiante from "../Views/AnteproyectoEstudiante";
 import EvaluacionAnteproyecto from "../Views/AnteproyectoJurado";
 import Seguimiento from "./../Views/Seguimiento";
 import Usuarios from "./../Views/Usuarios";
@@ -34,6 +35,7 @@ const Layout = () => {
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
                     <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosE" element={comprobarAcceso(['estudiante'])? <AnteproyectoEstudiante/> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
