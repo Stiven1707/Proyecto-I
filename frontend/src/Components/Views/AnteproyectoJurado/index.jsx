@@ -38,7 +38,7 @@ const Anteproyecto = () => {
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
                 //return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
-                return entry.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
+                return entry.anteproyecto.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
             });
             setAnteproyectoList(entradaConIdEspecifico)
 
