@@ -20,7 +20,7 @@ class PropuestaAdmin(admin.ModelAdmin):
     search_fields = ('user', 'pro_titulo')
     ordering = ('user',)
 class RolAdmin(admin.ModelAdmin):
-    list_display = ('rol_nombre', 'rol_descripcion', 'rol_estado')
+    list_display = ('rol_nombre','id', 'rol_descripcion', 'rol_estado')
     list_filter = ('rol_estado',)
     search_fields = ('rol_nombre',)
     ordering = ('rol_nombre',)
