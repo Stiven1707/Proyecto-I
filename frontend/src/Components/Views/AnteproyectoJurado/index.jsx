@@ -225,6 +225,8 @@ const Anteproyecto = () => {
 
                                             addPropertyToBody('seg_id', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.id)
 
+                                            addPropertyToBody('seg_observaciones', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones)
+
                                             setIsValid(true)
                                             setIsEdit(true)
                                             setShowModal(true);}}
