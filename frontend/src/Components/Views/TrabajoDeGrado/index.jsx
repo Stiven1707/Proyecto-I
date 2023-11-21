@@ -301,7 +301,7 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_recepcion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
-                                <td className='border px-6 py-4'>
+                                {/* <td className='border px-6 py-4'>
                                     <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                             setBody(trabajoDeGrado)
@@ -329,7 +329,7 @@ const TrabajoDeGrado = () => {
                                             <FontAwesomeIcon icon={faTrash} />
                                         </button>
                                     </div>
-                                </td>
+                                </td> */}
                         </tr>
                     ))}
                     </tbody>
