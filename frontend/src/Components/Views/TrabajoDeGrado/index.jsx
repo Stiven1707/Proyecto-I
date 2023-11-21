@@ -12,15 +12,8 @@ const TrabajoDeGrado = () => {
     let IdDocumentos = [];
     const initialState = {
         user: datosUsuario.user_id,
-        estudiante1: '',
-        estudiante2: '',
-        estudiantes: [],
-        profesores: [],
-        coprofesor: '',
-        antp_titulo: "",
-        antp_descripcion: "",
-        Documentos: [],
-        antp_modalidad:""
+        antp: '',
+        doc: [],
 	}
 
     const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
@@ -153,19 +146,8 @@ const TrabajoDeGrado = () => {
                     });
                 });
         }
-            const IdProfesores = [];
-            const IdEstudiantes = [];
-            IdProfesores.push(datosUsuario.user_id)
-            if(!body.coprofesor===''){
-                IdProfesores.push(parseInt(body.coprofesor));
-            }
-            IdEstudiantes.push(parseInt(body.estudiante1));
-            if(body.antp_modalidad === 'Trabajo de Investigación' && body.estudiante2){
-                IdEstudiantes.push(parseInt(body.estudiante2));
-            }
-            body.profesores = IdProfesores;
-            body.estudiantes = IdEstudiantes;
-            body.Documentos = IdDocumentos;
+        
+            body.doc = IdDocumentos;
             if (isEdit){
                 onEdit()
             }else{
@@ -177,31 +159,8 @@ const TrabajoDeGrado = () => {
     };
 
     const checking = () => {
-        if (body.antp_titulo === '') {
-            setShowMensaje("Por favor llene el campo titulo");
-            setIsValid(false);
-            return false;
-        }
-        if (body.antp_descripcion === '') {
-            setShowMensaje("Por favor llene el campo descripcion");
-            setIsValid(false);
-            return false;
-        }
-        if (body.antp_modalidad === '') {
-            setShowMensaje("Por favor seleccione una modalidad");
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === '') {
-            setShowMensaje(`Por favor seleccione ${body.antp_modalidad==='tesis'? 'al menos un estudiante ': 'al estudiante'}`);
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === body.estudiante2) {
-            setShowMensaje('No se puede elegir el mismo estudiante');
-            setIsValid(false);
-            return false;
-        }
+
+
         setIsValid(true);
         uploadFiles();
     };
@@ -210,14 +169,14 @@ const TrabajoDeGrado = () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         setShowModal(false);
         axios
-            .post('http://127.0.0.1:8000/api/anteproyectos/', body, {
+            .post('http://127.0.0.1:8000/api/trabajosdegrado/', body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
             })
             .then(() => {
                 setBody(initialState);
-                getAnteproyectos();
+                getTrabajoDeGrado();
             })
             .catch(({ response }) => {
                 console.log(response);
@@ -230,14 +189,14 @@ const TrabajoDeGrado = () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
         console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
+        axios.put(`http://127.0.0.1:8000/api/trabajosdegrado/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(() => {
             setBody(initialState)
-            getAnteproyectos()
+            getTrabajoDeGrado()
         })
         .catch(({response})=>{
             console.log(response)
@@ -247,13 +206,13 @@ const TrabajoDeGrado = () => {
     const onDelete = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 
-        axios.delete(`http://127.0.0.1:8000/api/anteproyectos/${idDelete}/`, {
+        axios.delete(`http://127.0.0.1:8000/api/trabajosdegrado/${idDelete}/`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(() => {
-            getAnteproyectos()
+            getTrabajoDeGrado()
         })
         .catch(({response})=>{
             console.log(response)
@@ -347,6 +306,7 @@ const TrabajoDeGrado = () => {
                                             addPropertyToBody('antp_titulo', trabajoDeGrado.anteproyecto.antp_titulo)
                                             addPropertyToBody('antp_descripcion', trabajoDeGrado.anteproyecto.antp_descripcion)
                                             addPropertyToBody('antp_modalidad', trabajoDeGrado.anteproyecto.antp_modalidad)
+                                            addPropertyToBody('antp', trabajoDeGrado.anteproyecto.antp_modalidad)
                                             trabajoDeGrado.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
                                                 addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
                                             ))
@@ -384,11 +344,11 @@ const TrabajoDeGrado = () => {
                                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
-                                        <label htmlFor="anteproyecto_id" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anteproyecto</label>
+                                        <label htmlFor="antp" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anteproyecto</label>
                                         <select
-                                                name="anteproyecto_id"
+                                                name="antp"
                                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.anteproyecto_id}
+                                                value={body.antp}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
