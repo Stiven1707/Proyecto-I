@@ -151,6 +151,7 @@ class TrabajoGrado(models.Model):
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
     trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
     antp = models.OneToOneField(AnteProyecto, on_delete=models.CASCADE, related_name='trabajos_grado')
+    jurados = models.ManyToManyField(User, related_name='trabajos_grado_jurados', blank=True)
     
 
     def __str__(self):

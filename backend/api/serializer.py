@@ -129,7 +129,7 @@ class SeguimientoSerializer(serializers.ModelSerializer):
     docs = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=False)
     class Meta:
         model = Seguimiento
-        fields = ('id','seg_fecha_recepcion','seg_estado','docs',)
+        fields = ('id','seg_fecha_recepcion','seg_estado','docs','seg_observaciones')
 class SeguimientoCortoSerializer(serializers.ModelSerializer):
     seg_fecha_recepcion = serializers.DateField(required=False)
     docs = DocumentoSerializer(many=True)
@@ -214,6 +214,7 @@ class UserRealizaTragSerializer(serializers.ModelSerializer):
 
 class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
     user = serializers.PrimaryKeyRelatedField(queryset=User.objects.all(), required=True)
+    jurados = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)
     
     class Meta:
         model = UserRealizaTrag
@@ -222,6 +223,7 @@ class UserRealizaTragPOSTSerializer(serializers.ModelSerializer):
 class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, source='tragsoportedoc_set.',queryset=Documento.objects.all(), required=False)
     user = serializers.PrimaryKeyRelatedField(many=True, source='userrealizatrag_set',queryset=User.objects.all(), required=False)
+    jurados = UserCortoSerializer(many=True)
 
     class Meta:
         model = TrabajoGrado
@@ -230,7 +232,7 @@ class UserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSeria
 class updateUserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.ModelSerializer):
     doc_ids = serializers.SerializerMethodField()
     user_ids = serializers.SerializerMethodField()
-
+    jurados = UserCortoSerializer(many=True)
     class Meta:
         model = TrabajoGrado
         fields = ('doc_ids', 'user_ids', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
