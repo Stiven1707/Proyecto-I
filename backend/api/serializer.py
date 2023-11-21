@@ -19,7 +19,7 @@ class UserCortoSerializer(serializers.ModelSerializer):
     rol = RolSerializer()
     class Meta:
         model = User
-        fields = ('id','username', 'email', 'rol')   
+        fields = ('id','username', 'email', 'rol','is_active')   
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -39,7 +39,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['id'] = user.id
         token['full_name'] = user.profile.full_name
         token['rol'] = user.rol.rol_nombre
-        
+
 
         return token
 
