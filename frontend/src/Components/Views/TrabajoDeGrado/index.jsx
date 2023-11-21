@@ -354,11 +354,12 @@ const TrabajoDeGrado = () => {
                                                 }}
                                                 >
                                                     <option value={0}>Seleccionar anteproyecto</option>
-                                                        {anteproyectoList.map(anteproyecto => (
-                                                    <option key={anteproyecto.anteproyecto.id} value={anteproyecto.anteproyecto.id}>
-                                                        {anteproyecto.anteproyecto.antp_titulo}
-                                                    </option>
-                                            ))} 
+                                                        {anteproyectoList.map(anteproyecto => {
+                                                            if(anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Aprobado'){
+                                                            return <option key={anteproyecto.anteproyecto.id} value={anteproyecto.anteproyecto.id}>{anteproyecto.anteproyecto.antp_titulo}</option>
+                                                            }
+                                                            return null
+                                            })} 
                                             </select>
                                     </div>
                                     <div>
