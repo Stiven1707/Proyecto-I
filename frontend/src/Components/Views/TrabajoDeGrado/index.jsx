@@ -18,6 +18,7 @@ const TrabajoDeGrado = () => {
 
     const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
     const [anteproyectoList, setAnteproyectoList] = useState([]);
+    const [anteproyectoList1, setAnteproyectoList1] = useState([]);
     //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
@@ -44,15 +45,12 @@ const TrabajoDeGrado = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('data: ', data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
                 return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
             });
-            setAnteproyectoList(entradaConIdEspecifico)
-            console.log(entradaConIdEspecifico);
-            console.log(anteproyectoList);
+            setAnteproyectoList1(entradaConIdEspecifico)
         }
 	}
 
@@ -63,17 +61,28 @@ const TrabajoDeGrado = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Trabajos de grado: ', data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
                 return entry.users.some(usuario => usuario.user.id === datosUsuario.user_id);
             });
             setTrabajoDeGradoList(entradaConIdEspecifico)
-
+            
         }else{
             setTrabajoDeGradoList(data)
         }
+        let idAnteproyectos = []
+        trabajoDeGradoList.map((datos)=> {
+            idAnteproyectos.push(datos.trag.antp.id)
+            return datos
+        })
+        const entradaConRol = anteproyectoList1.filter(entry => {
+            // Verificar si el id buscado está presente en el array de usuarios
+            return !idAnteproyectos.includes(entry.anteproyecto.id);
+        });
+        console.log(anteproyectoList1);
+        console.log(entradaConRol);
+        setAnteproyectoList(entradaConRol)
 	}
 
     const getParticipantes = async () => {
@@ -179,8 +188,8 @@ const TrabajoDeGrado = () => {
                 getTrabajoDeGrado();
             })
             .catch(({ response }) => {
-                console.log(response);
                 setShowMensaje(response.data.antp[0]);
+                setIsValid(false);
             });
     };
     
@@ -189,7 +198,6 @@ const TrabajoDeGrado = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        console.log('Datos a editar: ', body);
         axios.put(`http://127.0.0.1:8000/api/trabajosdegrado/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -274,7 +282,6 @@ const TrabajoDeGrado = () => {
                     <tbody>
                     {trabajoDeGradoList.map((trabajoDeGrado)=>(
                         <tr key={trabajoDeGrado.trag.antp.id}>
-                            {console.log('Trabajop de grado2: ',trabajoDeGrado)}
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{
                             
