@@ -130,15 +130,34 @@ const Usuario = () => {
             setIsValid(false);
             return false;
         }
+        if (body.username.length > 100) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('El nombre de usuario tiene que ser menor a 100 caracteres');
+            setIsValid(false);
+            return false;
+        }
         if (body.email === '') {
             // Verifica si no se ha seleccionado ningún rol
             setShowMensaje('Por favor, rellene el campo de email');
             setIsValid(false);
             return false;
         }
+        if (body.username.length > 254) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('El correo tiene que ser menor a 254 caracteres');
+            setIsValid(false);
+            return false;
+        }
         if (!body.email.includes("@")) {
             // Verifica si se ha ingresado una dirección de correo electrónico válida
             setShowMensaje('Por favor, coloque un email valido (@)');
+            setIsValid(false);
+            return false;
+        }
+
+        if (body.username.length > 100) {
+            // Verifica si no se ha seleccionado ningún rol
+            setShowMensaje('Las contraseñas tiene que ser menor a 100 caracteres');
             setIsValid(false);
             return false;
         }
@@ -160,8 +179,8 @@ const Usuario = () => {
         const hasSymbol = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/.test(password);
         const containsUsername = password.toLowerCase().includes(username.toLowerCase());
     
-        if (password.length < 10 ) {
-            setShowMensaje("La contraseña debe contener al menos 10 caracteres");
+        if (password.length < 8 ) {
+            setShowMensaje("La contraseña debe contener al menos 8 caracteres");
             setIsValid(false);
             return false;
         }
