@@ -180,6 +180,7 @@ const TrabajoDeGrado = () => {
             })
             .catch(({ response }) => {
                 console.log(response);
+                setShowMensaje(response.data.antp[0]);
             });
     };
     
@@ -260,10 +261,11 @@ const TrabajoDeGrado = () => {
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
-                            <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Profesores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha recepcion</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha sustentacion</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
@@ -274,7 +276,6 @@ const TrabajoDeGrado = () => {
                         <tr key={trabajoDeGrado.trag.antp.id}>
                             {console.log('Trabajop de grado2: ',trabajoDeGrado)}
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_titulo}</td>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_descripcion}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{
                             
                             trabajoDeGrado.users.map((user)=>{
@@ -296,7 +297,9 @@ const TrabajoDeGrado = () => {
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
                             })}</td>
-                            <td className='border px-6 py-4'></td>
+                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_recepcion}</td>
+                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
+                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                                 <td className='border px-6 py-4'>
                                     <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
