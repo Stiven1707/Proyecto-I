@@ -74,7 +74,7 @@ const TrabajoDeGrado = () => {
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
-                return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
+                return entry.users.some(usuario => usuario.user.id === datosUsuario.user_id);
             });
             setTrabajoDeGradoList(entradaConIdEspecifico)
 
@@ -312,38 +312,32 @@ const TrabajoDeGrado = () => {
                     </thead>
                     <tbody>
                     {trabajoDeGradoList.map((trabajoDeGrado)=>(
-                        <tr key={trabajoDeGrado.anteproyecto.id}>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.anteproyecto.antp_titulo}</td>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.anteproyecto.antp_descripcion}</td>
+                        <tr key={trabajoDeGrado.trag.antp.id}>
+                            {console.log('Trabajop de grado2: ',trabajoDeGrado)}
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_titulo}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_descripcion}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{
                             
-                            trabajoDeGrado.usuarios.map((user)=>{
+                            trabajoDeGrado.users.map((user)=>{
                                 if (profesores.find((profesor) => profesor.id === user.user.id)) {
                                     return <p key={user.user.id}>{user.user.email}</p>;
                                 }
                                 return null;
                                 
                             })}</td>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.usuarios.map((user)=>{
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.users.map((user)=>{
                                 if (estudiantes.find((estudiante) => estudiante.id === user.user.id)) {
                                     return <p key={user.user.id}>{user.user.email}</p>;
                                 }
                                 return null;
                             })}</td>
                             
-                            <td className='border px-6 py-4'>{trabajoDeGrado.documentos.map((doc)=>{
+                            <td className='border px-6 py-4'>{trabajoDeGrado.docs.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
                             })}</td>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
-                            {trabajoDeGrado.seguimientos[trabajoDeGrado.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
-                                trabajoDeGrado.seguimientos[trabajoDeGrado.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : trabajoDeGrado.seguimientos[trabajoDeGrado.seguimientos.length-1].seg.seg_observaciones
-                            }</td>
-
-                            {trabajoDeGrado.seguimientos[trabajoDeGrado.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
                             
-                            trabajoDeGrado.seguimientos[trabajoDeGrado.seguimientos.length-1].seg.seg_estado === 'A revisión'? null : 
                                 <td className='border px-6 py-4'>
                                     <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
@@ -372,7 +366,6 @@ const TrabajoDeGrado = () => {
                                         </button>
                                     </div>
                                 </td>
-                            }
                         </tr>
                     ))}
                     </tbody>
