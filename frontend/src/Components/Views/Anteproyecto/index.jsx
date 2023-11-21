@@ -315,11 +315,11 @@ const Anteproyecto = () => {
                             </a></p>
                             })}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
-                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
+                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprobado'? 'Aprobado' : 
                                 anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones
                             }</td>
 
-                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
+                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprobado'? null : 
                             
                             anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'? null : 
                                 <td className='border px-6 py-4'>

@@ -311,7 +311,7 @@ const Seguimiento = () => {
                         <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
                         <td className="border px-6 py-4">
                           
-                          {seg.seg.seg_estado === 'Terminado'?
+                          {seg.seg.seg_estado === 'No Aprobado'?
                             seguimiento.seguimientos.length === (index+1) ? 
                               <div>
                                 <button
