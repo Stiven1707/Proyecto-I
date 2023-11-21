@@ -1,3 +1,4 @@
+from datetime import date
 from .models import User, Rol, Profile, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, AntpSeguidoSeg, AntpSoporteDoc, TragSoporteDoc, UserParticipaAntp, UserRealizaTrag, UserSigueSeg
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
@@ -257,7 +258,9 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
 
         # Crear la instancia de TrabajoGrado
         trabajo_grado = TrabajoGrado.objects.create(**validated_data)
-
+        # fecha actual
+        trabajo_grado.trag_fecha_recepcion = date.today()
+        trabajo_grado.save()
         # Del trabajo de grado, extraer el anteproyecto y con el los usuarios a asociar
         anteproyecto = trabajo_grado.antp
         usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
