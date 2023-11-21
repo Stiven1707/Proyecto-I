@@ -130,6 +130,7 @@ class AnteProyecto(models.Model):
 class Documento(models.Model):
     doc_nombre = models.TextField()
     doc_ruta = models.FileField(upload_to='documentos_user')
+    doc_fecha_creacion = models.DateField(default=timezone.now)
 
     def __str__(self):
         return self.doc_nombre
