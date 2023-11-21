@@ -41,7 +41,6 @@ const Anteproyecto = () => {
                 return entry.anteproyecto.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
             });
             setAnteproyectoList(entradaConIdEspecifico)
-
         }else{
             setAnteproyectoList(data)
         }
