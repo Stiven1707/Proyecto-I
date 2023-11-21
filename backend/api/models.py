@@ -141,6 +141,7 @@ class Seguimiento(models.Model):
     seg_fecha_asignacion = models.DateField(null=True, blank=True)
     seg_fecha_concepto = models.DateField(null=True, blank=True)
     seg_estado = models.CharField(max_length=45)
+    docs = models.ManyToManyField(Documento, related_name='seguimientos', blank=True)
 
     def __str__(self):
         return str(self.id) + " - " + self.seg_fecha_recepcion.strftime("%d/%m/%Y")

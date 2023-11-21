@@ -103,17 +103,6 @@ class PropuestaSerializer(serializers.ModelSerializer):
         fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
 
 
-class SeguimientoSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Seguimiento
-        fields = '__all__'
-class SeguimientoCortoSerializer(serializers.ModelSerializer):
-    seg_fecha_recepcion = serializers.DateField(required=False)
-    class Meta:
-        model = Seguimiento
-        fields = ('id','seg_fecha_recepcion','seg_estado',)
-
-
 class DocumentoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Documento
@@ -135,6 +124,19 @@ class DocumentoSerializer(serializers.ModelSerializer):
         documento = Documento.objects.create(doc_nombre=doc_nombre, doc_ruta=doc_ruta)
 
         return documento
+
+class SeguimientoSerializer(serializers.ModelSerializer):
+    docs = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=False)
+    class Meta:
+        model = Seguimiento
+        fields = ('id','seg_fecha_recepcion','seg_estado','docs',)
+class SeguimientoCortoSerializer(serializers.ModelSerializer):
+    seg_fecha_recepcion = serializers.DateField(required=False)
+    docs = DocumentoSerializer(many=True)
+    class Meta:
+        model = Seguimiento
+        fields = '__all__'
+
 
 
 # class AntpSeguidoSegSerializer(serializers.ModelSerializer):
@@ -355,14 +357,14 @@ class UserSigueSegInfoCompleSerializer(serializers.ModelSerializer):
 
 class AntpSeguidoSegSerializer(serializers.ModelSerializer):
     antp = serializers.PrimaryKeyRelatedField(read_only=True)
-    seg = SeguimientoSerializer()
+    seg = SeguimientoCortoSerializer()
 
     class Meta:
         model = AntpSeguidoSeg
         fields = '__all__'
 class AntpSeguidoSegCreateSerializer(serializers.ModelSerializer):
     antp = AnteProyectoCortoSerializer(read_only=True)
-    seg = SeguimientoCortoSerializer()
+    seg = SeguimientoSerializer()
 
     class Meta:
         model = AntpSeguidoSeg
