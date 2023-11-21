@@ -39,6 +39,7 @@ class MyTokenObtainPairSerializer(TokenObtainPairSerializer):
         token['id'] = user.id
         token['full_name'] = user.profile.full_name
         token['rol'] = user.rol.rol_nombre
+        
 
         return token
 
@@ -77,7 +78,7 @@ class ActualizarUsuarioSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'username', 'email', 'rol', 'password', 'password2')
+        fields = ('id', 'username', 'email', 'rol', 'password', 'password2','is_active')
 
     def validate(self, attrs):
         if 'password' in attrs and 'password2' in attrs and attrs['password'] != attrs['password2']:
@@ -90,6 +91,7 @@ class ActualizarUsuarioSerializer(serializers.ModelSerializer):
         instance.username = validated_data.get('username', instance.username)
         instance.rol = validated_data.get('rol', instance.rol)
         instance.email = validated_data.get('email', instance.email)
+        instance.is_active = validated_data.get('is_active', instance.is_active)
         instance.save()
         return instance
 
