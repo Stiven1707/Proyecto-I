@@ -66,7 +66,7 @@ const Login = () => {
                         name='password'
                         required/>
                     </div>
-                    {showMensaje ? <p className="text-red-700">Usuario y contraseña invalidos</p> : null}
+                    {showMensaje ? <p className="text-red-700"> No se encontró ninguna cuenta activa con las credenciales proporcionadas</p> : null}
                     <button type="submit" className="w-full block bg-blue-900 hover:bg-blue-800 focus:bg-blue-400 text-white font-semibold rounded-lg px-4 py-3 mt-6"
                     onClick={onSubmit}>
                         Iniciar Sesion

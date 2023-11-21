@@ -261,7 +261,8 @@ const Usuario = () => {
                                         setBody({id: usuario.id,
                                             username: usuario.username,
                                             email: usuario.email,
-                                            rol: usuario.rol.id})
+                                            rol: usuario.rol.id,
+                                            is_active: usuario.is_active})
                                         setTitle('Modificar')
                                         setIsEdit(true)
                                         setIsValid(true)
@@ -327,7 +328,25 @@ const Usuario = () => {
                                         name='email'
                                         required/>
                                     </div>
-                                    {isEdit? null :
+                                    
+                                    {isEdit? 
+                                        <div>
+                                        <label htmlFor="Estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado de usuario</label>
+                                        <select
+                                                name="is_active"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.is_active}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                required 
+                                                >
+                                                    <option value={0} disabled selected>Seleccionar Estado</option>
+                                                    <option value={false}>Inactivo</option>
+                                                    <option value={true}>Activo</option>
+                                            </select>
+                                    </div>
+                                    :
                                     (<><div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Contraseña</label>
                                         <input type="password" placeholder="Digite contraseña" className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
@@ -346,7 +365,7 @@ const Usuario = () => {
                                         name='password2'
                                         required/>
                                     </div>
-
+                                    
                                     </>)}
                                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
