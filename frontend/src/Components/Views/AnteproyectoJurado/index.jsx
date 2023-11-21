@@ -8,14 +8,10 @@ const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    console.log(datosUsuario)
     let IdDocumentos = [];
     const initialState = {
         user: datosUsuario.user_id,
-        antp_titulo: "",
-        antp_descripcion: "",
-        seg_observaciones: "",
-        Documentos: [],
+        seg_observaciones: ''
 	}
 
     const [anteproyectoList, setAnteproyectoList] = useState([]);
@@ -23,8 +19,11 @@ const Anteproyecto = () => {
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
 	const [isId, setIsId] = useState('');
+	const [isEdit, setIsEdit] = useState(false);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
+
+
 
     let fileData = [];
 
@@ -38,9 +37,11 @@ const Anteproyecto = () => {
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
-                return entry.anteproyecto && entry.anteproyecto.evaluadores.includes(datosUsuario.user_id);
+                return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
+                //return entry.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
             });
             setAnteproyectoList(entradaConIdEspecifico)
+
         }else{
             setAnteproyectoList(data)
         }
@@ -76,6 +77,7 @@ const Anteproyecto = () => {
         try {
             const token = JSON.parse(localStorage.getItem('authTokens')).access;
             if (!(Array.isArray(fileData) && fileData.length === 0)) {
+
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
@@ -86,20 +88,28 @@ const Anteproyecto = () => {
                         },
                     });
                 });
+        
                 await Promise.all(promises).then((results) => {
                     results.forEach((data) => {
                         IdDocumentos.push(parseInt(data.data.id));
                     });
                 });
         }
-            body.Documentos = IdDocumentos;
-            onEdit();
+        body.Documentos = IdDocumentos;
+        onEdit()
+
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
 
     const checking = () => {
+
+        if (body.seg_observaciones === '') {
+            setShowMensaje(`Por favor llene el campo de observaciones`);
+            setIsValid(false);
+            return false;
+        }
         setIsValid(true);
         uploadFiles();
     };
@@ -107,20 +117,35 @@ const Anteproyecto = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        console.log('Se pudo actualizar correctamente ', JSON.stringify(body));
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
+        axios.patch(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
         .then(() => {
-            setBody(initialState)
-            getAnteproyectos()
+            onEdit2()
         })
         .catch(({response})=>{
             console.log(response)
         })
     }
+
+    const onEdit2 = async () => {
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        axios.patch(`http://127.0.0.1:8000/api/seguimientos/${body.seg_id}/`, body, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                },
+            })
+            .then(() => {
+                setShowModal(false)
+                setBody(initialState);
+                getAnteproyectos()
+            })
+            .catch(({ response }) => {
+                console.log(response);
+            });
+        };
 
     const addPropertyToBody = (name, value) => {
         setBody(prevBody => ({
@@ -128,6 +153,8 @@ const Anteproyecto = () => {
             [name]: value
         }));
     };
+
+
     return (
         <div >
             <div className="relative overflow-x-auto shadow-md sm:rounded-lg">
@@ -152,11 +179,10 @@ const Anteproyecto = () => {
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Observaciones</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
+                            <th scope='col' className='border px-6 py-3'>Observaciones</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -164,38 +190,51 @@ const Anteproyecto = () => {
                     <tbody>
                     {anteproyectoList.map((anteproyecto)=>(
                         <tr key={anteproyecto.anteproyecto.id}>
-                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.id}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_titulo}</td>
-                            <td className='border px-6 py-4'>{anteproyecto.anteproyecto.antp_descripcion}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_titulo}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_descripcion}</td>
+                            
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
-                                {doc.doc.doc_nombre}
+                                {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
-                                
                             })}</td>
-                            <td className='border px-6 py-4'>
-                                <div className='flex'>
-                                <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        setBody(anteproyecto)
-                                        setTitle('Modificar')
-                                        /* console.log('Datos body: ', anteproyecto)
-                                        console.log('Estructura usuarios: ', anteproyecto.usuarios[0])
-                                        console.log('Estructura body body: ', body) */
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
+                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
+                                anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones
+                            }</td>
 
-                                        addPropertyToBody('user', datosUsuario.user_id)
-                                        addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                        addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                        addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
-                                        addPropertyToBody('estudiante1', anteproyecto.usuarios[0].user.id)
-                                        
-                                        //addPropertyToBody('estudiante2', anteproyecto.usuarios[1].user.id)
-                                        setIsValid(true)
-                                        setShowModal(true);}}
-                                    >
-                                        <FontAwesomeIcon icon={faEdit} /> 
-                                    </button>    
-                                </div>
-                            </td>
+                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
+                            
+                            anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'?  
+                                <td className='border px-6 py-4 '>
+                                    <div className='flex items-center justify-center'>
+                                    <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                            setBody(anteproyecto)
+                                            setTitle('Modificar')
+                                            addPropertyToBody('user', datosUsuario.user_id)
+                                            addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                            addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                            addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                            anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
+                                                addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
+                                            ))
+                                            addPropertyToBody('estudiantes', anteproyecto.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "estudiante")
+                                            .map(usuario => usuario.user.id))
+
+                                            addPropertyToBody('profesores', anteproyecto.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
+                                            .map(usuario => usuario.user.id)) 
+
+                                            addPropertyToBody('seg_id', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].id)
+
+                                            setIsValid(true)
+                                            setIsEdit(true)
+                                            setShowModal(true);}}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} /> 
+                                        </button>    
+                                    </div>
+                                </td>
+                            : null}
                         </tr>
                     ))}
                     </tbody>
@@ -211,42 +250,16 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} anteproyecto</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Calificar anteproyecto {body.antp_titulo}</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                            <textarea name='antp_titulo' label='antp_titulo' id='antp_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.antp_titulo}
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Observaciones</label>
+                                            <textarea name='seg_observaciones' label='seg_observaciones' id='seg_observaciones' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.seg_observaciones}
                                             onChange={onChange}
                                             required
                                             />
                                     </div>
-                                    <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
-                                            <textarea name='antp_descripcion' label='antp_descripcion' id='antp_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.antp_descripcion}
-                                            onChange={onChange}
-                                            required
-                                            />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalidad</label>
-                                        <select
-                                                name="antp_modalidad"
-                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.antp_modalidad}
-                                                onChange={(e)=>{
-                                                    onChange(e)
-                                                }}
-                                                required 
-                                                >
-                                                    
-                                                <option value='' disabled>Seleccionar Modalidad</option>
-                                                <option value='Trabajo de Investigación'>Trabajo de Investigación</option>
-                                                <option value='Práctica Profesional'>Práctica Profesional</option>
-                                            </select>
-                                    </div>
-                                
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
                                         <input
@@ -260,14 +273,13 @@ const Anteproyecto = () => {
                                             multiple
                                             />
                                     </div>
-                                    {Array.isArray(body.documentos)? 
+                                    {isEdit && Array.isArray(body.documentos)? 
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
                                                 <div>
                                                     {
                                                     body.documentos.map((doc) => {
                                                         IdDocumentos.push(parseInt(doc.doc.id))
-                                                        
                                                         return (
                                                             <div key={doc.doc.id}>
                                                             <a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">

@@ -28,13 +28,12 @@ const Layout = () => {
             <div className="flex-1 p-7 overflow-y-auto overflow-x-auto">
                 <Routes>
 					<Route path="/" element={<Dashboard />} />
-
-					<Route path="/usuarios" element={comprobarAcceso([])? <Usuarios /> : <Navigate to="/app" /> }/>
+					<Route path="/usuarios" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso([])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
-					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','admin'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
-					<Route path="/seguimiento" element={comprobarAcceso(['profesor','admin'])? <Seguimiento /> : <Navigate to="/app" /> }/>
-					<Route path="/trabajodegrado" element={comprobarAcceso([])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
-                    <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
+					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
+					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
