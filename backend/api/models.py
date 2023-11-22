@@ -20,6 +20,19 @@ class User(AbstractUser):
     def profile(self):
         return self.profile 
     
+    def __str__(self):
+        return self.username
+    def save(self, *args, **kwargs):
+        if not self.rol:
+            if self.is_superuser:
+                rol_admin = Rol.objects.filter(rol_nombre='coordinador').first()
+                if rol_admin:
+                    self.rol = rol_admin
+                else:
+                    rol_admin = Rol.objects.create(rol_nombre='coordinador', rol_descripcion='Administrador')
+                    self.rol = rol_admin
+        super().save(*args, **kwargs)
+    
     
 
 def update_user_group(sender, instance, created, **kwargs):
