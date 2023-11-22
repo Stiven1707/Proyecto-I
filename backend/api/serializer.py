@@ -144,6 +144,7 @@ class SeguimientoCortoSerializer(serializers.ModelSerializer):
 
 
 
+
 # class AntpSeguidoSegSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = AntpSeguidoSeg
