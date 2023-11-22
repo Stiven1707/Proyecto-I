@@ -339,34 +339,35 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         # Verificar si los documentos nuevos son diferentes a los viejos
 
         # Obtener una lista de objetos "Documento" correspondientes a los IDs de documentos
-        documentos = Documento.objects.filter(id__in=documentos_ids)
+        if documentos_ids:
+            documentos = Documento.objects.filter(id__in=documentos_ids)
 
-        # Obtener una lista de objetos "AntpSoporteDoc" relacionados al anteproyecto para documentos
-        documentos_anteproyecto = AntpSoporteDoc.objects.filter(antp=anteproyecto)
+            # Obtener una lista de objetos "AntpSoporteDoc" relacionados al anteproyecto para documentos
+            documentos_anteproyecto = AntpSoporteDoc.objects.filter(antp=anteproyecto)
 
-        # Verificar si hay documentos antiguos
-        if documentos_anteproyecto.exists():
-            # Crear una lista de IDs de documentos antiguos
-            ids_documentos_antiguos = [documento.doc.id for documento in documentos_anteproyecto]
+            # Verificar si hay documentos antiguos
+            if documentos_anteproyecto.exists():
+                # Crear una lista de IDs de documentos antiguos
+                ids_documentos_antiguos = [documento.doc.id for documento in documentos_anteproyecto]
 
-            # Crear una lista de IDs de documentos nuevos
-            ids_documentos_nuevos = [documento.id for documento in documentos]
+                # Crear una lista de IDs de documentos nuevos
+                ids_documentos_nuevos = [documento.id for documento in documentos]
 
-            # Verificar si hay documentos antiguos que no están en la lista de documentos nuevos
-            documentos_a_eliminar = documentos_anteproyecto.exclude(doc__id__in=ids_documentos_nuevos)
-            print("documentos_a_eliminar: ", documentos_a_eliminar)
-            documentos_a_eliminar.delete()
+                # Verificar si hay documentos antiguos que no están en la lista de documentos nuevos
+                documentos_a_eliminar = documentos_anteproyecto.exclude(doc__id__in=ids_documentos_nuevos)
+                print("documentos_a_eliminar: ", documentos_a_eliminar)
+                documentos_a_eliminar.delete()
 
-            # Verificar si hay documentos nuevos que no estaban en la lista de documentos antiguos
-            documentos_a_agregar = documentos.exclude(id__in=ids_documentos_antiguos)
-            for documento in documentos_a_agregar:
-                AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
-                print("Documento actualizado: ", documento)
-        else:
-            # Si no hay documentos antiguos, simplemente crea los nuevos
-            for documento in documentos:
-                AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
-                print("Documento actualizado: ", documento)
+                # Verificar si hay documentos nuevos que no estaban en la lista de documentos antiguos
+                documentos_a_agregar = documentos.exclude(id__in=ids_documentos_antiguos)
+                for documento in documentos_a_agregar:
+                    AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
+                    print("Documento actualizado: ", documento)
+            else:
+                # Si no hay documentos antiguos, simplemente crea los nuevos
+                for documento in documentos:
+                    AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
+                    print("Documento actualizado: ", documento)
 
 
         
