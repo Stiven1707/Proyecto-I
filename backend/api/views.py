@@ -146,15 +146,16 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
                 documento = Documento.objects.filter(id=documento_id).first()
                 if not documento:
                     raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
+                #validar que no se repitan los documentos
+                if len(documentos_ids) != len(set(documentos_ids)):
+                    raise serializers.ValidationError("No se puede repetir documentos")
         #validar que no se repitan los estudiantes
         if len(estudiantes_ids) != len(set(estudiantes_ids)):
             raise serializers.ValidationError("No se puede repetir estudiantes")
         #validar que no se repitan los profesores
         if len(profesores_ids) != len(set(profesores_ids)):
             raise serializers.ValidationError("No se puede repetir profesores")
-        #validar que no se repitan los documentos
-        if len(documentos_ids) != len(set(documentos_ids)):
-            raise serializers.ValidationError("No se puede repetir documentos")
+        
         #validar que no se repitan los estudiantes y profesores
         if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
             raise serializers.ValidationError("No se puede repetir estudiantes y profesores")
@@ -230,15 +231,16 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
                 documento = Documento.objects.filter(id=documento_id).first()
                 if not documento:
                     raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
+                #validar que no se repitan los documentos
+                if len(documentos_ids) != len(set(documentos_ids)):
+                    raise serializers.ValidationError("No se puede repetir documentos")
         #validar que no se repitan los estudiantes
         if len(estudiantes_ids) != len(set(estudiantes_ids)):
             raise serializers.ValidationError("No se puede repetir estudiantes")
         #validar que no se repitan los profesores
         if len(profesores_ids) != len(set(profesores_ids)):
             raise serializers.ValidationError("No se puede repetir profesores")
-        #validar que no se repitan los documentos
-        if len(documentos_ids) != len(set(documentos_ids)):
-            raise serializers.ValidationError("No se puede repetir documentos")
+        
         
         #validar que no se repitan los estudiantes y profesores
         if len(set(estudiantes_ids).intersection(profesores_ids)) > 0:
