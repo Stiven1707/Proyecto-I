@@ -25,12 +25,23 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.rol:
             if self.is_superuser:
-                rol_admin = Rol.objects.filter(rol_nombre='coordinador').first()
-                if rol_admin:
-                    self.rol = rol_admin
-                else:
-                    rol_admin = Rol.objects.create(rol_nombre='coordinador', rol_descripcion='Administrador')
-                    self.rol = rol_admin
+                # Lista de roles a crear si no existen
+                roles_to_create = [
+                    {'nombre': 'coordinador', 'descripcion': 'Coordinador del programa Sistemas'},
+                    {'nombre': 'auxiliar', 'descripcion': 'Secretaria...'},
+                    {'nombre': 'consejo', 'descripcion': 'Consejo de la FIET'},
+                    {'nombre': 'estudiante', 'descripcion': 'Estudiante de la universidad del Cauca'},
+                    {'nombre': 'profesor', 'descripcion': 'Profesor de la universidad del Cauca'},
+                ]
+
+                for rol_info in roles_to_create:
+                    rol = Rol.objects.filter(rol_nombre=rol_info['nombre']).first()
+                    if not rol:
+                        Rol.objects.create(rol_nombre=rol_info['nombre'], rol_descripcion=rol_info['descripcion'])
+
+                coordinador_role = Rol.objects.get(rol_nombre='coordinador')
+                self.rol = coordinador_role
+
         super().save(*args, **kwargs)
     
     

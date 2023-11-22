@@ -4,7 +4,17 @@ from django.contrib.auth.models import Permission
 from api.models import User, Profile, Propuesta, Rol, AnteProyecto, Seguimiento, AntpSeguidoSeg, Documento, UserParticipaAntp, AntpSoporteDoc, UserSigueSeg, TrabajoGrado, TragSoporteDoc, UserRealizaTrag
 
 # Register your models here.
-
+class UserAdmin(UserAdmin):
+    fieldsets = (
+        (None, {'fields': ('email', 'username', 'password', 'rol')}),
+        ('Permissions', {'fields': ('is_staff', 'is_active', 'is_superuser', 'groups', 'user_permissions')}),
+    )
+    list_display = ('email', 'username','id','rol', 'is_active', 'is_staff', 'is_superuser')
+    list_filter = ('is_staff', 'is_superuser', 'is_active')
+    #list_editable = ('is_staff', 'is_superuser', 'is_active')
+    search_fields = ('email', 'username')
+    ordering = ('email',)
+    
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'bio', 'verified')
     list_filter = ('verified',)
