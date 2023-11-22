@@ -35,7 +35,8 @@ const Seguimiento = () => {
   const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
-
+  let IdDocumentos = [];
+  let fileData = [];
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -100,6 +101,54 @@ const Seguimiento = () => {
       });
   };
 
+  function saveFiles(event) {
+    // Obtener la lista de archivos seleccionados desde el evento
+    const selectedFiles = event.target.files;
+    // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
+    fileData = [];
+    // Recorrer la lista de archivos y agregar los datos al arreglo
+    for (let i = 0; i < selectedFiles.length; i++) {
+        const file = selectedFiles[i];
+        const fileName = `FB_${file.name}`; // Nombre del archivo
+        fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
+    }
+}
+
+const uploadFiles = async () => {
+    try {
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        if (!(Array.isArray(fileData) && fileData.length === 0)) {
+
+            IdDocumentos = [];
+            const promises = fileData.map((file) => {
+                return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                        'Content-Type': 'multipart/form-data',
+                    },
+                });
+            });
+    
+            await Promise.all(promises).then((results) => {
+                results.forEach((data) => {
+                    IdDocumentos.push(parseInt(data.data.id));
+                });
+            });
+    }
+    body.docs = IdDocumentos;
+
+    if(body.docs && body.docs.length === 0){
+        setShowMensaje(`Por favor, suba el documento tipo B`);
+        setIsValid(false);
+        return false;
+    }
+    onEdit()
+
+    } catch (error) {
+        console.error('Fallo al subir el archivo: ', error);
+    }
+};
+
   const checking = () => {
     if(body.seg_estado === 'PENDIENTE'){
       setIsValid(false);
@@ -158,8 +207,20 @@ const Seguimiento = () => {
 
   const onEdit2 = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
+
+    let idDocs = []
+    body.docs.map((doc)=> {
+      idDocs.push(doc.id)
+      return 1
+    })
+    let datosBody = {
+      id: body.id,
+      docs: idDocs,
+      seg_estado: body.seg_estado,
+    }
+
     axios
-      .put(`http://127.0.0.1:8000/api/seguimientos/${body.id}/`, body, {
+      .patch(`http://127.0.0.1:8000/api/seguimientos/${datosBody.id}/`, datosBody, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -516,6 +577,20 @@ const Seguimiento = () => {
                         <option value="Aprobado">Aprobado</option>
                       </select>
                     </div>
+                    {body.seg_estado === 'Avalando'? 
+                      <div>
+                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
+                        <input
+                            type="file"
+                            name="eva_evidencia"
+                            id="eva_evidencia"
+                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                            placeholder={body.eva_evidencia}
+                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                            required
+                            />
+                      </div>
+                    :null}
                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
                       checking();
