@@ -60,11 +60,15 @@ const Anteproyecto = () => {
         const selectedFiles = event.target.files;
         // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
+        const fecha_actual = `${new Date().toISOString().split("T")[0]}`
+            console.log(typeof fecha_actual);
+            console.log(fecha_actual);
         // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             const fileName = `FB_${file.name}`; // Nombre del archivo
-            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
+            
+            fileData.push({ doc_nombre: fileName, doc_ruta: file, doc_fecha_creacion: fecha_actual, anteproyectos: [], trabajos_de_grado: [] });
         }
     }
 
@@ -89,9 +93,9 @@ const Anteproyecto = () => {
                     });
                 });
         }
-        body.Documentos = IdDocumentos;
+        body.docs = IdDocumentos;
 
-        if(body.Documentos && body.Documentos.length === 0){
+        if(body.docs && body.docs.length === 0){
             setShowMensaje(`Por favor, suba el documento tipo B`);
             setIsValid(false);
             return false;
@@ -185,6 +189,7 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Observaciones</th>
+                            <th scope='col' className='border px-6 py-3'>Documento tipo B</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -205,10 +210,12 @@ const Anteproyecto = () => {
                             {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
                                 anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones
                             }</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{ anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs.length > 0 ?anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs[0].doc_nombre : null}</td>
 
                             {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
                             
                             anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'?  
+                                
                                 <td className='border px-6 py-4 '>
                                     <div className='flex items-center justify-center'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
