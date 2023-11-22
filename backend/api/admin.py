@@ -1,13 +1,10 @@
 from django.contrib import admin
+from django.contrib.auth.admin import UserAdmin
 from django.contrib.auth.models import Permission
 from api.models import User, Profile, Propuesta, Rol, AnteProyecto, Seguimiento, AntpSeguidoSeg, Documento, UserParticipaAntp, AntpSoporteDoc, UserSigueSeg, TrabajoGrado, TragSoporteDoc, UserRealizaTrag
 
 # Register your models here.
-class UserAdmin(admin.ModelAdmin):
-    list_display = ('username', 'email','id' ,'is_staff', 'is_superuser', 'is_active')
-    list_filter = ('is_staff', 'is_superuser', 'is_active')
-    search_fields = ('username', 'email')
-    ordering = ('username',)
+
 class ProfileAdmin(admin.ModelAdmin):
     list_display = ('user', 'full_name', 'bio', 'verified')
     list_filter = ('verified',)
