@@ -31,7 +31,6 @@ const Anteproyecto = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('data: ',data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 return entry.anteproyecto.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
@@ -60,15 +59,11 @@ const Anteproyecto = () => {
         const selectedFiles = event.target.files;
         // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
-        const fecha_actual = `${new Date().toISOString().split("T")[0]}`
-            console.log(typeof fecha_actual);
-            console.log(fecha_actual);
         // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             const fileName = `FB_${file.name}`; // Nombre del archivo
-            
-            fileData.push({ doc_nombre: fileName, doc_ruta: file, doc_fecha_creacion: fecha_actual, anteproyectos: [], trabajos_de_grado: [] });
+            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
         }
     }
 
@@ -120,24 +115,8 @@ const Anteproyecto = () => {
     };
 
     const onEdit = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        setShowModal(false);
-        axios.patch(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            onEdit2()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
-    }
-
-    const onEdit2 = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
-        console.log('Datos editar: ', body);
+        body.seg_estado = 'Evaluado'
         axios.patch(`http://127.0.0.1:8000/api/seguimientos/${body.seg_id}/`, body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -199,8 +178,6 @@ const Anteproyecto = () => {
                         <tr key={anteproyecto.anteproyecto.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_descripcion}</td>
-                            {console.log(anteproyectoList)}
-                            {console.log('docs: ',anteproyecto.documentos)}
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
@@ -210,10 +187,18 @@ const Anteproyecto = () => {
                             {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
                                 anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones
                             }</td>
-                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{ anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs.length > 0 ?anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs[0].doc_nombre : null}</td>
-
-                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
-                            
+                            <td className='border px-6 py-4'>{ anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs.map((doc)=>{
+                                const nombre_doc = doc.doc_nombre.substr(0,2);
+                                console.log(doc);
+                                if(nombre_doc === 'FB'){
+                                    return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
+                                    {`${doc.doc_nombre.substr(0,12)}.pdf`}
+                                    </a></p>
+                                }
+                                return null
+                            }) : null}
+                                </td>
+                            {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null :                           
                             anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'?  
                                 
                                 <td className='border px-6 py-4 '>
@@ -222,21 +207,9 @@ const Anteproyecto = () => {
                                             setBody(anteproyecto)
                                             setTitle('Modificar')
                                             addPropertyToBody('user', datosUsuario.user_id)
-                                            addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                            addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                            addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
-                                            anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                                addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                            ))
-                                            addPropertyToBody('estudiantes', anteproyecto.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "estudiante")
-                                            .map(usuario => usuario.user.id))
-
-                                            addPropertyToBody('profesores', anteproyecto.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
-                                            .map(usuario => usuario.user.id)) 
-
                                             addPropertyToBody('seg_id', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.id)
-
                                             addPropertyToBody('seg_observaciones', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones)
+                                            addPropertyToBody('docs', anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs)
 
                                             setIsValid(true)
                                             setIsEdit(true)
@@ -288,8 +261,9 @@ const Anteproyecto = () => {
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
                                                 <div>
+                                                    
                                                     {
-                                                    body.documentos.map((doc) => {
+                                                    body.docs.map((doc) => {
                                                         IdDocumentos.push(parseInt(doc.doc.id))
                                                         return (
                                                             <div key={doc.doc.id}>
