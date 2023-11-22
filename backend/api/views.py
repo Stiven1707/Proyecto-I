@@ -225,10 +225,11 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
             if profesor.rol.rol_nombre != 'profesor':
                 raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
         #validar que si sean documentos
-        for documento_id in documentos_ids:
-            documento = Documento.objects.filter(id=documento_id).first()
-            if not documento:
-                raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
+        if documentos_ids:
+            for documento_id in documentos_ids:
+                documento = Documento.objects.filter(id=documento_id).first()
+                if not documento:
+                    raise serializers.ValidationError(f"El documento con id {documento_id} no existe")
         #validar que no se repitan los estudiantes
         if len(estudiantes_ids) != len(set(estudiantes_ids)):
             raise serializers.ValidationError("No se puede repetir estudiantes")
