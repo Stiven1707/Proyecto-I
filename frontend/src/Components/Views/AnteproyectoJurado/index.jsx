@@ -23,10 +23,7 @@ const Anteproyecto = () => {
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
-
-
     let fileData = [];
-
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
@@ -34,10 +31,9 @@ const Anteproyecto = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
+        console.log('data: ',data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
-                // Verificar si el id buscado está presente en el array de usuarios
-                //return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
                 return entry.anteproyecto.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
             });
             setAnteproyectoList(entradaConIdEspecifico)
@@ -67,7 +63,7 @@ const Anteproyecto = () => {
         // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
-            const fileName = file.name; // Nombre del archivo
+            const fileName = `FB_${file.name}`; // Nombre del archivo
             fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
         }
     }
@@ -78,7 +74,6 @@ const Anteproyecto = () => {
             if (!(Array.isArray(fileData) && fileData.length === 0)) {
 
                 IdDocumentos = [];
-
                 const promises = fileData.map((file) => {
                     return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
                         headers: {
@@ -95,6 +90,12 @@ const Anteproyecto = () => {
                 });
         }
         body.Documentos = IdDocumentos;
+
+        if(body.Documentos && body.Documentos.length === 0){
+            setShowMensaje(`Por favor, suba el documento tipo B`);
+            setIsValid(false);
+            return false;
+        }
         onEdit()
 
         } catch (error) {
@@ -104,6 +105,7 @@ const Anteproyecto = () => {
 
     const checking = () => {
 
+        
         if (body.seg_observaciones === '') {
             setShowMensaje(`Por favor llene el campo de observaciones`);
             setIsValid(false);
@@ -131,6 +133,7 @@ const Anteproyecto = () => {
 
     const onEdit2 = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        console.log('Datos editar: ', body);
         axios.patch(`http://127.0.0.1:8000/api/seguimientos/${body.seg_id}/`, body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -191,7 +194,8 @@ const Anteproyecto = () => {
                         <tr key={anteproyecto.anteproyecto.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_descripcion}</td>
-                            
+                            {console.log(anteproyectoList)}
+                            {console.log('docs: ',anteproyecto.documentos)}
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
@@ -271,7 +275,6 @@ const Anteproyecto = () => {
                                             placeholder={body.eva_evidencia}
                                             onChange={saveFiles} // Pasa la función como manejador de eventos
                                             required
-                                            multiple
                                             />
                                     </div>
                                     {isEdit && Array.isArray(body.documentos)? 

@@ -301,35 +301,35 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_recepcion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
-                                {/* <td className='border px-6 py-4'>
-                                    <div className='flex'>
+                            <td className='border px-6 py-4'>
+                                <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                            setBody(trabajoDeGrado)
-                                            setTitle('Modificar')
-                                            addPropertyToBody('user', datosUsuario.user_id)
-                                            addPropertyToBody('antp_titulo', trabajoDeGrado.anteproyecto.antp_titulo)
-                                            addPropertyToBody('antp_descripcion', trabajoDeGrado.anteproyecto.antp_descripcion)
-                                            addPropertyToBody('antp_modalidad', trabajoDeGrado.anteproyecto.antp_modalidad)
-                                            addPropertyToBody('antp', trabajoDeGrado.anteproyecto.antp_modalidad)
-                                            trabajoDeGrado.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                                addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                            ))
-                                            setIsValid(true)
-                                            setIsEdit(true)
-                                            setShowModal(true);}}
-                                        >
-                                            <FontAwesomeIcon icon={faEdit} /> 
-                                        </button>    
+                                        setBody(trabajoDeGrado)
+                                        setTitle('Modificar')
+                                        addPropertyToBody('user', datosUsuario.user_id)
+                                        addPropertyToBody('antp_titulo', trabajoDeGrado.anteproyecto.antp_titulo)
+                                        addPropertyToBody('antp_descripcion', trabajoDeGrado.anteproyecto.antp_descripcion)
+                                        addPropertyToBody('antp_modalidad', trabajoDeGrado.anteproyecto.antp_modalidad)
+                                        addPropertyToBody('antp', trabajoDeGrado.anteproyecto.antp_modalidad)
+                                        trabajoDeGrado.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
+                                            addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
+                                        ))
+                                        setIsValid(true)
+                                        setIsEdit(true)
+                                        setShowModal(true);}}
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} /> 
+                                    </button>    
                                         &nbsp;
-                                        <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                            setIdDelete(trabajoDeGrado.anteproyecto.id)
-                                            setAnteproyectoDelete(trabajoDeGrado.anteproyecto.antp_titulo)
-                                            setShowModalDelete(true)
+                                    <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                        setIdDelete(trabajoDeGrado.anteproyecto.id)
+                                        setAnteproyectoDelete(trabajoDeGrado.anteproyecto.antp_titulo)
+                                        setShowModalDelete(true)
                                         }}>
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </div>
-                                </td> */}
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </div>
+                            </td> 
                         </tr>
                     ))}
                     </tbody>
