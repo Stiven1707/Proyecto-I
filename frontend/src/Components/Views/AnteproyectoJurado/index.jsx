@@ -23,10 +23,7 @@ const Anteproyecto = () => {
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
-
-
     let fileData = [];
-
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
@@ -34,10 +31,9 @@ const Anteproyecto = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
+        console.log('data: ',data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
-                // Verificar si el id buscado está presente en el array de usuarios
-                //return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
                 return entry.anteproyecto.evaluadores.some(evaluador => evaluador.id === datosUsuario.user_id);
             });
             setAnteproyectoList(entradaConIdEspecifico)
@@ -64,11 +60,15 @@ const Anteproyecto = () => {
         const selectedFiles = event.target.files;
         // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
+        const fecha_actual = `${new Date().toISOString().split("T")[0]}`
+            console.log(typeof fecha_actual);
+            console.log(fecha_actual);
         // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
-            const fileName = file.name; // Nombre del archivo
-            fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
+            const fileName = `FB_${file.name}`; // Nombre del archivo
+            
+            fileData.push({ doc_nombre: fileName, doc_ruta: file, doc_fecha_creacion: fecha_actual, anteproyectos: [], trabajos_de_grado: [] });
         }
     }
 
@@ -78,7 +78,6 @@ const Anteproyecto = () => {
             if (!(Array.isArray(fileData) && fileData.length === 0)) {
 
                 IdDocumentos = [];
-
                 const promises = fileData.map((file) => {
                     return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
                         headers: {
@@ -94,7 +93,13 @@ const Anteproyecto = () => {
                     });
                 });
         }
-        body.Documentos = IdDocumentos;
+        body.docs = IdDocumentos;
+
+        if(body.docs && body.docs.length === 0){
+            setShowMensaje(`Por favor, suba el documento tipo B`);
+            setIsValid(false);
+            return false;
+        }
         onEdit()
 
         } catch (error) {
@@ -104,6 +109,7 @@ const Anteproyecto = () => {
 
     const checking = () => {
 
+        
         if (body.seg_observaciones === '') {
             setShowMensaje(`Por favor llene el campo de observaciones`);
             setIsValid(false);
@@ -131,6 +137,7 @@ const Anteproyecto = () => {
 
     const onEdit2 = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        console.log('Datos editar: ', body);
         axios.patch(`http://127.0.0.1:8000/api/seguimientos/${body.seg_id}/`, body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -182,6 +189,7 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Observaciones</th>
+                            <th scope='col' className='border px-6 py-3'>Documento tipo B</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
 
                         </tr>
@@ -191,7 +199,8 @@ const Anteproyecto = () => {
                         <tr key={anteproyecto.anteproyecto.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_descripcion}</td>
-                            
+                            {console.log(anteproyectoList)}
+                            {console.log('docs: ',anteproyecto.documentos)}
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
@@ -201,10 +210,12 @@ const Anteproyecto = () => {
                             {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? 'Aprovado' : 
                                 anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Activo'? 'A revisión' : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones
                             }</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{ anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs.length > 0 ?anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.docs[0].doc_nombre : null}</td>
 
                             {anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprovado'? null : 
                             
                             anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'?  
+                                
                                 <td className='border px-6 py-4 '>
                                     <div className='flex items-center justify-center'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
@@ -271,7 +282,6 @@ const Anteproyecto = () => {
                                             placeholder={body.eva_evidencia}
                                             onChange={saveFiles} // Pasa la función como manejador de eventos
                                             required
-                                            multiple
                                             />
                                     </div>
                                     {isEdit && Array.isArray(body.documentos)? 
