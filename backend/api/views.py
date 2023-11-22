@@ -668,25 +668,28 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
         print("user_ids: ", user_ids)
         documentos = []
         usuarios = []
+        
         # buscar los docs 
-        for doc in doc_ids:
-            documento = Documento.objects.filter(id=doc).first()
-            if not documento:
-                raise serializers.ValidationError(f"El documento con id {doc} no existe")
-            else:
-                print("documento: ", documento)
-                # agrego en una lista de documentos
-                documentos.append(documento)
+        if doc_ids:
+            for doc in doc_ids:
+                documento = Documento.objects.filter(id=doc).first()
+                if not documento:
+                    raise serializers.ValidationError(f"El documento con id {doc} no existe")
+                else:
+                    print("documento: ", documento)
+                    # agrego en una lista de documentos
+                    documentos.append(documento)
           
         # buscar los users
-        for user in user_ids:
-            usuario = User.objects.filter(id=user).first()
-            if not usuario:
-                raise serializers.ValidationError(f"El usuario con id {user} no existe")
-            else:
-                print("usuario: ", usuario)
-                # agrego en una lista de usuarios
-                usuarios.append(usuario)
+        if user_ids:
+            for user in user_ids:
+                usuario = User.objects.filter(id=user).first()
+                if not usuario:
+                    raise serializers.ValidationError(f"El usuario con id {user} no existe")
+                else:
+                    print("usuario: ", usuario)
+                    # agrego en una lista de usuarios
+                    usuarios.append(usuario)
         # buacar en la tabla intermedia TragSoporteDoc
         documentos_TragSoporteDoc = TragSoporteDoc.objects.filter(trag=instance)
         # buacar en la tabla intermedia UserRealizaTrag
