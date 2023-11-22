@@ -102,11 +102,16 @@ class PropuestaSerializer(serializers.ModelSerializer):
         model = Propuesta
         fields = ('id', 'user', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
 
-
 class DocumentoSerializer(serializers.ModelSerializer):
+    
     class Meta:
         model = Documento
         fields = '__all__'
+
+class DocumentoPOSTSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Documento
+        fields = ('id', 'doc_nombre', 'doc_ruta')
 
     def is_valid(self, *, raise_exception=False):
         # verifico que enviaron los campos requeridos
