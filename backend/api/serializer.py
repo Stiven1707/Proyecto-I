@@ -142,6 +142,12 @@ class SeguimientoCortoSerializer(serializers.ModelSerializer):
         model = Seguimiento
         fields = '__all__'
 
+class SeguimientoUPDATESerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Seguimiento
+        fields = ('id','seg_fecha_recepcion','seg_estado','docs','seg_observaciones')
+        depth = 1
+
 
 
 # class AntpSeguidoSegSerializer(serializers.ModelSerializer):
