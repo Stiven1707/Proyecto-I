@@ -35,7 +35,7 @@ const Seguimiento = () => {
   const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
-  let IdDocumentos = [];
+  let IdDocumentos = 0;
   let fileData = [];
 
   const getSeguimientos = async () => {
@@ -109,7 +109,7 @@ const Seguimiento = () => {
     // Recorrer la lista de archivos y agregar los datos al arreglo
     for (let i = 0; i < selectedFiles.length; i++) {
         const file = selectedFiles[i];
-        const fileName = `FB_${file.name}`; // Nombre del archivo
+        const fileName = `FC_${file.name}`; // Nombre del archivo
         fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
     }
 }
@@ -119,7 +119,7 @@ const uploadFiles = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         if (!(Array.isArray(fileData) && fileData.length === 0)) {
 
-            IdDocumentos = [];
+            IdDocumentos = 0;
             const promises = fileData.map((file) => {
                 return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
                     headers: {
@@ -131,18 +131,20 @@ const uploadFiles = async () => {
     
             await Promise.all(promises).then((results) => {
                 results.forEach((data) => {
-                    IdDocumentos.push(parseInt(data.data.id));
+                    IdDocumentos = parseInt(data.data.id);
                 });
             });
     }
-    body.docs = IdDocumentos;
+    //body.docs = IdDocumentos;
 
-    if(body.docs && body.docs.length === 0){
-        setShowMensaje(`Por favor, suba el documento tipo B`);
+    console.log('dopcs: ', body);
+    if(IdDocumentos && IdDocumentos.length === 0){
+        setShowMensaje(`Por favor, suba el documento tipo C`);
         setIsValid(false);
         return false;
     }
     onEdit()
+    onEdit2()
 
     } catch (error) {
         console.error('Fallo al subir el archivo: ', error);
@@ -177,8 +179,13 @@ const uploadFiles = async () => {
 	    setShowMensaje('No puede elegir al mismo evaluador');
       return false
     }
-    onEdit(); 
-    onEdit2();
+    setIsValid(true);
+    if(body.seg_estado === 'Remitido'){
+      uploadFiles();
+    }else{
+      onEdit()
+      onEdit2()
+    }
   }
 
 
@@ -213,12 +220,17 @@ const uploadFiles = async () => {
       idDocs.push(doc.id)
       return 1
     })
+    if(body.seg_estado === 'Remitido'){
+      idDocs.push(IdDocumentos)
+    }
     let datosBody = {
       id: body.id,
       docs: idDocs,
       seg_estado: body.seg_estado,
+      seg_fecha_asignacion: body.seg_fecha_asignacion,
+      seg_fecha_concepto: body.seg_fecha_concepto
     }
-
+      console.log('datosBody:',datosBody);
     axios
       .patch(`http://127.0.0.1:8000/api/seguimientos/${datosBody.id}/`, datosBody, {
         headers: {
@@ -359,6 +371,7 @@ const uploadFiles = async () => {
                         <th scope="col" className="border px-6 py-3 w-1/6">Fecha asignacion</th>
                         <th scope="col" className="border px-6 py-3 w-1/6">Fecha Concepto</th>
                         <th scope="col" className="border px-6 py-3 w-1/6">Observaciones</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Documentos</th>
                         <th scope="col" className="border px-6 py-3 w-1/6">Estado</th>
                         <th scope="col" className="border px-6 py-3 w-1/6">Acciones</th>
                       </tr>
@@ -369,6 +382,12 @@ const uploadFiles = async () => {
                         <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
                         <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
                         <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
+                        {console.log(seg.seg)}
+                        <td className="border px-6 py-4">{seg.seg.docs? seg.seg.docs.map((doc) => {
+                          return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
+                          {`${doc.doc_nombre.substr(0,12)}.pdf`}
+                      </a></p>
+                        }):null}</td>
                         <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
                         <td className="border px-6 py-4">
                           
@@ -574,10 +593,12 @@ const uploadFiles = async () => {
                         <option value='PENDIENTE' disabled>PENDIENTE</option>
                         <option value="A revisión">A revisión</option>
                         <option value="No Aprobado">No Aprobado</option>
+                        <option value="Evaluado">Evaluado</option>
+                        <option value="Remitido">Remitido</option>
                         <option value="Aprobado">Aprobado</option>
                       </select>
                     </div>
-                    {body.seg_estado === 'Avalando'? 
+                    {body.seg_estado === 'Remitido'? 
                       <div>
                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
                         <input

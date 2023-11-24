@@ -6,6 +6,7 @@ import PropuestaTesis from "../Views/PropuestaTesis";
 import Anteproyecto from "../Views/Anteproyecto";
 import AnteproyectoEstudiante from "../Views/AnteproyectoEstudiante";
 import EvaluacionAnteproyecto from "../Views/AnteproyectoJurado";
+import ValidarAnteproyecto from "../Views/AnteproyectoConsejo";
 import Seguimiento from "./../Views/Seguimiento";
 import Usuarios from "./../Views/Usuarios";
 import TrabajoDeGrado from "../Views/TrabajoDeGrado";
@@ -36,6 +37,7 @@ const Layout = () => {
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
                     <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
                     <Route path="/anteproyectosE" element={comprobarAcceso(['estudiante'])? <AnteproyectoEstudiante/> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosC" element={comprobarAcceso(['profesor', 'consejo'])? <ValidarAnteproyecto/> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
