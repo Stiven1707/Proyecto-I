@@ -172,7 +172,8 @@ class Seguimiento(models.Model):
         return str(self.id) + " - " + self.seg_fecha_recepcion.strftime("%d/%m/%Y")
 
 class TrabajoGrado(models.Model):
-    trag_fecha_recepcion = models.DateField(blank=True, null=True)
+    trag_fecha_inicio = models.DateField(blank=True, null=True)
+    trag_fecha_fin = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
     trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
     antp = models.OneToOneField(AnteProyecto, on_delete=models.CASCADE, related_name='trabajos_grado')

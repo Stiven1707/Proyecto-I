@@ -240,7 +240,7 @@ class updateUserParticipaAntpRealizaTragSoporteDocsSerializador(serializers.Mode
     user_ids = serializers.SerializerMethodField()
     class Meta:
         model = TrabajoGrado
-        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_inicio','trag_fecha_fin', 'trag_fecha_sustentacion', 'trag_estado')
     
     def get_doc_ids(self, obj):
         return list(obj.tragsoportedoc_set.all().values_list('doc_id', flat=True))
