@@ -256,7 +256,7 @@ class updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.
     user_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
     class Meta:
         model = TrabajoGrado
-        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_recepcion', 'trag_fecha_sustentacion', 'trag_estado')
+        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_inicio','trag_fecha_fin', 'trag_fecha_sustentacion', 'trag_estado')
 
 class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
@@ -268,11 +268,12 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
     def create(self, validated_data):
         # Extraer la información del campo 'doc'
         documentos_data = validated_data.pop('doc', [])
+        jurados_data = validated_data.pop('jurados', [])
 
         # Crear la instancia de TrabajoGrado
         trabajo_grado = TrabajoGrado.objects.create(**validated_data)
-        # fecha actual
-        trabajo_grado.trag_fecha_recepcion = date.today()
+        # poner jurados
+        trabajo_grado.jurados.set(jurados_data)
         trabajo_grado.save()
         # Del trabajo de grado, extraer el anteproyecto y con el los usuarios a asociar
         anteproyecto = trabajo_grado.antp
@@ -300,11 +301,13 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
 
 
         # Actualizar la instancia de TrabajoGrado
-        instance.trag_fecha_recepcion = validated_data.get('trag_fecha_recepcion', instance.trag_fecha_recepcion)
+        instance.trag_fecha_inicio = validated_data.get('trag_fecha_inicio', instance.trag_fecha_inicio)
+        instance.trag_fecha_fin = validated_data.get('trag_fecha_fin', instance.trag_fecha_fin)
         instance.trag_fecha_sustentacion = validated_data.get('trag_fecha_sustentacion', instance.trag_fecha_sustentacion)
         instance.trag_estado = validated_data.get('trag_estado', instance.trag_estado)
         # Actualizar la relacion con el antp
         instance.antp = validated_data.get('antp', instance.antp)
+        instance.jurados.set(validated_data.get('jurados', instance.jurados.all()))
         instance.save()
 
         
@@ -314,12 +317,7 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
             user = User.objects.get(id=user_id)
             UserRealizaTrag.objects.get_or_create(trag=instance, user=user)
 
-        # anteproyecto = instance.antp
-        # usuarios = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
-        # for user_id in usuarios:
-        #     user = User.objects.get(id=user_id)
-        #     UserRealizaTrag.objects.get_or_create(trag=instance, user=user)
-
+        
         # Actualizar los documentos asociados
         for doc_id in documentos_data:
             documento = Documento.objects.get(id=doc_id)
