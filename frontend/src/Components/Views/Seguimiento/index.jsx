@@ -217,7 +217,9 @@ const uploadFiles = async () => {
 
     let idDocs = []
     body.docs.map((doc)=> {
-      idDocs.push(doc.id)
+      if(!(doc.doc_nombre.substr(0,2) === 'FC')){
+        idDocs.push(doc.id)
+    }
       return 1
     })
     if(body.seg_estado === 'Remitido'){

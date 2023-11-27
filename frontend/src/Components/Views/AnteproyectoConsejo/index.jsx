@@ -134,9 +134,8 @@ const AnteproyectoConsejo = () => {
             },
         })
         .then(() => {
-            setShowModal(false)
-            setBody(initialState);
-            getAnteproyectos();
+            onSubmit()
+            
         })
         .catch(({ response }) => {
             console.log(response);
@@ -148,6 +147,40 @@ const AnteproyectoConsejo = () => {
             ...prevBody,
             [name]: value
         }));
+    };
+
+    const onSubmit = async (idAnteproyecto) => {
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        const fechaActual = new Date();
+        let fechaFinal = new Date();
+        fechaFinal.setMonth(fechaActual.getMonth() + 9)
+        console.log(body);
+        let datosTesis = {
+            doc: [],
+            trag_fecha_inicio: fechaActual.toISOString().split("T")[0],
+            trag_fecha_fin: fechaFinal.toISOString().split("T")[0],
+            trag_fecha_sustentacion: null,
+            trag_estado: "ACTIVO",
+            antp: body.anteproyecto.id,
+            jurados: []
+
+        }
+        console.log(datosTesis);
+        setShowModal(false);
+        axios
+        .post(`http://127.0.0.1:8000/api/trabajosdegrado/`, datosTesis, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+        })
+        .then(() => {
+            setShowModal(false)
+            setBody(initialState);
+            getAnteproyectos();
+        })
+        .catch(({ response }) => {
+            console.log(response);
+        });
     };
 
 
