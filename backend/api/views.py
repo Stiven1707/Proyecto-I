@@ -537,10 +537,13 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
             documentos = TragSoporteDoc.objects.filter(trag=trabajo_grado).select_related('doc')
             serialized_users_realiza_trag = UserRealizaTragSerializer(users_realiza_trag, many=True).data
             serialized_documentos = TragSoporteDocSerializer(documentos, many=True).data
+            seguimientos = AntpSeguidoSeg.objects.filter(antp=trabajo_grado.antp).select_related('seg')
+            serialized_seguimientos = AntpSeguidoSegSerializer(seguimientos, many=True).data
             data.append({
                 'trag': TrabajoDeGradoSerializer(trabajo_grado).data,
                 'users': serialized_users_realiza_trag,
                 'docs': serialized_documentos,
+                'segs': serialized_seguimientos,
             })
         return Response(data)
 
