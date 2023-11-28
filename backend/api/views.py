@@ -74,22 +74,21 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         #return self.get_serializer().Meta.model.objects.filter(state = True)
         return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
 
-class PropuestaList(generics.ListCreateAPIView):
+class PropuestaListCreate(generics.ListCreateAPIView):
+    queryset = Propuesta.objects.all()
     serializer_class = PropuestaSerializer
-    grups_required = ['profesor']
-    permission_classes = [IsAuthenticated]
+    permission_classes = ([IsAuthenticated])
 
-    def get_queryset(self):
-        grups_user = self.request.user.groups.all().values('name')
-        print("user_permisson: ", self.request.user.user_permissions.all()  )
-        #imprimir grupos
-        print("user_groups: ", grups_user )
-        for grupo in grups_user:
-            if grupo['name'] in self.grups_required:
-                #Solo sus propias propuestas(profesor)
-                return Propuesta.objects.filter(user=self.request.user) 
-        #(Estudiante) Todas las propuestas que estan activas
-        return Propuesta.objects.filter(pro_estado="ACTIVO")
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Propuesta.objects.all()
+    serializer_class = PropuestaSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
 
 class AnteProyectoListCreate(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
