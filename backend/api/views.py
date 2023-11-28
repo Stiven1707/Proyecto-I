@@ -74,22 +74,21 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         #return self.get_serializer().Meta.model.objects.filter(state = True)
         return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
 
-class PropuestaList(generics.ListCreateAPIView):
+class PropuestaListCreate(generics.ListCreateAPIView):
+    queryset = Propuesta.objects.all()
     serializer_class = PropuestaSerializer
-    grups_required = ['profesor']
-    permission_classes = [IsAuthenticated]
+    permission_classes = ([IsAuthenticated])
 
-    def get_queryset(self):
-        grups_user = self.request.user.groups.all().values('name')
-        print("user_permisson: ", self.request.user.user_permissions.all()  )
-        #imprimir grupos
-        print("user_groups: ", grups_user )
-        for grupo in grups_user:
-            if grupo['name'] in self.grups_required:
-                #Solo sus propias propuestas(profesor)
-                return Propuesta.objects.filter(user=self.request.user) 
-        #(Estudiante) Todas las propuestas que estan activas
-        return Propuesta.objects.filter(pro_estado="ACTIVO")
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Propuesta.objects.all()
+    serializer_class = PropuestaSerializer
+    permission_classes = ([IsAuthenticated])
+
+
+
 
 class AnteProyectoListCreate(generics.ListCreateAPIView):
     queryset = AnteProyecto.objects.all()
@@ -193,7 +192,10 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
 
         # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
         documentos = Documento.objects.filter(id__in=documentos_ids)
-        AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
+        if documentos:
+            anteproyecto.docs_historial.add(*documentos)
+            AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
+            anteproyecto.save()
 
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -355,6 +357,8 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 
                 # Verificar si hay documentos antiguos que no están en la lista de documentos nuevos
                 documentos_a_eliminar = documentos_anteproyecto.exclude(doc__id__in=ids_documentos_nuevos)
+                # Los guardo en el historial
+                anteproyecto.docs_historial.add(*documentos)
                 print("documentos_a_eliminar: ", documentos_a_eliminar)
                 documentos_a_eliminar.delete()
 
@@ -366,7 +370,10 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
             else:
                 # Si no hay documentos antiguos, simplemente crea los nuevos
                 for documento in documentos:
+                    # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
                     AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
+                    # Los guardo en el historial
+                    anteproyecto.docs_historial.add(*documentos)
                     print("Documento actualizado: ", documento)
 
 

@@ -137,6 +137,13 @@ class Propuesta(models.Model):
     
 #nuevas tablas
 # Para manejar el ante proyecto, otra para el seguimiento del ante proyecto por parte de unos profesores y una tabla para manejar los documentos necesarios
+class Documento(models.Model):
+    doc_nombre = models.TextField()
+    doc_ruta = models.FileField(upload_to='documentos_user')
+    doc_fecha_creacion = models.DateField(default=timezone.now)
+
+    def __str__(self):
+        return self.doc_nombre
 
 class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
@@ -147,17 +154,12 @@ class AnteProyecto(models.Model):
     ('Práctica Profesional', 'Práctica Profesional'),)
     antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
+    pro = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
+    docs_historial = models.ManyToManyField(Documento, related_name='anteproyectos_documentosh', blank=True)
 
     def __str__(self):
         return self.antp_titulo
         
-class Documento(models.Model):
-    doc_nombre = models.TextField()
-    doc_ruta = models.FileField(upload_to='documentos_user')
-    doc_fecha_creacion = models.DateField(default=timezone.now)
-
-    def __str__(self):
-        return self.doc_nombre
 
 
 class Seguimiento(models.Model):
