@@ -232,7 +232,7 @@ const AnteproyectoConsejo = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Aprovacion de anteproyecto {body.antp_titulo}</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Aprobacion de anteproyecto {body.antp_titulo}</h3>
                                 <form className="space-y-6" action="#">
                                 {Array.isArray(body.docs)? 
                                         <div>
