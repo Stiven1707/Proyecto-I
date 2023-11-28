@@ -193,7 +193,10 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
 
         # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
         documentos = Documento.objects.filter(id__in=documentos_ids)
-        AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
+        if documentos:
+            anteproyecto.docs_historial.add(*documentos)
+            AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentos])
+            anteproyecto.save()
 
 
 class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -355,6 +358,8 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 
                 # Verificar si hay documentos antiguos que no están en la lista de documentos nuevos
                 documentos_a_eliminar = documentos_anteproyecto.exclude(doc__id__in=ids_documentos_nuevos)
+                # Los guardo en el historial
+                anteproyecto.docs_historial.add(*documentos)
                 print("documentos_a_eliminar: ", documentos_a_eliminar)
                 documentos_a_eliminar.delete()
 
@@ -366,7 +371,10 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
             else:
                 # Si no hay documentos antiguos, simplemente crea los nuevos
                 for documento in documentos:
+                    # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
                     AntpSoporteDoc.objects.create(antp=anteproyecto, doc=documento)
+                    # Los guardo en el historial
+                    anteproyecto.docs_historial.add(*documentos)
                     print("Documento actualizado: ", documento)
 
 
