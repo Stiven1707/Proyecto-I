@@ -22,10 +22,14 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ('user', 'full_name')
     ordering = ('user',)
 class PropuestaAdmin(admin.ModelAdmin):
-    list_display = ('user', 'id', 'pro_titulo', 'pro_objetivos', 'pro_estado','doc')
+    list_display = ('user', 'display_estudiantes','pro_titulo','id', 'pro_objetivos', 'pro_estado','doc')
     list_filter = ('user',)
     search_fields = ('user', 'pro_titulo')
     ordering = ('user',)
+    def display_estudiantes(self, obj):
+        return ', '.join([str(student) for student in obj.estudiantes.all()])
+    display_estudiantes.short_description = 'estudiantes'
+
 class RolAdmin(admin.ModelAdmin):
     list_display = ('rol_nombre','id', 'rol_descripcion', 'rol_estado')
     list_filter = ('rol_estado',)
