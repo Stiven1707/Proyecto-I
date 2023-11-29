@@ -102,10 +102,9 @@ class DocumentoSerializer(serializers.ModelSerializer):
         model = Documento
         fields = '__all__'
 class DocumentoPOSTSerializer(serializers.ModelSerializer):
-    doc_fecha_creacion = serializers.DateField(format='%Y-%m-%d',read_only=True)  # Specify the date format
     class Meta:
         model = Documento
-        fields = ('id', 'doc_nombre', 'doc_ruta', 'doc_fecha_creacion')
+        fields = ('id', 'doc_nombre', 'doc_ruta')
 
     def is_valid(self, *, raise_exception=False):
         # verifico que enviaron los campos requeridos
