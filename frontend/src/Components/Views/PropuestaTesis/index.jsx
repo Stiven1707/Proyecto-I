@@ -4,21 +4,23 @@ import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const PropuestaTesis = () => {
+const Anteproyecto = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
-    console.log(datosUsuario);
- //const url = 'http://localhost/4000/api';
+
     const initialState = {
         user: datosUsuario.user_id,
+        estudiante1: '',
+        estudiante2: '',
         pro_titulo: "",
-        pro_descripcion: "",
         pro_objetivos: "",
-        pro_estado: "En espera",
+        pro_modalidad:""
 	}
 
+
     const [propuestaList, setPropuestaList] = useState([]);
+    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
@@ -27,25 +29,54 @@ const PropuestaTesis = () => {
 	const [propuestaDelete, setPropuestaDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
-    const [isFound, setIsFound] = useState(false);
+    //const [isFound, setIsFound] = useState(false);
+    const [profesores, setProfesores] = useState([]);
+    const [estudiantes, setEstudiantes] = useState([]);
+    const [isValid, setIsValid] = useState(true);
+	const [showMensaje, setShowMensaje] = useState('');
 
 
-
+    let fileData = [];
 
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log(token);
 		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Get propuestas: ',data);
-		setPropuestaList(data)
+        console.log(data);
+        if (datosUsuario.rol === 'profesor'){
+            const entradaConIdEspecifico = data.filter(entry => {
+                if(entry.user.id === datosUsuario.user_id){
+                    return entry;
+                }
+                return null
+            });
+            setPropuestaList(entradaConIdEspecifico)
+
+        }else{
+            setPropuestaList(data)
+        }
+	}
+
+    const getParticipantes = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
+        const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
+
+		setProfesores(profesoresData);
+        setEstudiantes(estudiantesData);
 	}
 
     useEffect(()=>{
-		getPropuestas()}, [])
+		getPropuestas();
+        getParticipantes()}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -53,31 +84,87 @@ const PropuestaTesis = () => {
             ...body,
             [name]: value
         });
-        //setSelectedPeriodo(value !== "");
     };
 
-    const onSubmit = async () => {
-        console.log('Que',body);
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        setShowModal(false)
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            setBody(initialState)
-            getPropuestas()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
+
+    function saveFiles(event) {
+        const selectedFiles = event.target.files;
+        fileData = {
+            doc_nombre: selectedFiles[0].name,
+            doc_ruta: selectedFiles[0]
+        };
     }
+
+    const checking = () => {
+        if (body.antp_titulo === '') {
+            setShowMensaje("Por favor llene el campo titulo");
+            setIsValid(false);
+            return false;
+        }
+        if (body.antp_descripcion === '') {
+            setShowMensaje("Por favor llene el campo descripcion");
+            setIsValid(false);
+            return false;
+        }
+        if (body.pro_modalidad === '') {
+            setShowMensaje("Por favor seleccione una modalidad");
+            setIsValid(false);
+            return false;
+        }
+        if (body.estudiante1 === '') {
+            setShowMensaje(`Por favor seleccione ${body.pro_modalidad==='tesis'? 'al menos un estudiante ': 'al estudiante'}`);
+            setIsValid(false);
+            return false;
+        }
+        if (body.estudiante1 === body.estudiante2) {
+            setShowMensaje('No se puede elegir el mismo estudiante');
+            setIsValid(false);
+            return false;
+        }
+        setIsValid(true);
+        onSubmit();
+    };
+    
+    const onSubmit = async () => {
+        const token = JSON.parse(localStorage.getItem('authTokens')).access;
+        const IdEstudiantes = []
+        IdEstudiantes.push(parseInt(body.estudiante1));
+            if(body.pro_modalidad === 'Trabajo de Investigación' && body.estudiante2){
+                IdEstudiantes.push(parseInt(body.estudiante2));
+            }
+            body.estudiantes = IdEstudiantes;
+        setShowModal(false);
+        let datosPropuesta = {
+            estudiantes: IdEstudiantes,
+            doc: fileData,
+            pro_titulo: body.pro_titulo,
+            pro_objetivos: body.pro_objetivos,
+            pro_modalidad: body.pro_modalidad
+        }
+        console.log('Datos propuesta: ', datosPropuesta);
+        axios
+            .post('http://127.0.0.1:8000/api/propuestas/', datosPropuesta, {
+                headers: {
+                    Authorization: `Bearer ${token}`,
+                            'Content-Type': 'multipart/form-data',
+                },
+            })
+            .then(() => {
+                setBody(initialState);
+                getPropuestas();
+            })
+            .catch(({ response }) => {
+                console.log(response);
+            });
+    };
+    
 
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        axios.post('http://127.0.0.1:8000/api/propuestas/', body, {
+        setShowModal(false);
+        console.log('Datos a editar: ', body);
+        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -92,11 +179,28 @@ const PropuestaTesis = () => {
     }
 
     const onDelete = async () => {
-        try {
-            const { data } = await axios.post('http://127.0.0.1:8000/api/eliminar', { id: idDelete })
-        } catch ({ response }) {
-        }
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+
+        axios.delete(`http://127.0.0.1:8000/api/anteproyectos/${idDelete}/`, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(() => {
+            getPropuestas()
+        })
+        .catch(({response})=>{
+            console.log(response)
+        })
     }
+
+    const addPropertyToBody = (name, value) => {
+        setBody(prevBody => ({
+            ...prevBody,
+            [name]: value
+        }));
+    };
+
 
     return (
         <div >
@@ -111,7 +215,6 @@ const PropuestaTesis = () => {
                                 <div className='flex items-center'>
                                     <input type="text" id="table-search" className="block p-2 pl-10 text-sm text-gray-900 border border-gray-300 rounded-lg w-80 bg-gray-50 focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" value={isId} onChange={(e)=>{
                                         setIsId(e.target.value)
-                                        console.log(e.target.value);
                                     }} laceholder="Search"/>
                                     <button className='bg-cyan-600 text-gray-300 p-1 px-3 rounded-e' onClick={()=>{
                                         body.per_id = 0
@@ -122,6 +225,7 @@ const PropuestaTesis = () => {
                                     setTitle('Crear')
                                     setBody(initialState)
                                     setIsEdit(false)
+                                    setIsValid(true)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
                             </button>
@@ -130,39 +234,63 @@ const PropuestaTesis = () => {
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
                         <tr>
-                            <th scope='col' className='border px-6 py-3'>#</th>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
-                            <th scope='col' className='border px-6 py-3'>Descripcion</th>
                             <th scope='col' className='border px-6 py-3'>Objetivos</th>
+                            <th scope='col' className='border px-6 py-3'>Coordiandor</th>
+                            <th scope='col' className='border px-6 py-3'>Estudiantes</th>
+                            <th scope='col' className='border px-6 py-3'>Documento</th>
+                            <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
-
                         </tr>
                     </thead>
                     <tbody>
+                        {console.log(propuestaList)}
                     {propuestaList.map((propuesta)=>(
-                        <tr key={propuesta.per_id}>
-                            <td className='border px-6 py-4'>{propuesta.id}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_titulo}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_descripcion}</td>
-                            <td className='border px-6 py-4'>{propuesta.pro_objetivos}</td>
-                            <td className='border px-6 py-4 flex'>
-                                <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                    console.log(propuestaList);
-                                    setBody(propuesta)
-                                    setTitle('Modificar')
-                                    setIsEdit(true)
-                                    setShowModal(true);}}
-                                >
-                                    <FontAwesomeIcon icon={faEdit} /> 
-                                </button>    
-                                &nbsp;
-                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                    setIdDelete(propuesta.pro_id)
-                                    setPropuestaDelete(propuesta.pro_titulo)
-                                    setShowModalDelete(true)
-                                }}>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
+                        <tr key={propuesta.id}>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_titulo}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_objetivos}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.user.email}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.estudiantes.map((estudiante)=>{
+                                    return <p key={estudiante.id}>{estudiante.email}</p>;
+                            })}</td>
+                            
+                            <td className='border px-6 py-4'>
+                                <p key={propuesta.doc.id}><a href={`http://127.0.0.1:8000${propuesta.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
+                                {`${propuesta.doc.doc_nombre.substr(0,12)}.pdf`}
+                            </a></p>
+                            </td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_estado}</td>
+
+
+                            <td className='border px-6 py-4'>
+                                {propuesta.pro_estado === 'PENDIENT'? null : 
+                                    <div className='flex'>
+                                    <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                            setBody([])
+                                            setTitle('Modificar')
+                                            addPropertyToBody('user', datosUsuario.user_id)
+                                            addPropertyToBody('pro_titulo', propuesta.pro_titulo)
+                                            addPropertyToBody('pro_objetivos', propuesta.pro_objetivos)
+                                            addPropertyToBody('pro_modalidad', propuesta.pro_modalidad)
+                                            propuesta.estudiantes.map((estudiante, index)=>(
+                                                addPropertyToBody(`estudiante${index+1}`, estudiante.id)
+                                            ))
+                                            setIsValid(true)
+                                            setIsEdit(true)
+                                            setShowModal(true);}}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} /> 
+                                        </button>    
+                                        &nbsp;
+                                        <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                            setIdDelete(propuesta.anteproyecto.id)
+                                            setPropuestaDelete(propuesta.pro_titulo)
+                                            setShowModalDelete(true)
+                                        }}>
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </div>
+                            }
                             </td>
                         </tr>
                     ))}
@@ -175,60 +303,102 @@ const PropuestaTesis = () => {
                     <div className="relative w-full max-w-md max-h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                             <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => setShowModal(false)} >
-                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} propuesta</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} anteproyecto</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                            <textarea name='pro_titulo' id='pro_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            <textarea name='pro_titulo' label='pro_titulo' id='pro_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             value={body.pro_titulo}
                                             onChange={onChange}
                                             required
                                             />
                                     </div>
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Descripción</label>
-                                            <textarea name='pro_descripcion' id='pro_descripcion' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.pro_descripcion}
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Objetivos</label>
+                                            <textarea name='pro_objetivos' label='pro_objetivos' id='pro_objetivos' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            value={body.pro_objetivos}
                                             onChange={onChange}
                                             required
                                             />
                                     </div>
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Objetivos</label>
-                                                <textarea name='pro_objetivos' id='pro_objetivos' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                                value={body.pro_objetivos}
-                                                onChange={onChange}
-                                                required
-                                                />
-
+                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalidad</label>
+                                        <select
+                                                name="pro_modalidad"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.pro_modalidad}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                required 
+                                                >
+                                                    
+                                                <option value='' disabled>Seleccionar Modalidad</option>
+                                                <option value='Trabajo de Investigación'>Trabajo de Investigación</option>
+                                                <option value='Práctica Profesional'>Práctica Profesional</option>
+                                            </select>
                                     </div>
                                     <div>
-                                        <label htmlFor="lab_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
+                                        <label htmlFor="estudiante1" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
                                         <select
-                                                name="lab_estado"
-                                                style={{
-                                                    backgroundColor: 'withe',
-                                                    padding: '8px',
-                                                    borderRadius: '4px',
-                                                    width: '100%',
-                                                    color: 'lighgray',
-                                                    fontSize: '14px',
-                                                }}
-                                                value={body.pro_estado}
+                                                name="estudiante1"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.estudiante1}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 >
-                                                    <option value="En espera">En espera</option>
-                                                    <option value="Activo">Activo</option>
-                                                    <option value="Finalizado">Finalizado</option>
+                                                    <option value={0}>Seleccionar al estudiante {body.pro_modalidad === 'tesis'? 1: ''}</option>
+                                                        {estudiantes.map(estudiante => (
+                                                    <option key={estudiante.id} value={estudiante.id}>
+                                                        {estudiante.email}
+                                                    </option>
+                                            ))} 
                                             </select>
                                     </div>
-                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={isEdit ? () => onEdit() : () => onSubmit()
+                                    {body.pro_modalidad === 'Trabajo de Investigación'?
+                                        <div>
+                                            <label htmlFor="estudiante2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
+                                            <select
+                                                name="estudiante2"
+                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                                                value={body.estudiante2}
+                                                onChange={(e)=>{
+                                                    onChange(e)
+                                                }}
+                                                >
+                                                    <option value=''>Seleccionar al estudiante 2</option>
+                                                    {estudiantes
+                                                    .filter(estudiante => estudiante.id !== body.estudiante1) // Filtrar el estudiante seleccionado en el primer select
+                                                    .map(estudiante => (
+                                                        <option key={estudiante.id} value={estudiante.id}>
+                                                            {estudiante.email}
+                                                        </option>
+                                                    ))}
+                                            </select>
+                                        </div>
+                                    :null}
+                                    <div>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
+                                        <input
+                                            type="file"
+                                            name="eva_evidencia"
+                                            id="eva_evidencia"
+                                            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                                            placeholder={body.eva_evidencia}
+                                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                                            required
+                                            />
+                                    </div>
+                                    {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
+                                    <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
+                                        checking();
+                                        e.preventDefault(); // Previene el comportamiento predetermina
+                                    }
                                     }>{title}</button>
                                 </form>
                             </div>
@@ -244,11 +414,11 @@ const PropuestaTesis = () => {
                     <div className="relative w-full max-w-md max-h-full">
                         <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
                             <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => setShowModalDelete(false)} >
-                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
+                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el periodo {propuestaDelete}</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el anteproyecto "{propuestaDelete}"</h3>
                                 <div className='border px-6 py-6 pl-10 flex justify-evenly'>
                                     <button className='bg-green-600 text-gray-300 p-2 px-10 rounded' onClick={() => {
                                         onDelete();
@@ -275,4 +445,4 @@ const PropuestaTesis = () => {
 	)
 }
 
-export default PropuestaTesis
+export default Anteproyecto

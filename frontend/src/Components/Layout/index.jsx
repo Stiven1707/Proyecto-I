@@ -31,7 +31,7 @@ const Layout = () => {
                 <Routes>
 					<Route path="/" element={<Dashboard />} />
 					<Route path="/usuarios" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
-					<Route path="/propuestas" element={comprobarAcceso([])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
