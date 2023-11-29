@@ -100,7 +100,8 @@ class ActualizarUsuarioSerializer(serializers.ModelSerializer):
 class PropuestaSerializer(serializers.ModelSerializer):
     class Meta:
         model = Propuesta
-        fields = ('id', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
+        fields = '__all__'
+        depth = 1
 
 class DocumentoSerializer(serializers.ModelSerializer):
     
