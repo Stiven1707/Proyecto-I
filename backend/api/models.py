@@ -147,6 +147,11 @@ class Propuesta(models.Model):
     pro_estado = models.CharField(max_length=45, choices=ESTADOS, default="PENDIENTE", blank=True)
     estudiantes = models.ManyToManyField(User, related_name='propuestas_estudiantes', blank=True)
     doc = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='propuestas_documentos')
+    #la modalidad es un dominio que conta de Trabajo de Investigación y Práctica Profesional
+    MODALIDADES = (
+    ('Trabajo de Investigación', 'Trabajo de Investigación'),
+    ('Práctica Profesional', 'Práctica Profesional'),)
+    pro_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
 
     def __str__(self):
         return self.pro_titulo
@@ -157,11 +162,6 @@ class Propuesta(models.Model):
 class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
-    #la modalidad es un dominio que conta de Trabajo de Investigación y Práctica Profesional
-    MODALIDADES = (
-    ('Trabajo de Investigación', 'Trabajo de Investigación'),
-    ('Práctica Profesional', 'Práctica Profesional'),)
-    antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
     propuesta = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
     docs_historial = models.ManyToManyField(Documento, related_name='anteproyectos_documentosh', blank=True)

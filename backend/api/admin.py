@@ -22,7 +22,7 @@ class ProfileAdmin(admin.ModelAdmin):
     search_fields = ('user', 'full_name')
     ordering = ('user',)
 class PropuestaAdmin(admin.ModelAdmin):
-    list_display = ('user', 'display_estudiantes','pro_titulo','id', 'pro_objetivos', 'pro_estado','doc')
+    list_display = ('user', 'display_estudiantes','pro_titulo','id', 'pro_modalidad', 'pro_estado','doc')
     list_filter = ('user',)
     search_fields = ('user', 'pro_titulo')
     ordering = ('user',)
