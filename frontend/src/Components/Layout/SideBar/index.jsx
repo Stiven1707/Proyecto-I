@@ -29,7 +29,7 @@ const Layout = () => {
 	const Menus = [
 		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 0, state: false },
 		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: ['profesor','auxiliar', 'coordinador'], state: false },
-		//{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor','admin'], state: false },
+		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor','consejo'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: ['profesor','auxiliar','coordinador'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectosE', token: ['profesor','estudiante'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectosC', token: ['consejo','profesor'], state: false },

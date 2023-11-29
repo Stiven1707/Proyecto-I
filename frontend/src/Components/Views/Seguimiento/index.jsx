@@ -2,7 +2,8 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faClockRotateLeft, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
+import Anteproyecto from './../AnteproyectoJurado/index';
 
 const Seguimiento = () => {
   const datosUsuarioCifrados = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -21,9 +22,11 @@ const Seguimiento = () => {
   };
 
   const [seguimientoList, setSeguimientoList] = useState([]);
+  const [histotialList, setHistotialList] = useState([]);
   const [body, setBody] = useState(initialState);
   const [title, setTitle] = useState('');
   const [showModal, setShowModal] = useState(false);
+  const [showModalHistorial, setShowModalHistorial] = useState(false);
   const [showModalDelete, setShowModalDelete] = useState(false);
   const [idDelete, setIdDelete] = useState('');
   const [seguimientoDelete, setSeguimientoDelete] = useState('');
@@ -327,12 +330,12 @@ const uploadFiles = async () => {
                       <tr>
                         <th scope="col" className="border px-6 py-3">Titulo</th>
                         <th scope="col" className="border px-6 py-3">Modalidad</th>
+                        <th scope="col" className="border px-6 py-3">Director</th>
                         <th scope="col" className="border px-6 py-3">Estudiantes</th>
-                        <th scope="col" className="border px-6 py-3">Coodinador</th>
                         <th scope="col" className="border px-6 py-3">Evaluadores</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className='text-black'>
                       <tr>
                       <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_titulo}</td>
                         <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_modalidad}</td>
@@ -363,10 +366,9 @@ const uploadFiles = async () => {
                       </tr>
                     </tbody>
                   </table>
-                {seguimiento.seguimientos.map((seg, index)=> (
-                  
-                  <table key={index} className='table-auto w-full'>
-                    <caption className='border px-6 py-3 dark:bg-cyan-900 dark:text-gray-100'>{`Segumiento ${index + 1}`}</caption>
+                  {seguimiento.seguimientos[seguimiento.seguimientos.length-1]? 
+                  <table className='table-auto w-full'>
+                    <caption className='border px-6 py-3 dark:bg-cyan-900 dark:text-gray-100'>{`Segumiento ${seguimiento.seguimientos.length}`}</caption>
                     <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-100 dark:text-gray-800">
                       <tr>
                         <th scope="col" className="border px-6 py-3 w-1/6">Fecha Recepcion</th>
@@ -378,23 +380,21 @@ const uploadFiles = async () => {
                         <th scope="col" className="border px-6 py-3 w-1/6">Acciones</th>
                       </tr>
                     </thead>
-                    <tbody>
+                    <tbody className='text-black dark:text-black'>
                       <tr>
-                        <td className="border px-6 py-4">{seg.seg.seg_fecha_recepcion}</td>
-                        <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
-                        <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
-                        <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
-                        {console.log(seg.seg)}
-                        <td className="border px-6 py-4">{seg.seg.docs? seg.seg.docs.map((doc) => {
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_fecha_recepcion}</td>
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_fecha_asignacion}</td>
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_fecha_concepto}</td>
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_observaciones}</td>
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.docs? seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.docs.map((doc) => {
                           return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                           {`${doc.doc_nombre.substr(0,12)}.pdf`}
                       </a></p>
                         }):null}</td>
-                        <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
+                        <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado}</td>
                         <td className="border px-6 py-4">
                           
-                          {seg.seg.seg_estado === 'No Aprobado'?
-                            seguimiento.seguimientos.length === (index+1) ? 
+                          {seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado === 'No Aprobado'?
                               <div>
                                 <button
                                     className="px-4 py-2 bg-gray-700 text-white rounded"
@@ -406,16 +406,15 @@ const uploadFiles = async () => {
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
                                 </button>
                               </div>
-                            :null
                           :
                             <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
                               <button
                                 className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
                                 onClick={() => {
-                                  setBody(seg.seg);
+                                  setBody(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg);
                                   setTitle('Modificar');
                                   setIsValid(true);
-                                  addPropertyToBody('idAnteproyecto', seg.antp)
+                                  addPropertyToBody('idAnteproyecto', seguimiento.antp)
                                   
                                   seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
                                   addPropertyToBody(`profesor${index+1}`, usuario.user.id)
@@ -440,7 +439,7 @@ const uploadFiles = async () => {
                               <button
                                 className="bg-red-700 text-gray-300 p-2 px-3 rounded"
                                 onClick={() => {
-                                  setIdDelete(seg.seg.id);
+                                  setIdDelete(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.id);
                                   setSeguimientoDelete(seguimiento.anteproyecto.antp_titulo);
                                   setShowModalDelete(true);
                                 }}
@@ -449,13 +448,24 @@ const uploadFiles = async () => {
                               </button>
                             </div>
                           }
+                          <div className='pt-1 flex items-center'>
+                            <button className='bg-blue-600 text-gray-300 p-2 px-3 rounded' onClick={()=> {
+                              setHistotialList({anteproyecto: seguimiento.anteproyecto,
+                                                seguimientos: seguimiento.seguimientos})
+                                                setShowModalHistorial(true)
+                            }}>
+                              <FontAwesomeIcon icon={faClockRotateLeft} />
+                            </button>
+                          </div>
                         </td>
 
                       </tr>
                     </tbody>
                   </table>
-                ))}
+: null}
+<br />
               </tr>
+              
             ))}
           </tbody>
         </table>
@@ -490,48 +500,6 @@ const uploadFiles = async () => {
                     {title} seguimiento
                   </h3>
                   <form className="space-y-6" action="#">
-                    {/* <div>
-                      <label htmlFor="seg_fecha_recepcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Fecha Recepción
-                      </label>
-                      <input
-                        type="date"
-                        id="seg_fecha_recepcion"
-                        name="seg_fecha_recepcion"
-                        className="bg-white border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 block w-full p-3 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500"
-                        value={body.seg_fecha_recepcion}
-                        onChange={onChange}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label htmlFor="fecha_asignacion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Fecha Asignacion
-                      </label>
-                      <input
-                        type='date'
-                        name="seg_fecha_asignacion"
-                        id="seg_fecha_asignacion"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={body.seg_fecha_asignacion}
-                        onChange={onChange}
-                        required
-                      />
-                    </div>
-                    <div>
-                      <label  htmlFor="fecha_recepcion" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-                        Fecha Concepto
-                      </label>
-                      <input
-                        type='date'
-                        name="seg_fecha_concepto"
-                        id="seg_fecha_concepto"
-                        className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                        value={body.seg_fecha_concepto}
-                        onChange={onChange}
-                        required
-                      />
-                    </div> */}
                     <div>
                       <label htmlFor="evaluador1" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Evaluador 1</label>
                       <select
@@ -627,6 +595,73 @@ const uploadFiles = async () => {
           </div>
         </>
       ) : null}
+
+{showModalHistorial ? (
+        <>
+          <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
+              <div className="relative bg-white rounded-lg shadow">
+               <div className='mb-5'>
+               <button
+                  type="button"
+                  className="absolute top-3 right-2.5 text-gray-700 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                  onClick={() => setShowModalHistorial(false)}
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  <span className="sr-only text-black">Close modal</span>
+                </button>
+               </div>
+                <div className="px-6 py-6 lg:px-8">
+
+                  <table className='table-auto w-full'>
+                    <caption className='border px-6 py-3 dark:bg-cyan-900 dark:text-gray-100'>{`Segumiento ${histotialList.anteproyecto.antp_titulo}`}</caption>
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-100 dark:text-gray-800">
+                      <tr>
+                        <th scope="col" className="border px-6 py-3 w-1/6">#</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Fecha Recepcion</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Fecha asignacion</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Fecha Concepto</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Observaciones</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Documentos</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Estado</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                  {histotialList.seguimientos.map((seg, index)=> (
+                      <tr key={index+1}>
+                        <td className="border px-6 py-4">{index+1}</td>
+                        <td className="border px-6 py-4">{seg.seg.seg_fecha_recepcion}</td>
+                        <td className="border px-6 py-4">{seg.seg.seg_fecha_asignacion}</td>
+                        <td className="border px-6 py-4">{seg.seg.seg_fecha_concepto}</td>
+                        <td className="border px-6 py-4">{seg.seg.seg_observaciones}</td>
+                        {console.log(seg.seg)}
+                        <td className="border px-6 py-4">{seg.seg.docs? seg.seg.docs.map((doc) => {
+                          return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
+                          {`${doc.doc_nombre.substr(0,12)}.pdf`}
+                      </a></p>
+                        }):null}</td>
+                        <td className="border px-6 py-4">{seg.seg.seg_estado}</td>
+                      </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </>
+      ) : null}
+
 
       {showModalDelete ? (
         <>
