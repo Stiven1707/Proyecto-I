@@ -123,9 +123,18 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
         estudiantes_ids = self.request.data.get('estudiantes')
         profesores_ids = self.request.data.get('profesores')
         documentos_ids = self.request.data.get('Documentos')
+        if not estudiantes_ids and not profesores_ids:
+            # buscamos la propuesta del anteproyecto
+            propuesta = Propuesta.objects.filter(id=self.request.data.get('propuesta')).first()
+            print("propuesta: ", propuesta)
+            # pongo los estudiantes que estan en propuesta
+            estudiantes_ids = [estudiante.id for estudiante in propuesta.estudiantes.all()]
+            # pongo los profesores que estan en propuesta
+            profesores_ids = []
+            profesores_ids.append(propuesta.user.id)
         #validaciones
         if not estudiantes_ids:
-            raise serializers.ValidationError("Debe enviar los estudiantes")
+            raise serializers.ValidationError("Debe enviar los estudiantes*")
         if not profesores_ids:
             raise serializers.ValidationError("Debe enviar los profesores")
         
