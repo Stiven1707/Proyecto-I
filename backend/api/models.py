@@ -127,7 +127,10 @@ class Rol(models.Model):
 class Documento(models.Model):
     doc_nombre = models.TextField()
     doc_ruta = models.FileField(upload_to='documentos_user')
-    doc_fecha_creacion = models.DateField(default=timezone.now)
+    def default_fecha_creacion():
+        return timezone.now().date()  # Returns only the date without the time
+    
+    doc_fecha_creacion = models.DateField(default=default_fecha_creacion)
 
     def __str__(self):
         return self.doc_nombre
@@ -136,7 +139,12 @@ class Propuesta(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='propuestas')
     pro_titulo = models.CharField(max_length=255)
     pro_objetivos = models.TextField()
-    pro_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
+    # EL estado puede ser pendiente, aprobado, rechazado
+    ESTADOS = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('APROBADO', 'APROBADO'),
+    ('RECHAZADO', 'RECHAZADO'),)
+    pro_estado = models.CharField(max_length=45, choices=ESTADOS, default="PENDIENTE", blank=True)
     estudiantes = models.ManyToManyField(User, related_name='propuestas_estudiantes', blank=True)
     doc = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='propuestas_documentos')
 
