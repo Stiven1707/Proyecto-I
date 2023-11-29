@@ -126,7 +126,7 @@ class DocumentoPOSTSerializer(serializers.ModelSerializer):
 class PropuestaSerializer(serializers.ModelSerializer):
     user = UserCortoSerializer(read_only=True)  # Usuario solo para lectura, no se creará
     estudiantes = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all().filter(rol__rol_nombre="estudiante"))  # Estudiantes solo para lectura, no se crearán
-    doc = DocumentoPOSTSerializer()  # Se permitirá la creación de un documento
+    doc = serializers.PrimaryKeyRelatedField(queryset=Documento.objects.all())  # Se permitirá la creación de un documento
     class Meta:
         model = Propuesta
         fields = '__all__'
@@ -142,10 +142,9 @@ class PropuestaSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         print('validated_data:',validated_data)
         estudiantes_data = validated_data.pop('estudiantes', [])  # Get the list of student IDs
-        doc_data = validated_data.pop('doc')
-        print('doc_data:',doc_data)
-        doc = DocumentoPOSTSerializer.create(self=self,validated_data=doc_data)  # Create the Documento instance
-
+        doc_id = validated_data.pop('doc')
+        print('doc_id:',doc_id)
+        doc = Documento.objects.get(id=doc_id)
         propuesta = Propuesta.objects.create(doc=doc, **validated_data)
         propuesta.estudiantes.set(estudiantes_data)  # Set the students for this Propuesta
         return propuesta

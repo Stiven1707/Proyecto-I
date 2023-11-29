@@ -80,6 +80,8 @@ class PropuestaListCreate(generics.ListCreateAPIView):
     permission_classes = ([IsAuthenticated])
 
     def perform_create(self, serializer):
+        print("request: ", self.request.data)
+        print("serializer", serializer.validated_data)
         serializer.save(user=self.request.user)
 
 class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
