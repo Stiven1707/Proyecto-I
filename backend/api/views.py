@@ -79,7 +79,7 @@ class PropuestaListCreate(generics.ListCreateAPIView):
     permission_classes = ([IsAuthenticated])
 
     def get_queryset(self):
-        if self.request.user__rol__rol_nombre == 'coordinador' or self.request.user__rol__rol_nombre == 'auxiliar':
+        if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
             return Propuesta.objects.all()
         else:
             return Propuesta.objects.filter(user=self.request.user)
