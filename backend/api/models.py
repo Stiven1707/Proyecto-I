@@ -163,7 +163,7 @@ class AnteProyecto(models.Model):
     ('Práctica Profesional', 'Práctica Profesional'),)
     antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
-    pro = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
+    propuesta = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
     docs_historial = models.ManyToManyField(Documento, related_name='anteproyectos_documentosh', blank=True)
 
     def __str__(self):

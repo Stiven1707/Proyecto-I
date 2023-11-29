@@ -186,10 +186,17 @@ class AnteProyectoPOSTSerializer(serializers.ModelSerializer):
         fields = '__all__'
 class AnteProyectoSerializer(serializers.ModelSerializer):
     evaluadores = UserCortoSerializer(many=True)
+    propuesta = serializers.PrimaryKeyRelatedField(queryset=Propuesta.objects.all())
     
     class Meta:
         model = AnteProyecto
         fields = '__all__'
+    def to_representation(self, instance):
+        # Utilizamos DocumentoDisplaySerializer para mostrar la fecha de creación al listar
+        ret = super().to_representation(instance)
+        propuesta_info = PropuestaSerializer(instance.propuesta).data
+        ret['propuesta'] = propuesta_info
+        return ret
 class AnteProyectoCortoSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnteProyecto
