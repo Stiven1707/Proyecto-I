@@ -75,9 +75,14 @@ class ProfileUpdateAPIView(generics.UpdateAPIView):
         return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
 
 class PropuestaListCreate(generics.ListCreateAPIView):
-    queryset = Propuesta.objects.all()
     serializer_class = PropuestaSerializer
     permission_classes = ([IsAuthenticated])
+
+    def get_queryset(self):
+        if self.request.user__rol__rol_nombre == 'coordinador' or self.request.user__rol__rol_nombre == 'auxiliar':
+            return Propuesta.objects.all()
+        else:
+            return Propuesta.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         print("request: ", self.request.data)
