@@ -145,7 +145,9 @@ class PropuestaSerializer(serializers.ModelSerializer):
         doc_id = validated_data.pop('doc')
         print('doc_id:',doc_id)
         doc = Documento.objects.get(id=doc_id)
-        propuesta = Propuesta.objects.create(doc=doc, **validated_data)
+        if not doc:
+            raise serializers.ValidationError(f"(PropuestaSerializer)El documento con id {doc_id} no existe")
+        propuesta = Propuesta.objects.create(doc=doc_id, **validated_data)
         propuesta.estudiantes.set(estudiantes_data)  # Set the students for this Propuesta
         return propuesta
 
