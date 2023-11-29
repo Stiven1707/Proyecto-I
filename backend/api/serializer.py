@@ -96,22 +96,16 @@ class ActualizarUsuarioSerializer(serializers.ModelSerializer):
         return instance
 
 
-
-class PropuestaSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Propuesta
-        fields = ('id', 'pro_titulo', 'pro_descripcion', 'pro_objetivos', 'pro_estado')
-
 class DocumentoSerializer(serializers.ModelSerializer):
-    
+    doc_fecha_creacion = serializers.DateField(format='%Y-%m-%d')  # Specify the date format
     class Meta:
         model = Documento
         fields = '__all__'
-
 class DocumentoPOSTSerializer(serializers.ModelSerializer):
+    doc_fecha_creacion = serializers.DateField(format='%Y-%m-%d',read_only=True)  # Specify the date format
     class Meta:
         model = Documento
-        fields = ('id', 'doc_nombre', 'doc_ruta')
+        fields = ('id', 'doc_nombre', 'doc_ruta', 'doc_fecha_creacion')
 
     def is_valid(self, *, raise_exception=False):
         # verifico que enviaron los campos requeridos
@@ -129,6 +123,34 @@ class DocumentoPOSTSerializer(serializers.ModelSerializer):
         documento = Documento.objects.create(doc_nombre=doc_nombre, doc_ruta=doc_ruta)
 
         return documento
+
+class PropuestaSerializer(serializers.ModelSerializer):
+    user = UserCortoSerializer(read_only=True)  # Usuario solo para lectura, no se creará
+    estudiantes = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())  # Estudiantes solo para lectura, no se crearán
+    doc = DocumentoPOSTSerializer()  # Se permitirá la creación de un documento
+    class Meta:
+        model = Propuesta
+        fields = '__all__'
+        
+    def to_representation(self, instance):
+        # Utilizamos DocumentoDisplaySerializer para mostrar la fecha de creación al listar
+        ret = super().to_representation(instance)
+        estudiantes_info = UserCortoSerializer(instance.estudiantes.all(), many=True).data
+        ret['estudiantes'] = estudiantes_info
+        ret['doc'] = DocumentoSerializer(instance.doc).data
+        return ret
+    
+    def create(self, validated_data):
+        estudiantes_data = validated_data.pop('estudiantes', [])  # Get the list of student IDs
+        doc_data = validated_data.pop('doc')
+        print('doc_data:',doc_data)
+        doc = Documento.objects.create(**doc_data)  # Create the Documento instance
+
+        propuesta = Propuesta.objects.create(doc=doc, **validated_data)
+        propuesta.estudiantes.set(estudiantes_data)  # Set the students for this Propuesta
+        return propuesta
+
+
 
 class SeguimientoSerializer(serializers.ModelSerializer):
     docs = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=False)
@@ -164,10 +186,17 @@ class AnteProyectoPOSTSerializer(serializers.ModelSerializer):
         fields = '__all__'
 class AnteProyectoSerializer(serializers.ModelSerializer):
     evaluadores = UserCortoSerializer(many=True)
+    propuesta = serializers.PrimaryKeyRelatedField(queryset=Propuesta.objects.all())
     
     class Meta:
         model = AnteProyecto
         fields = '__all__'
+    def to_representation(self, instance):
+        # Utilizamos DocumentoDisplaySerializer para mostrar la fecha de creación al listar
+        ret = super().to_representation(instance)
+        propuesta_info = PropuestaSerializer(instance.propuesta).data
+        ret['propuesta'] = propuesta_info
+        return ret
 class AnteProyectoCortoSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnteProyecto

@@ -124,26 +124,35 @@ class Rol(models.Model):
         super().save(*args, **kwargs)
     
         
+class Documento(models.Model):
+    doc_nombre = models.TextField()
+    doc_ruta = models.FileField(upload_to='documentos_user')
+    def default_fecha_creacion():
+        return timezone.now().date()  # Returns only the date without the time
+    
+    doc_fecha_creacion = models.DateField(default=default_fecha_creacion)
+
+    def __str__(self):
+        return self.doc_nombre
 
 class Propuesta(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='propuestas')
     pro_titulo = models.CharField(max_length=255)
-    pro_descripcion = models.TextField()
     pro_objetivos = models.TextField()
-    pro_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
+    # EL estado puede ser pendiente, aprobado, rechazado
+    ESTADOS = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('APROBADO', 'APROBADO'),
+    ('RECHAZADO', 'RECHAZADO'),)
+    pro_estado = models.CharField(max_length=45, choices=ESTADOS, default="PENDIENTE", blank=True)
+    estudiantes = models.ManyToManyField(User, related_name='propuestas_estudiantes', blank=True)
+    doc = models.ForeignKey(Documento, on_delete=models.CASCADE, related_name='propuestas_documentos')
 
     def __str__(self):
         return self.pro_titulo
     
 #nuevas tablas
 # Para manejar el ante proyecto, otra para el seguimiento del ante proyecto por parte de unos profesores y una tabla para manejar los documentos necesarios
-class Documento(models.Model):
-    doc_nombre = models.TextField()
-    doc_ruta = models.FileField(upload_to='documentos_user')
-    doc_fecha_creacion = models.DateField(default=timezone.now)
-
-    def __str__(self):
-        return self.doc_nombre
 
 class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
@@ -154,7 +163,7 @@ class AnteProyecto(models.Model):
     ('Práctica Profesional', 'Práctica Profesional'),)
     antp_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
-    pro = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
+    propuesta = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
     docs_historial = models.ManyToManyField(Documento, related_name='anteproyectos_documentosh', blank=True)
 
     def __str__(self):
