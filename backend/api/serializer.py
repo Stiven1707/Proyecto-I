@@ -126,7 +126,7 @@ class DocumentoPOSTSerializer(serializers.ModelSerializer):
 
 class PropuestaSerializer(serializers.ModelSerializer):
     user = UserCortoSerializer(read_only=True)  # Usuario solo para lectura, no se creará
-    estudiantes = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all())  # Estudiantes solo para lectura, no se crearán
+    estudiantes = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all().filter(rol__rol_nombre="estudiante"))  # Estudiantes solo para lectura, no se crearán
     doc = DocumentoPOSTSerializer()  # Se permitirá la creación de un documento
     class Meta:
         model = Propuesta
