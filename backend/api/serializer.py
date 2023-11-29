@@ -140,10 +140,11 @@ class PropuestaSerializer(serializers.ModelSerializer):
         return ret
     
     def create(self, validated_data):
+        print('validated_data:',validated_data)
         estudiantes_data = validated_data.pop('estudiantes', [])  # Get the list of student IDs
         doc_data = validated_data.pop('doc')
         print('doc_data:',doc_data)
-        doc = Documento.objects.create(**doc_data)  # Create the Documento instance
+        doc = DocumentoPOSTSerializer.create(self=self,validated_data=doc_data)  # Create the Documento instance
 
         propuesta = Propuesta.objects.create(doc=doc, **validated_data)
         propuesta.estudiantes.set(estudiantes_data)  # Set the students for this Propuesta
