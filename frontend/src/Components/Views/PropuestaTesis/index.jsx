@@ -146,7 +146,7 @@ const Anteproyecto = () => {
             .post('http://127.0.0.1:8000/api/propuestas/', datosPropuesta, {
                 headers: {
                     Authorization: `Bearer ${token}`,
-                            'Content-Type': 'multipart/form-data',
+                    'Content-Type': 'multipart/form-data',
                 },
             })
             .then(() => {
