@@ -346,6 +346,7 @@ const uploadFiles = async () => {
                             }
                             return null;
                           })}
+                          
                         </td>
                         <td className="border px-6 py-4">
                           {seguimiento.usuarios.map((user)=>{
@@ -559,7 +560,16 @@ const uploadFiles = async () => {
                         onChange={(e) => {
                           onChange(e);
                         }}
-                      >
+                      >{['PENDIENTE', 'A revisión', 'No Aprobado', 'Evaluado', 'Remitido'].map((datos) =>{
+                        console.log(datos);
+                        if(body.seg_estado==='PENDIENTE' && (datos === 'PENDIENTE' || datos === 'A revisión')){
+                          return <option value={datos}>{`${datos}`}</option>
+                        }else if(body.seg_estado==='Evaluado' && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido')){
+                          return <option value={datos}>{`${datos}`}</option>
+                        }
+                        return 1
+                      })}
+                      {body.seg_estado==='PENDIENTE'? '': null}
                         <option value='PENDIENTE' disabled>PENDIENTE</option>
                         <option value="A revisión">A revisión</option>
                         <option value="No Aprobado">No Aprobado</option>
@@ -600,8 +610,7 @@ const uploadFiles = async () => {
         <>
           <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
               <div className="relative bg-white rounded-lg shadow">
-               <div className='mb-5'>
-               <button
+                <button
                   type="button"
                   className="absolute top-3 right-2.5 text-gray-700 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
                   onClick={() => setShowModalHistorial(false)}
@@ -621,7 +630,6 @@ const uploadFiles = async () => {
                   </svg>
                   <span className="sr-only text-black">Close modal</span>
                 </button>
-               </div>
                 <div className="px-6 py-6 lg:px-8">
 
                   <table className='table-auto w-full'>
@@ -661,8 +669,6 @@ const uploadFiles = async () => {
             </div>
         </>
       ) : null}
-
-
       {showModalDelete ? (
         <>
           <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
