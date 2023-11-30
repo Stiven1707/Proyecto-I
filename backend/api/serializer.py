@@ -200,7 +200,9 @@ class AnteProyectoSerializer(serializers.ModelSerializer):
         # Utilizamos DocumentoDisplaySerializer para mostrar la fecha de creación al listar
         ret = super().to_representation(instance)
         propuesta_info = PropuestaSerializer(instance.propuesta).data
+        docs_historial_info = DocumentoSerializer(instance.docs_historial.all(),many=True).data
         ret['propuesta'] = propuesta_info
+        ret['docs_historial'] = docs_historial_info
         return ret
 class AnteProyectoCortoSerializer(serializers.ModelSerializer):
     class Meta:
