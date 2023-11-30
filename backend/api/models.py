@@ -176,7 +176,14 @@ class Seguimiento(models.Model):
     seg_fecha_recepcion = models.DateField()
     seg_fecha_asignacion = models.DateField(null=True, blank=True)
     seg_fecha_concepto = models.DateField(null=True, blank=True)
-    seg_estado = models.CharField(max_length=45, default="PENDIENTE", blank=True)
+    # los estados que puede tener son 'PENDIENTE', 'A revisión', 'No Aprobado', 'Evaluado', 'Remitido'
+    ESTADOS = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('A revisión', 'A revisión'),
+    ('No Aprobado', 'No Aprobado'),
+    ('Evaluado', 'Evaluado'),
+    ('Remitido', 'Remitido'),)
+    seg_estado = models.CharField(max_length=45,choices=ESTADOS, default="PENDIENTE", blank=True)
     docs = models.ManyToManyField(Documento, related_name='seguimientos', blank=True)
 
     def __str__(self):

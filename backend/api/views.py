@@ -379,7 +379,13 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
                     # Los guardo en el historial
                     anteproyecto.docs_historial.add(*documentos)
                     print("Documento actualizado: ", documento)
-        self.crear_seguimiento(anteproyecto)
+        # El ultimo seguimiento que tenga el anteproyecto
+        ultimo_seguimiento = Seguimiento.objects.filter(antpseguidoseg__antp=anteproyecto).order_by('-seg_fecha_recepcion').first()
+        print("ultimo_seguimiento: ", ultimo_seguimiento)
+        # si el seguimiento esta como no aprobado o no tiene seguimientos se crea un seguimiento
+        if not ultimo_seguimiento or ultimo_seguimiento.seg_estado == 'No Aprobado':
+            self.crear_seguimiento(anteproyecto)
+
 
         return anteproyecto
     def crear_seguimiento(self,anteproyecto):
