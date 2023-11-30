@@ -284,6 +284,7 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Observaciones</th>
+                            <th scope='col' className='border px-6 py-3'>Seguimiento</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
                         </tr>
                     </thead>
@@ -316,39 +317,70 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
                                 {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones: null}
                             </td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
+                                {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado: null}
+                            </td>
+                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'PENDIENTE' || anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'No Aprobado' ? <td className='border px-6 py-4'>
+                            <div className='flex'>
+                            <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                    setBody(anteproyecto)
+                                    setTitle('Modificar')
+                                    addPropertyToBody('user', datosUsuario.user_id)
+                                    addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                    addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                    anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
+                                        addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
+                                    ))
+                                    setIsValid(true)
+                                    setIsEdit(true)
+                                    setShowModal(true);}}
+                                >
+                                    <FontAwesomeIcon icon={faEdit} /> 
+                                </button>    
+                                &nbsp;
+                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                    setIdDelete(anteproyecto.anteproyecto.id)
+                                    setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
+                                    setShowModalDelete(true)
+                                }}>
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                            </div>
+                        </td>: null: <td className='border px-6 py-4'>
+                            <div className='flex'>
+                            <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                    setBody(anteproyecto)
+                                    setTitle('Modificar')
+                                    addPropertyToBody('user', datosUsuario.user_id)
+                                    addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                    addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                    anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
+                                        addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
+                                    ))
+                                    setIsValid(true)
+                                    setIsEdit(true)
+                                    setShowModal(true);}}
+                                >
+                                    <FontAwesomeIcon icon={faEdit} /> 
+                                </button>    
+                                &nbsp;
+                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                    setIdDelete(anteproyecto.anteproyecto.id)
+                                    setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
+                                    setShowModalDelete(true)
+                                }}>
+                                    <FontAwesomeIcon icon={faTrash} />
+                                </button>
+                            </div>
+                        </td>}
 
-                            {anteproyecto.seguimientos && anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprobado'? null : 
+                            {console.log('anteproyecto: ', anteproyecto)}
+
+                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprobado'? null : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'? null: '': null}
                             
-                            anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'? null : 
-                                <td className='border px-6 py-4'>
-                                    <div className='flex'>
-                                    <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                            setBody(anteproyecto)
-                                            setTitle('Modificar')
-                                            addPropertyToBody('user', datosUsuario.user_id)
-                                            addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                            addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                            addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
-                                            anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                                addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                            ))
-                                            setIsValid(true)
-                                            setIsEdit(true)
-                                            setShowModal(true);}}
-                                        >
-                                            <FontAwesomeIcon icon={faEdit} /> 
-                                        </button>    
-                                        &nbsp;
-                                        <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                            setIdDelete(anteproyecto.anteproyecto.id)
-                                            setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
-                                            setShowModalDelete(true)
-                                        }}>
-                                            <FontAwesomeIcon icon={faTrash} />
-                                        </button>
-                                    </div>
-                                </td>
-                            }
+                            
                         </tr>
                     ))}
                     </tbody>
