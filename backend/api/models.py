@@ -163,7 +163,7 @@ class AnteProyecto(models.Model):
     antp_titulo = models.CharField(max_length=255)
     antp_descripcion = models.TextField()
     evaluadores = models.ManyToManyField(User, related_name='anteproyectos_evaluados', blank=True)
-    propuesta = models.ForeignKey(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
+    propuesta = models.OneToOneField(Propuesta, on_delete=models.CASCADE, related_name='anteproyectos_propuesta')
     docs_historial = models.ManyToManyField(Documento, related_name='anteproyectos_documentosh', blank=True)
 
     def __str__(self):
