@@ -194,7 +194,15 @@ class TrabajoGrado(models.Model):
     trag_fecha_inicio = models.DateField(blank=True, null=True)
     trag_fecha_fin = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
-    trag_estado = models.CharField(max_length=45, default="ACTIVO", blank=True)
+    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO
+    ESTADOS = (
+    ('PENDIENTE', 'PENDIENTE'),
+    ('APROBADO', 'APROBADO'),
+    ('APROBADO CON OBSERVACIONES', 'APROBADO CON OBSERVACIONES'),
+    ('APLAZADO', 'APLAZADO'),
+    ('NO APROBADO', 'NO APROBADO'),
+    ('CANCELADO', 'CANCELADO'),)
+    trag_estado = models.CharField(max_length=45, default="PENDIENTE", blank=True)
     antp = models.OneToOneField(AnteProyecto, on_delete=models.CASCADE, related_name='trabajos_grado')
     jurados = models.ManyToManyField(User, related_name='trabajos_grado_jurados', blank=True)
     
