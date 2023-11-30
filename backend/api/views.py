@@ -229,7 +229,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         #validar que si sean profesores
         for profesor_id in profesores_ids:
             profesor = User.objects.filter(id=profesor_id).first()
-            if profesor.rol.rol_nombre != 'profesor':
+            if profesor.rol.rol_nombre != 'profesor' and profesor.rol.rol_nombre != 'temporal':
                 raise serializers.ValidationError(f"El usuario {profesor.username} no es profesor")
         #validar que si sean documentos
         if documentos_ids:
