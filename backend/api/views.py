@@ -81,8 +81,9 @@ class PropuestaListCreate(generics.ListCreateAPIView):
     def get_queryset(self):
         if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
             return Propuesta.objects.all()
-        else:
-            return Propuesta.objects.filter(user=self.request.user)
+        if self.request.user.rol.rol_nombre == 'estudiante':
+            return Propuesta.objects.filter(estudiantes__id=self.request.user.id)
+        return Propuesta.objects.filter(user=self.request.user)
 
     def perform_create(self, serializer):
         print("request: ", self.request.data)
@@ -139,6 +140,8 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             # pongo los profesores que estan en propuesta
             profesores_ids = []
             profesores_ids.append(propuesta.user.id)
+            print("Propuesta estudiantes_ids: ", estudiantes_ids)
+            print("Propuesta profesores_ids: ", profesores_ids)
         #validaciones
         if not estudiantes_ids:
             raise serializers.ValidationError("Debe enviar los estudiantes*")
@@ -186,25 +189,10 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
                 ##raise serializers.ValidationError(f"El profesor {profesor.username} ya tiene 5 anteproyectos")
         # Crear el AnteProyecto
         anteproyecto = serializer.save()
-
-        # Crear el seguimiento con fecha de hoy y concepto hoy mas 10 dias
-        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_fecha_concepto=timezone.now() + timezone.timedelta(days=10), seg_estado='PENDIENTE')
-        # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
-        AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
-
-        # Asociar estudiantes y profesores
-        estudiantes = User.objects.filter(id__in=estudiantes_ids)
-        profesores = User.objects.filter(id__in=profesores_ids)
-        # Asignar el anteproyecto a los estudiantes mediante la tabla intermedia UserParticipaAntp
-        # Asociar el seguimiento a los estudiantes mediante la tabla intermedia UserSigueSeg        
-        for estudiante in estudiantes:
-            UserParticipaAntp.objects.create(user=estudiante, antp=anteproyecto)
-            UserSigueSeg.objects.create(user=estudiante, seg=seguimiento)
-        # Asignar el anteproyecto a los profesores mediante la tabla intermedia UserParticipaAntp
-        # Asociar el seguimiento a los profesores mediante la tabla intermedia UserSigueSeg
-        for profesor in profesores:
-            UserParticipaAntp.objects.create(user=profesor, antp=anteproyecto)
-            UserSigueSeg.objects.create(user=profesor, seg=seguimiento)
+        # asocio los estudiantes y profesores
+        usuarios = User.objects.filter(id__in=estudiantes_ids + profesores_ids)
+        print("usuarios: ", usuarios)
+        UserParticipaAntp.objects.bulk_create([UserParticipaAntp(user=usuario,antp=anteproyecto) for usuario in usuarios])
 
         # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
         documentos = Documento.objects.filter(id__in=documentos_ids)
@@ -391,6 +379,23 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
                     # Los guardo en el historial
                     anteproyecto.docs_historial.add(*documentos)
                     print("Documento actualizado: ", documento)
+        self.crear_seguimiento(anteproyecto)
+
+        return anteproyecto
+    def crear_seguimiento(self,anteproyecto):
+        print("anteproyecto: ", anteproyecto)
+        # Creo un seguimiento cunado se actualice el anteproyecto
+        # Crear el seguimiento con fecha de hoy y concepto hoy mas 10 dias
+        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_fecha_concepto=timezone.now() + timezone.timedelta(days=10))
+        print("seguimiento: ", seguimiento)
+        # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
+        AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
+        # Asociar el seguimiento a los estudiantes mediante la tabla intermedia UserSigueSeg
+        usuarios_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
+        for usuario_id in usuarios_anteproyecto:
+            UserSigueSeg.objects.create(user_id=usuario_id, seg=seguimiento)
+
+        
 
 
         
