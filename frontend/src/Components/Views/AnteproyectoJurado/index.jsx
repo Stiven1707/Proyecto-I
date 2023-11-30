@@ -166,6 +166,7 @@ const Anteproyecto = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha limite revision</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Observaciones</th>
                             <th scope='col' className='border px-6 py-3'>Documento tipo B</th>
@@ -178,6 +179,7 @@ const Anteproyecto = () => {
                         <tr key={anteproyecto.anteproyecto.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.anteproyecto.antp_descripcion}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_fecha_recepcion}</td>
                             <td className='border px-6 py-4'>{anteproyecto.documentos.map((doc)=>{
                                 return <p key={doc.id}><a href={`http://127.0.0.1:8000${doc.doc.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
