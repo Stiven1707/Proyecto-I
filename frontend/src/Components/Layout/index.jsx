@@ -3,9 +3,11 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../Views/Dashboard";
 import SideBar from "../Layout/SideBar";
 import PropuestaTesis from "../Views/PropuestaTesis";
+import PropuestaTesisTemporal from "../Views/PropuestaTesisTemporal";
 import PropuestaTesisEstudiante from "../Views/PropuestaTesisEstudiante";
 import PropuestaTesisAuxiliar from "../Views/PropuestaTesisAuxiliar";
 import Anteproyecto from "../Views/Anteproyecto";
+import AnteproyectoTemporal from "../Views/AnteproyectoTemporal";
 import AnteproyectoEstudiante from "../Views/AnteproyectoEstudiante";
 import EvaluacionAnteproyecto from "../Views/AnteproyectoJurado";
 import ValidarAnteproyecto from "../Views/AnteproyectoConsejo";
@@ -34,9 +36,11 @@ const Layout = () => {
 					<Route path="/" element={<Dashboard />} />
 					<Route path="/usuarios" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasT" element={comprobarAcceso(['temporal'])? <PropuestaTesisTemporal /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasE" element={comprobarAcceso(['profesor'])? <PropuestaTesisEstudiante /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasA" element={comprobarAcceso(['profesor'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
+					<Route path="/anteproyectosT" element={comprobarAcceso(['temporal','auxiliar', 'coordinador'])? <AnteproyectoTemporal /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
                     <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
