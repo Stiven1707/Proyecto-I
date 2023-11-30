@@ -32,6 +32,7 @@ class User(AbstractUser):
                     {'nombre': 'consejo', 'descripcion': 'Consejo de la FIET'},
                     {'nombre': 'estudiante', 'descripcion': 'Estudiante de la universidad del Cauca'},
                     {'nombre': 'profesor', 'descripcion': 'Profesor de la universidad del Cauca'},
+                    {'nombre': 'temporal', 'descripcion': 'Profesor temporal, de la universidad del Cauca'},
                 ]
 
                 for rol_info in roles_to_create:
