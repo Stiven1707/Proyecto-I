@@ -3,6 +3,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../Views/Dashboard";
 import SideBar from "../Layout/SideBar";
 import PropuestaTesis from "../Views/PropuestaTesis";
+import PropuestaTesisEstudiante from "../Views/PropuestaTesisEstudiante";
+import PropuestaTesisAuxiliar from "../Views/PropuestaTesisAuxiliar";
 import Anteproyecto from "../Views/Anteproyecto";
 import AnteproyectoEstudiante from "../Views/AnteproyectoEstudiante";
 import EvaluacionAnteproyecto from "../Views/AnteproyectoJurado";
@@ -32,6 +34,8 @@ const Layout = () => {
 					<Route path="/" element={<Dashboard />} />
 					<Route path="/usuarios" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasE" element={comprobarAcceso(['profesor'])? <PropuestaTesisEstudiante /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasA" element={comprobarAcceso(['profesor'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>

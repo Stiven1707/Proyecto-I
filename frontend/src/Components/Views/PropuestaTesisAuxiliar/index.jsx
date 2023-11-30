@@ -4,7 +4,7 @@ import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const Anteproyecto = () => {
+const PropuestaTesisAuxiliar = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
@@ -22,18 +22,10 @@ const Anteproyecto = () => {
 
 
     const [propuestaList, setPropuestaList] = useState([]);
-    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [showModalDelete, setShowModalDelete] = useState(false);
-    const [idDelete, setIdDelete] = useState('');
-	const [propuestaDelete, setPropuestaDelete] = useState('');
 	const [isId, setIsId] = useState('');
-	const [isEdit, setIsEdit] = useState(false);
-    //const [isFound, setIsFound] = useState(false);
-    const [profesores, setProfesores] = useState([]);
-    const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
@@ -50,7 +42,7 @@ const Anteproyecto = () => {
         console.log(data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
-                if(entry.user.id === datosUsuario.user_id){
+                if(entry.pro_estado === 'PENDIENTE'){
                     return entry;
                 }
                 return null
@@ -62,23 +54,9 @@ const Anteproyecto = () => {
         }
 	}
 
-    const getParticipantes = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
-        const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
-
-		setProfesores(profesoresData);
-        setEstudiantes(estudiantesData);
-	}
-
     useEffect(()=>{
 		getPropuestas();
-        getParticipantes()}, [])
+    }, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -124,73 +102,49 @@ const Anteproyecto = () => {
                     });
                 });
         }
-            const IdEstudiantes = [];
 
-            IdEstudiantes.push(parseInt(body.estudiante1));
-            if(body.antp_modalidad === 'Trabajo de Investigación' && body.estudiante2){
-                IdEstudiantes.push(parseInt(body.estudiante2));
-            }
-            body.estudiantes = IdEstudiantes;
-            body.Documentos = IdDocumentos;
-            if (isEdit){
-                onEdit()
-            }else{
-                onSubmit();
-            }
+            body.doc = IdDocumentos[0];
+            onEdit()
+            
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
 
-    const checking = () => {
-        if (body.antp_titulo === '') {
-            setShowMensaje("Por favor llene el campo titulo");
-            setIsValid(false);
-            return false;
-        }
-        if (body.antp_descripcion === '') {
-            setShowMensaje("Por favor llene el campo descripcion");
-            setIsValid(false);
-            return false;
-        }
-        if (body.pro_modalidad === '') {
-            setShowMensaje("Por favor seleccione una modalidad");
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === '') {
-            setShowMensaje(`Por favor seleccione ${body.pro_modalidad==='tesis'? 'al menos un estudiante ': 'al estudiante'}`);
-            setIsValid(false);
-            return false;
-        }
-        if (body.estudiante1 === body.estudiante2) {
-            setShowMensaje('No se puede elegir el mismo estudiante');
-            setIsValid(false);
-            return false;
-        }
-        setIsValid(true);
-        uploadFiles();
-    };
-    
+    const onEdit = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+        setShowModal(false);
+        axios.patch(`http://127.0.0.1:8000/api/propuestas/${body.id}/`, body, {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then(() => {
+            if(body.pro_estado === 'APROBADO'){
+                onSubmit();
+            }else{
+                setBody(initialState);
+                getPropuestas();
+            }
+        })
+        .catch(({response})=>{
+            console.log(response)
+        })
+    }
+
     const onSubmit = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
-        const IdEstudiantes = []
-        IdEstudiantes.push(parseInt(body.estudiante1));
-            if(body.pro_modalidad === 'Trabajo de Investigación' && body.estudiante2){
-                IdEstudiantes.push(parseInt(body.estudiante2));
-            }
-            body.estudiantes = IdEstudiantes;
         setShowModal(false);
-        let datosPropuesta = {
-            estudiantes: IdEstudiantes,
-            doc: IdDocumentos[0],
-            pro_titulo: body.pro_titulo,
-            pro_objetivos: body.pro_objetivos,
-            pro_modalidad: body.pro_modalidad
+        console.log('onms: ', body);
+        let datosAnteproyecto = {
+            antp_titulo: body.pro_titulo,
+            antp_descripcion: body.pro_objetivos,
+            Documentos : [],
+            propuesta: body.id
         }
-        console.log('Datos propuesta: ', JSON.stringify(datosPropuesta));
+        console.log('datos onsubmit: ', datosAnteproyecto);
         axios
-            .post('http://127.0.0.1:8000/api/propuestas/', datosPropuesta, {
+            .post('http://127.0.0.1:8000/api/anteproyectos/', datosAnteproyecto, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -203,34 +157,6 @@ const Anteproyecto = () => {
                 console.log(response);
             });
     };
-    
-
-        
-    const onEdit = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        setShowModal(false);
-        console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            setBody(initialState)
-            getPropuestas()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
-    }
-
-    const addPropertyToBody = (name, value) => {
-        setBody(prevBody => ({
-            ...prevBody,
-            [name]: value
-        }));
-    };
-
 
     return (
         <div >
@@ -251,14 +177,6 @@ const Anteproyecto = () => {
                                     }}>Buscar</button>
                                 </div>
                             </div>
-                            <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
-                                    setTitle('Crear')
-                                    setBody(initialState)
-                                    setIsEdit(false)
-                                    setIsValid(true)
-                                    setShowModal(true)}}>
-                                    <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                            </button>
                         </div>
                 </div>
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -270,6 +188,7 @@ const Anteproyecto = () => {
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documento</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
+                            <th scope='col' className='border px-6 py-3'>Acciones</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -289,6 +208,28 @@ const Anteproyecto = () => {
                             </a></p>
                             </td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_estado}</td>
+
+
+                            <td className='border px-6 py-4'>
+                                {propuesta.pro_estado === 'PENDIENT'? null : 
+                                    <div className='flex'>
+                                    <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                            setBody({
+                                                id: propuesta.id,
+                                                pro_estado: propuesta.pro_estado,
+                                                pro_titulo: propuesta.pro_titulo,
+                                                pro_objetivos: propuesta.pro_objetivos
+                                            })
+                                            setTitle('Modificar')
+                                            setIsValid(true)
+                                            setShowModal(true);}}
+                                        >
+                                            <FontAwesomeIcon icon={faEdit} /> 
+                                        </button>    
+                                        
+                                    </div>
+                            }
+                            </td>
                         </tr>
                     ))}
                     </tbody>
@@ -304,81 +245,24 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} anteproyecto</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} propuesta</h3>
                                 <form className="space-y-6" action="#">
-                                    <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
-                                            <textarea name='pro_titulo' label='pro_titulo' id='pro_titulo' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.pro_titulo}
-                                            onChange={onChange}
-                                            required
-                                            />
-                                    </div>
-                                    <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Objetivos</label>
-                                            <textarea name='pro_objetivos' label='pro_objetivos' id='pro_objetivos' className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            value={body.pro_objetivos}
-                                            onChange={onChange}
-                                            required
-                                            />
-                                    </div>
-                                    <div>
-                                        <label htmlFor="Roles" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Modalidad</label>
+                                <div>
+                                        <label htmlFor="estados" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estado</label>
                                         <select
-                                                name="pro_modalidad"
+                                                name="pro_estado"
                                                 className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.pro_modalidad}
+                                                value={body.pro_estado}
                                                 onChange={(e)=>{
                                                     onChange(e)
                                                 }}
                                                 required 
                                                 >
-                                                    
-                                                <option value='' disabled>Seleccionar Modalidad</option>
-                                                <option value='Trabajo de Investigación'>Trabajo de Investigación</option>
-                                                <option value='Práctica Profesional'>Práctica Profesional</option>
+                                                <option value='PENDIENTE' disable>PENDIENTE</option>
+                                                <option value='RECHAZADO'>RECHAZADO</option>
+                                                <option value='APROBADO'>APROBADO</option>
                                             </select>
                                     </div>
-                                    <div>
-                                        <label htmlFor="estudiante1" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
-                                        <select
-                                                name="estudiante1"
-                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.estudiante1}
-                                                onChange={(e)=>{
-                                                    onChange(e)
-                                                }}
-                                                >
-                                                    <option value={0}>Seleccionar al estudiante {body.pro_modalidad === 'tesis'? 1: ''}</option>
-                                                        {estudiantes.map(estudiante => (
-                                                    <option key={estudiante.id} value={estudiante.id}>
-                                                        {estudiante.email}
-                                                    </option>
-                                            ))} 
-                                            </select>
-                                    </div>
-                                    {body.pro_modalidad === 'Trabajo de Investigación'?
-                                        <div>
-                                            <label htmlFor="estudiante2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>
-                                            <select
-                                                name="estudiante2"
-                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.estudiante2}
-                                                onChange={(e)=>{
-                                                    onChange(e)
-                                                }}
-                                                >
-                                                    <option value=''>Seleccionar al estudiante 2</option>
-                                                    {estudiantes
-                                                    .filter(estudiante => estudiante.id !== body.estudiante1) // Filtrar el estudiante seleccionado en el primer select
-                                                    .map(estudiante => (
-                                                        <option key={estudiante.id} value={estudiante.id}>
-                                                            {estudiante.email}
-                                                        </option>
-                                                    ))}
-                                            </select>
-                                        </div>
-                                    :null}
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
                                         <input
@@ -387,13 +271,13 @@ const Anteproyecto = () => {
                                             id="eva_evidencia"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             placeholder={body.eva_evidencia}
-                                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                                            onChange={saveFiles} 
                                             required
                                             />
                                     </div>
                                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
-                                        checking();
+                                        uploadFiles();
                                         e.preventDefault(); // Previene el comportamiento predetermina
                                     }
                                     }>{title}</button>
@@ -408,4 +292,4 @@ const Anteproyecto = () => {
 	)
 }
 
-export default Anteproyecto
+export default PropuestaTesisAuxiliar

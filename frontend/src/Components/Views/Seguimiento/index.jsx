@@ -201,6 +201,7 @@ const uploadFiles = async () => {
       IdEvaluadores.push(parseInt(body.evaluador2));
       body.evaluadores = IdEvaluadores
     }
+    console.log('edit: ',body);
     axios
       .patch(`http://127.0.0.1:8000/api/anteproyectos/${body.idAnteproyecto}/`, body, {
         headers: {
@@ -415,7 +416,8 @@ const uploadFiles = async () => {
                                   setBody(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg);
                                   setTitle('Modificar');
                                   setIsValid(true);
-                                  addPropertyToBody('idAnteproyecto', seguimiento.antp)
+                                  console.log('cargar los datos: ', seguimiento.anteproyecto.id);
+                                  addPropertyToBody('idAnteproyecto', seguimiento.anteproyecto.id)
                                   
                                   seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
                                   addPropertyToBody(`profesor${index+1}`, usuario.user.id)
@@ -560,22 +562,21 @@ const uploadFiles = async () => {
                         onChange={(e) => {
                           onChange(e);
                         }}
-                      >{['PENDIENTE', 'A revisión', 'No Aprobado', 'Evaluado', 'Remitido'].map((datos) =>{
+                      >{['PENDIENTE', 'A revisión', 'No Aprobado', 'Evaluado', 'Remitido', 'Aprobado'].map((datos) =>{
                         console.log(datos);
                         if(body.seg_estado==='PENDIENTE' && (datos === 'PENDIENTE' || datos === 'A revisión')){
-                          return <option value={datos}>{`${datos}`}</option>
+                          return <option value={datos} disabled={datos === 'PENDIENTE'}>{`${datos}`}</option>
                         }else if(body.seg_estado==='Evaluado' && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido')){
-                          return <option value={datos}>{`${datos}`}</option>
+                          return <option value={datos} disabled={datos === 'Evaluado'}>{`${datos}`}</option>
+                        }
+                        else if(body.seg_estado==='Remitido' && (datos === 'Remitido' || datos === 'No Aprobado')){
+                          return <option value={datos} disabled={datos === 'Remitido'}>{`${datos}`}</option>
+                        }
+                        else if(body.seg_estado==='Aprobado' && (datos === 'Aprobado' || datos === 'Remitido')){
+                          return <option value={datos} disabled={datos === 'Aprobado'}>{`${datos}`}</option>
                         }
                         return 1
                       })}
-                      {body.seg_estado==='PENDIENTE'? '': null}
-                        <option value='PENDIENTE' disabled>PENDIENTE</option>
-                        <option value="A revisión">A revisión</option>
-                        <option value="No Aprobado">No Aprobado</option>
-                        <option value="Evaluado">Evaluado</option>
-                        <option value="Remitido">Remitido</option>
-                        <option value="Aprobado">Aprobado</option>
                       </select>
                     </div>
                     {body.seg_estado === 'Remitido'? 
