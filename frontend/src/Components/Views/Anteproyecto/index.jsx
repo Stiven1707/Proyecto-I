@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faCirclePlus, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
 
 const Anteproyecto = () => {
 
@@ -30,6 +30,7 @@ const Anteproyecto = () => {
     const [showModal, setShowModal] = useState(false);
     const [showModalDelete, setShowModalDelete] = useState(false);
     const [idDelete, setIdDelete] = useState('');
+    const [showModalHistorial, setShowModalHistorial] = useState(false);
 	const [anteproyectoDelete, setAnteproyectoDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
@@ -38,6 +39,8 @@ const Anteproyecto = () => {
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
+    const [histotialList, setHistotialList] = useState([]);
+
 
 
 
@@ -320,7 +323,20 @@ const Anteproyecto = () => {
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>
                                 {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado: null}
                             </td>
-                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'PENDIENTE' || anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'No Aprobado' ? <td className='border px-6 py-4'>
+                            <td className='border px-6 py-4'>
+                            {anteproyecto.seguimientos.length > 0 ? 
+                                <div className='pt-1 flex items-center'>
+                                    <button className='bg-blue-600 text-gray-300 p-2 px-3 rounded' onClick={()=> {
+                                    setHistotialList({anteproyecto: anteproyecto.anteproyecto,
+                                                        historial: anteproyecto.anteproyecto.docs_historial})
+                                                        setShowModalHistorial(true)
+                                    }}>
+                                    <FontAwesomeIcon icon={faClockRotateLeft} />
+                                    </button>
+                                </div>
+                            : null}
+                            
+                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'PENDIENTE' || anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'No Aprobado' ? 
                             <div className='flex'>
                             <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                     setBody(anteproyecto)
@@ -347,7 +363,7 @@ const Anteproyecto = () => {
                                     <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             </div>
-                        </td>: null: <td className='border px-6 py-4'>
+                        : null: 
                             <div className='flex'>
                             <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                     setBody(anteproyecto)
@@ -374,7 +390,8 @@ const Anteproyecto = () => {
                                     <FontAwesomeIcon icon={faTrash} />
                                 </button>
                             </div>
-                        </td>}
+                        }
+                        </td>
 
                             {console.log('anteproyecto: ', anteproyecto)}
 
@@ -536,7 +553,61 @@ const Anteproyecto = () => {
                 </div>
                 </>
             ) : null}
+{showModalHistorial ? (
+        <>
+          <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
+              <div className="relative bg-white rounded-lg shadow">
+                <button
+                  type="button"
+                  className="absolute top-3 right-2.5 text-gray-700 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                  onClick={() => setShowModalHistorial(false)}
+                >
+                  <svg
+                    aria-hidden="true"
+                    className="w-5 h-5"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fillRule="evenodd"
+                      d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                      clipRule="evenodd"
+                    ></path>
+                  </svg>
+                  <span className="sr-only text-black">Close modal</span>
+                </button>
+                <div className="px-6 py-6 lg:px-10">
 
+                  <table className='table-auto w-full'>
+                    <caption className='border px-6 py-3 dark:bg-cyan-900 dark:text-gray-100'>{`Historial de  ${histotialList.anteproyecto.antp_titulo}`}</caption>
+                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-cyan-100 dark:text-gray-800">
+                      <tr>
+                        <th scope="col" className="border px-6 py-3 w-1/6">#</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Fecha Creacion</th>
+                        <th scope="col" className="border px-6 py-3 w-1/6">Documentos</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                  {histotialList.historial.map((hist, index)=> (
+                      <tr key={index+1}>
+                        <td className="border px-6 py-4">{index+1}</td>
+                        <td className="border px-4 py-4">{hist.doc_fecha_creacion}</td>
+                        <td className="border px-6 py-4">
+                             <p key={hist.id}>
+                                <a href={`http://127.0.0.1:8000${hist.doc_ruta}`} target="_blank" rel="noreferrer" className="block mb-2 text-sm font-medium text-gray-900 dark:text-purple-800">{`${hist.doc_nombre.substr(0,12)}.pdf`}
+                                </a>
+                            </p>
+                        </td>
+                      </tr>
+                    ))}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+        </>
+      ) : null}
 			{showModalDelete ? (
                 <>
                 <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
