@@ -154,7 +154,7 @@ class SeguimientoSerializer(serializers.ModelSerializer):
     docs = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=False)
     class Meta:
         model = Seguimiento
-        fields = ('id','seg_fecha_recepcion','seg_estado','docs','seg_observaciones')
+        fields = ('id','seg_fecha_asignacion','seg_fecha_concepto','seg_estado','docs','seg_observaciones')
 class SeguimientoCortoSerializer(serializers.ModelSerializer):
     seg_fecha_recepcion = serializers.DateField(required=False)
     docs = DocumentoSerializer(many=True)

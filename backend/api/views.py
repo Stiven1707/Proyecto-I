@@ -87,7 +87,7 @@ class PropuestaListCreate(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         print("request: ", self.request.data)
-        print("serializer", serializer.validated_data)
+        print("serializer", serializer.validated_data)        
         serializer.save(user=self.request.user)
 
 class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
@@ -149,9 +149,9 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             profesores_ids.append(propuesta.user.id)
             print("Propuesta estudiantes_ids: ", estudiantes_ids)
             print("Propuesta profesores_ids: ", profesores_ids)
-            documentos_ids = []
-            documentos_ids.append(propuesta.doc.id)
-            print("Propuesta documentos_ids: ", documentos_ids)
+            # documentos_ids = []
+            # documentos_ids.append(propuesta.doc.id)
+            # print("Propuesta documentos_ids: ", documentos_ids)
 
         #validaciones
         if not estudiantes_ids:
@@ -412,7 +412,11 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         for usuario_id in usuarios_anteproyecto:
             UserSigueSeg.objects.create(user_id=usuario_id, seg=seguimiento)
         
-        documento_A = Documento.objects.filter(id=anteproyecto.docs_historial.first().id).first()
+        # documentos_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
+        # print("documentos_propuesta: ", documentos_propuesta)
+        # documetos = Documento.objects.filter(id__in=documentos_propuesta)
+        # print("documetos: ", documetos)
+        # seguimiento.docs.add(*documetos)
 
 class AnteProyectoDetailEvaluadores(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
@@ -432,6 +436,27 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
     queryset = Seguimiento.objects.all()
     serializer_class = SeguimientoSerializer
     permission_classes = ([IsAuthenticated])
+
+    def perform_update(self, serializer):
+        # Obtener el estado del seguimiento
+        estado = self.request.data.get('seg_estado')
+        if estado == 'Evaluado':
+            # busco el anteproyecto en la tabla AntpSeguidoSeg
+            anteproyecto_id = AntpSeguidoSeg.objects.filter(seg=self.get_object()).first()
+            anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id.antp.id).first() 
+            # buscar los documentos del anteproyecto en AntpSoporteDoc
+            documentos_anteproyecto = AntpSoporteDoc.objects.filter(antp=anteproyecto).values_list('doc', flat=True)   
+            print("documentos_anteproyecto: ", documentos_anteproyecto)
+            #Buscar el documento de la propuesta que es la que se va a remitir y se agrega a los documentos
+            documento_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
+            print("documento_propuesta: ", documento_propuesta)
+            documento = Documento.objects.filter(id=documento_propuesta[0]).first()
+            print("documento: ", documento)
+            # Asociar el documento al seguimiento
+            print("serializer",serializer.validated_data)
+            serializer.validated_data['docs'].append(documento)
+        return super().perform_update(serializer)
+
 
 class DocumentoList(generics.ListCreateAPIView):
     queryset = Documento.objects.all()
