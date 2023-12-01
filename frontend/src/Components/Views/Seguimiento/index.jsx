@@ -52,7 +52,7 @@ const Seguimiento = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-      const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
+      const profesoresData = data.filter((user) => user.rol && (user.rol.rol_nombre === 'profesor' || user.rol.rol_nombre === 'temporal'));
       const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
       
       setProfesores(profesoresData);
@@ -299,20 +299,20 @@ const uploadFiles = async () => {
                         <td className="border px-6 py-3">{seguimiento.anteproyecto.propuesta.pro_modalidad}</td>
                         <td className="border px-6 py-4">
                           {seguimiento.usuarios.map((user)=>{
+                            if (profesores.find((profesor) => profesor.id === user.user.id)) {
+                                return <p key={user.user.id}>{user.user.email}</p>;
+                            }
+                            return null;
+                          })}
+                        </td>
+                        <td className="border px-6 py-4">
+                          {seguimiento.usuarios.map((user)=>{
                             if (estudiantes.find((estudiante) => estudiante.id === user.user.id)) {
                                 return <p key={user.user.id}>{user.user.email}</p>;
                             }
                             return null;
                           })}
                           
-                        </td>
-                        <td className="border px-6 py-4">
-                          {seguimiento.usuarios.map((user)=>{
-                            if (profesores.find((profesor) => profesor.id === user.user.id)) {
-                                return <p key={user.user.id}>{user.user.email}</p>;
-                            }
-                            return null;
-                          })}
                         </td>
                         <td className="border px-6 py-4">
                           {seguimiento.anteproyecto.evaluadores.map((user)=>{
