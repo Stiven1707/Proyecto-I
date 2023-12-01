@@ -180,7 +180,7 @@ class AnteProyectoEvaluadoresSerializer(serializers.ModelSerializer):
     evaluadores = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)  # Ajusta según tu modelo de usuario
     class Meta:
         model = AnteProyecto
-        fields = 'evaluadores'
+        fields = ('evaluadores',)
 class AnteProyectoUPDATESerializer(serializers.ModelSerializer):
     evaluadores = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=False)  # Ajusta según tu modelo de usuario
     propuesta = serializers.PrimaryKeyRelatedField(read_only=True)
