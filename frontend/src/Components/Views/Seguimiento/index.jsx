@@ -342,7 +342,7 @@ const uploadFiles = async () => {
                     <tbody className='text-black'>
                       <tr>
                       <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_titulo}</td>
-                        <td className="border px-6 py-3">{seguimiento.anteproyecto.antp_modalidad}</td>
+                        <td className="border px-6 py-3">{seguimiento.anteproyecto.propuesta.pro_modalidad}</td>
                         <td className="border px-6 py-4">
                           {seguimiento.usuarios.map((user)=>{
                             if (estudiantes.find((estudiante) => estudiante.id === user.user.id)) {

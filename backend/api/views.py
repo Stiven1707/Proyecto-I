@@ -149,6 +149,10 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             profesores_ids.append(propuesta.user.id)
             print("Propuesta estudiantes_ids: ", estudiantes_ids)
             print("Propuesta profesores_ids: ", profesores_ids)
+            documentos_ids = []
+            documentos_ids.append(propuesta.doc.id)
+            print("Propuesta documentos_ids: ", documentos_ids)
+
         #validaciones
         if not estudiantes_ids:
             raise serializers.ValidationError("Debe enviar los estudiantes*")
@@ -407,6 +411,8 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         usuarios_anteproyecto = UserParticipaAntp.objects.filter(antp=anteproyecto).values_list('user', flat=True)
         for usuario_id in usuarios_anteproyecto:
             UserSigueSeg.objects.create(user_id=usuario_id, seg=seguimiento)
+        
+        documento_A = Documento.objects.filter(id=anteproyecto.docs_historial.first().id).first()
 
 class AnteProyectoDetailEvaluadores(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
