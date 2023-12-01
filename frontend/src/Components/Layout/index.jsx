@@ -34,18 +34,18 @@ const Layout = () => {
             <div className="flex-1 p-7 overflow-y-auto overflow-x-auto">
                 <Routes>
 					<Route path="/" element={<Dashboard />} />
-					<Route path="/usuarios" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
+					<Route path="/usuarios" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasT" element={comprobarAcceso(['temporal'])? <PropuestaTesisTemporal /> : <Navigate to="/app" /> }/>
-					<Route path="/propuestasE" element={comprobarAcceso(['profesor'])? <PropuestaTesisEstudiante /> : <Navigate to="/app" /> }/>
-					<Route path="/propuestasA" element={comprobarAcceso(['auxiliar'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
-					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
-					<Route path="/anteproyectosT" element={comprobarAcceso(['temporal','auxiliar', 'coordinador'])? <AnteproyectoTemporal /> : <Navigate to="/app" /> }/>
-					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
-					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
-                    <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasE" element={comprobarAcceso(['estudiante'])? <PropuestaTesisEstudiante /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasA" element={comprobarAcceso(['auxiliar', 'coordinador'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
+					<Route path="/anteproyectos" element={comprobarAcceso(['profesor'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
+					<Route path="/anteproyectosT" element={comprobarAcceso(['temporal'])? <AnteproyectoTemporal /> : <Navigate to="/app" /> }/>
                     <Route path="/anteproyectosE" element={comprobarAcceso(['estudiante'])? <AnteproyectoEstudiante/> : <Navigate to="/app" /> }/>
-                    <Route path="/anteproyectosC" element={comprobarAcceso(['profesor', 'consejo'])? <ValidarAnteproyecto/> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosJ" element={comprobarAcceso(['profesor'])? <EvaluacionAnteproyecto /> : <Navigate to="/app" /> }/>
+                    <Route path="/anteproyectosC" element={comprobarAcceso(['consejo'])? <ValidarAnteproyecto/> : <Navigate to="/app" /> }/>
+					<Route path="/seguimiento" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
