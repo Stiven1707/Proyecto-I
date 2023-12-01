@@ -33,8 +33,6 @@ const Anteproyecto = () => {
     const [showModalHistorial, setShowModalHistorial] = useState(false);
 	const [anteproyectoDelete, setAnteproyectoDelete] = useState('');
 	const [isId, setIsId] = useState('');
-	const [isEdit, setIsEdit] = useState(false);
-    //const [isFound, setIsFound] = useState(false);
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
@@ -140,11 +138,8 @@ const Anteproyecto = () => {
             body.profesores = IdProfesores;
             body.estudiantes = IdEstudiantes;
             body.Documentos = IdDocumentos;
-            if (isEdit){
-                onEdit()
-            }else{
-                onSubmit();
-            }
+            onEdit()
+
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
@@ -261,14 +256,6 @@ const Anteproyecto = () => {
                                     }}>Buscar</button>
                                 </div>
                             </div>
-                            <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
-                                    setTitle('Crear')
-                                    setBody(initialState)
-                                    setIsEdit(false)
-                                    setIsValid(true)
-                                    setShowModal(true)}}>
-                                    <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                            </button>
                         </div>
                 </div>
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -317,6 +304,36 @@ const Anteproyecto = () => {
                                 {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado: null}
                             </td>
                             <td className='border px-6 py-4'>
+                            <td className='border px-6 py-4'>
+                            
+                            {anteproyecto.seguimientos.length === 0 || (anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg && anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'No Aprobado') ? 
+                                <div className='flex'>
+                                    <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
+                                        setBody(anteproyecto)
+                                        setTitle('Modificar')
+                                        addPropertyToBody('user', datosUsuario.user_id)
+                                        addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                        addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
+                                        addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.propuesta.pro_modalidad)
+                                        anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
+                                            addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
+                                        ))
+                                        setIsValid(true)
+                                        setShowModal(true);}}
+                                    >
+                                        <FontAwesomeIcon icon={faEdit} /> 
+                                    </button>    
+                                    &nbsp;
+                                    <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
+                                        setIdDelete(anteproyecto.anteproyecto.id)
+                                        setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
+                                        setShowModalDelete(true)
+                                    }}>
+                                        <FontAwesomeIcon icon={faTrash} />
+                                    </button>
+                                </div> 
+                            
+                            : null}
                             {anteproyecto.seguimientos.length > 0 ? 
                                 <div className='pt-1 flex items-center'>
                                     <button className='bg-blue-600 text-gray-300 p-2 px-3 rounded' onClick={()=> {
@@ -329,76 +346,8 @@ const Anteproyecto = () => {
                                 </div>
                             : null}
                             
-                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'No Aprobado' ? 
-                            <div className='flex'>
-                            <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                    setBody(anteproyecto)
-                                    setTitle('Modificar')
-                                    anteproyecto.usuarios.map((usuario)=> {
-                                        console.log(usuario.user.rol.rol_nombre);
-                                        return 1
-                                    })
-                                    console.log(anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor').user.id);
-                                    addPropertyToBody('user', datosUsuario.user_id)
-                                    addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                    addPropertyToBody('codirector', anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor').user.id)
-                                    addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.propuesta.pro_modalidad)
-                                    anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                        addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                    ))
-                                    setIsValid(true)
-                                    setIsEdit(true)
-                                    setShowModal(true);}}
-                                >
-                                    <FontAwesomeIcon icon={faEdit} /> 
-                                </button>    
-                                &nbsp;
-                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                    setIdDelete(anteproyecto.anteproyecto.id)
-                                    setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
-                                    setShowModalDelete(true)
-                                }}>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                            </div>
-                        : null: 
-                            <div className='flex'>
-                            <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                    setBody(anteproyecto)
-                                    setTitle('Modificar')
-                                    console.log('pro: ', anteproyecto)
-                                    addPropertyToBody('user', datosUsuario.user_id)
-                                    addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
-                                    addPropertyToBody('codirector', anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor'))
-                                    addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.propuesta.pro_modalidad)
-                                    anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                        addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                    ))
-                                    setIsValid(true)
-                                    setIsEdit(true)
-                                    setShowModal(true);}}
-                                >
-                                    <FontAwesomeIcon icon={faEdit} /> 
-                                </button>    
-                                &nbsp;
-                                <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                    setIdDelete(anteproyecto.anteproyecto.id)
-                                    setAnteproyectoDelete(anteproyecto.anteproyecto.antp_titulo)
-                                    setShowModalDelete(true)
-                                }}>
-                                    <FontAwesomeIcon icon={faTrash} />
-                                </button>
-                            </div>
-                        }
                         </td>
-
-                            {console.log('anteproyecto: ', anteproyecto)}
-
-                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_observaciones === 'Aprobado'? null : anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'A revisión'? null: '': null}
-                            
-                            
+                        </td>
                         </tr>
                     ))}
                     </tbody>
@@ -524,7 +473,7 @@ const Anteproyecto = () => {
                                             multiple
                                             />
                                     </div>
-                                    {isEdit && Array.isArray(body.documentos)? 
+                                    {Array.isArray(body.documentos)? 
                                         <div>
                                             <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Documentos</label>
                                                 <div>
