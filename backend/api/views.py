@@ -132,6 +132,8 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
                 'documentos': serialized_documentos,
                 'seguimientos': serialized_seguimientos,
             })
+            # quiero invertir el orden de data
+        data.reverse()
         return Response(data)
         
     def perform_create(self, serializer):
