@@ -17,6 +17,7 @@ urlpatterns = [
 ]+[
     path('anteproyectos/', views.AnteProyectoListCreate.as_view(), name='anteproyecto-list'),
     path('anteproyectos/<int:pk>/', views.AnteProyectoDetail.as_view(), name='anteproyecto-detail'),
+    path('anteproyectos/<int:pk>/evaluadores/', views.AnteProyectoDetailEvaluadores.as_view(), name='anteproyecto-evaluadores-list'), 
     path('seguimientos/', views.SeguimientoListAPIView.as_view(), name='seguimiento-list'),
     path('seguimientos/<int:pk>/', views.SeguimientoDetail.as_view(), name='seguimiento-detail'),
     path('seguimientos/anteproyecto/<int:pk>/', views.SeguimientoCreateView.as_view(), name='Seguimiento-create'),
