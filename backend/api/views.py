@@ -80,10 +80,10 @@ class PropuestaListCreate(generics.ListCreateAPIView):
 
     def get_queryset(self):
         if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
-            return Propuesta.objects.all()
+            return Propuesta.objects.all().order_by('-id')
         if self.request.user.rol.rol_nombre == 'estudiante':
-            return Propuesta.objects.filter(estudiantes__id=self.request.user.id)
-        return Propuesta.objects.filter(user=self.request.user)
+            return Propuesta.objects.filter(estudiantes__id=self.request.user.id).order_by('-id')
+        return Propuesta.objects.filter(user=self.request.user).order_by('-id')
 
     def perform_create(self, serializer):
         print("request: ", self.request.data)
@@ -97,10 +97,11 @@ class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
     
     def get_queryset(self):
         if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
-            return Propuesta.objects.all()
+            # quiero invertir el orden de data
+            return Propuesta.objects.all().order_by('-id')
         if self.request.user.rol.rol_nombre == 'estudiante':
-            return Propuesta.objects.filter(estudiantes__id=self.request.user.id)
-        return Propuesta.objects.filter(user=self.request.user)
+            return Propuesta.objects.filter(estudiantes__id=self.request.user.id).order_by('-id')
+        return Propuesta.objects.filter(user=self.request.user).order_by('-id')
 
 
 
@@ -667,6 +668,7 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
                 'docs': serialized_documentos,
                 'segs': serialized_seguimientos,
             })
+            data.reverse()
         return Response(data)
 
     
