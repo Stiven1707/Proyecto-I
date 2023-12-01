@@ -414,9 +414,16 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         
         documentos_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
         print("documentos_propuesta: ", documentos_propuesta)
-        documetos = Documento.objects.filter(id__in=documentos_propuesta)
-        print("documetos: ", documetos)
-        seguimiento.docs.add(*documetos)
+        # buscar todos los documentos del antp
+        documentos_anteproyecto = AntpSoporteDoc.objects.filter(antp=anteproyecto).values_list('doc', flat=True)
+        # traer los documentos de anteproyecto y de propuesta
+        documento_monografia = Documento.objects.filter(id__in=documentos_anteproyecto)
+        documento_propuesta = Documento.objects.filter(id__in=documentos_propuesta)
+        print("documento_monografia: ", documento_monografia)
+        print("documento_propuesta: ", documento_propuesta)
+        # Asociar el documento al seguimiento
+        seguimiento.docs.add(*documento_monografia)
+        seguimiento.docs.add(*documento_propuesta)
 
 class AnteProyectoDetailEvaluadores(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
@@ -440,7 +447,7 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         # Obtener el estado del seguimiento
         estado = self.request.data.get('seg_estado')
-        if estado == 'Evaluado':
+        if estado == '':
             print("serializer.validated_data['docs']",serializer.validated_data['docs'])
 
             # busco el anteproyecto en la tabla AntpSeguidoSeg
