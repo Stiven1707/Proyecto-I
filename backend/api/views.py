@@ -274,7 +274,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 
          # obtener los id de los roles de los estudiantes y profesores
         rol_nombre_estudiante = Rol.objects.filter(rol_nombre="estudiante").first().rol_nombre
-        rol_nombre_profesor =  "profesor" if Rol.objects.filter(rol_nombre="profesor").first().rol_nombre=="profesor" else "temporal"
+        rol_nombre_profesor =  Rol.objects.filter(rol_nombre="profesor").first().rol_nombre
         print("rol_nombre_estudiante: ", rol_nombre_estudiante)
         print("rol_nombre_profesor: ", rol_nombre_profesor)
         # Serializar la lista de estudiantes antiguos para su posterior comparación
@@ -317,7 +317,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         # Serializar la lista de profesores antiguos para su posterior comparación
         profesores_viejos = UserParticipaAntpSerializer(usuarios_anteproyecto, many=True).data
         #filtro por rol
-        profesores_viejos = list(filter(lambda x: x['user']['rol']['rol_nombre'] == rol_nombre_profesor, profesores_viejos))
+        profesores_viejos = list(filter(lambda x: x['user']['rol']['rol_nombre'] != rol_nombre_estudiante, profesores_viejos))
         print("profesores_viejos: ", profesores_viejos)
 
         # Crear una lista de IDs de profesores antiguos
