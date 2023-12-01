@@ -447,8 +447,21 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
     def perform_update(self, serializer):
         # Obtener el estado del seguimiento
         estado = self.request.data.get('seg_estado')
-        if estado == '':
+        if estado == 'Evaluado':
             print("serializer.validated_data['docs']",serializer.validated_data['docs'])
+            #busco los documentos que me acaban de enviar
+            documentosEvaluado = self.request.data.get('docs')
+            print("documentos Evaluado: ", documentosEvaluado)
+            # Traer los documentos documentos_seguimiento y documentosEvaluado para asociarlos al anteproyecto mediante la tabla intermedia AntpSoporteDoc
+            documentosEvaluado = Documento.objects.filter(id__in=documentosEvaluado)
+            print("documentosEvaluado: ", documentosEvaluado)
+            # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
+            anteproyecto_id = AntpSeguidoSeg.objects.filter(seg=self.get_object()).first()
+            anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id.antp.id).first()
+            print("anteproyecto: ", anteproyecto)
+            anteproyecto.docs_historial.add(*documentosEvaluado)
+            AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentosEvaluado])
+            anteproyecto.save()
 
             # busco el anteproyecto en la tabla AntpSeguidoSeg
             anteproyecto_id = AntpSeguidoSeg.objects.filter(seg=self.get_object()).first()
@@ -468,6 +481,25 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
             serializer.validated_data['docs'].append(documento)
             serializer.validated_data['docs'].extend(documento_monografia)
             print("serializer.validated_data['docs']",serializer.validated_data['docs'])
+        if estado == 'Aprobado':
+            #si esta aprobado quie ponerle al anteproyecto el documento que me llega aqui
+            #busco los documentos que me acaban de enviar
+            documentosAprobado_data = self.request.data.get('docs')
+            print("documentosAprobado_data: ", documentosAprobado_data)
+            # quiero firltrar, solo quiero el ultimo documento que me llega
+            documentosAprobado_data = documentosAprobado_data[-1]
+            print("documentosAprobado_data_ULTIMO: ", documentosAprobado_data)
+            # traer estos documentos aprobados
+            documentosAprobado = Documento.objects.filter(id=documentosAprobado_data)
+            print("documentosAprobado: ", documentosAprobado)
+            # Asociar documentos mediante la tabla intermedia AntpSoporteDoc
+            anteproyecto_id = AntpSeguidoSeg.objects.filter(seg=self.get_object()).first()
+            anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id.antp.id).first()
+            print("anteproyecto: ", anteproyecto)
+            anteproyecto.docs_historial.add(*documentosAprobado)
+            AntpSoporteDoc.objects.bulk_create([AntpSoporteDoc(antp=anteproyecto, doc=documento) for documento in documentosAprobado])
+            anteproyecto.save()
+
         return super().perform_update(serializer)
 
 
