@@ -2,8 +2,7 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faClockRotateLeft, faCirclePlus } from '@fortawesome/free-solid-svg-icons';
-import Anteproyecto from './../AnteproyectoJurado/index';
+import { faEdit, faTrash, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
 
 const Seguimiento = () => {
   const datosUsuarioCifrados = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -399,60 +398,50 @@ const uploadFiles = async () => {
                         <td className="border px-6 py-4">{seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado}</td>
                         <td className="border px-6 py-4">
                           
-                          {seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado === 'No Aprobado'?
-                              <div>
-                                <button
-                                    className="px-4 py-2 bg-gray-700 text-white rounded"
-                                    onClick={() => {
-                                      setBody(initialState);
-                                      onSubmit(seguimiento.anteproyecto.id)
-                                    }}
-                                    >
-                                    <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                                </button>
-                              </div>
-                          :
+                          {seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado === 'PENDIENTE' || seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado === 'Evaluado' || seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.seg_estado === 'No Aprobado'?
                             <div className="flex mt-2"> {/* Agrega un margen superior para separar los otros botones */}
-                              <button
-                                className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
-                                onClick={() => {
-                                  setBody(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg);
-                                  setTitle('Modificar');
-                                  setIsValid(true);
-                                  console.log('cargar los datos: ', seguimiento.anteproyecto.id);
-                                  addPropertyToBody('idAnteproyecto', seguimiento.anteproyecto.id)
-                                  
-                                  seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
-                                  addPropertyToBody(`profesor${index+1}`, usuario.user.id)
-                                  ))
-                                  seguimiento.anteproyecto.evaluadores.map((usuario, index)=>(
-                                    addPropertyToBody(`evaluador${index+1}`, usuario.id)
-                                  ))
-                                  addPropertyToBody('estudiantes', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "estudiante")
-                                  .map(usuario => usuario.user.id))
+                            <button
+                              className="bg-yellow-400 text-black p-2 px-3 mr-2 rounded"
+                              onClick={() => {
+                                setBody(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg);
+                                setTitle('Modificar');
+                                setIsValid(true);
+                                console.log('cargar los datos: ', seguimiento.anteproyecto.id);
+                                addPropertyToBody('idAnteproyecto', seguimiento.anteproyecto.id)
+                                
+                                seguimiento.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'profesor').map((usuario, index)=>(
+                                addPropertyToBody(`profesor${index+1}`, usuario.user.id)
+                                ))
+                                seguimiento.anteproyecto.evaluadores.map((usuario, index)=>(
+                                  addPropertyToBody(`evaluador${index+1}`, usuario.id)
+                                ))
+                                addPropertyToBody('estudiantes', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "estudiante")
+                                .map(usuario => usuario.user.id))
 
-                                  addPropertyToBody('profesores', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
-                                  .map(usuario => usuario.user.id)) 
+                                addPropertyToBody('profesores', seguimiento.usuarios.filter(usuario => usuario.user.rol.rol_nombre === "profesor")
+                                .map(usuario => usuario.user.id)) 
 
-                                  addPropertyToBody('Documentos', seguimiento.documentos.map(documento => documento.doc.id)) 
+                                addPropertyToBody('Documentos', seguimiento.documentos.map(documento => documento.doc.id)) 
 
-                                  setIsEdit(true);
-                                  setShowModal(true);
-                                }}
-                              >
-                                <FontAwesomeIcon icon={faEdit} />
-                              </button>
-                              <button
-                                className="bg-red-700 text-gray-300 p-2 px-3 rounded"
-                                onClick={() => {
-                                  setIdDelete(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.id);
-                                  setSeguimientoDelete(seguimiento.anteproyecto.antp_titulo);
-                                  setShowModalDelete(true);
-                                }}
-                              >
-                                <FontAwesomeIcon icon={faTrash} />
-                              </button>
-                            </div>
+                                setIsEdit(true);
+                                setShowModal(true);
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faEdit} />
+                            </button>
+                            <button
+                              className="bg-red-700 text-gray-300 p-2 px-3 rounded"
+                              onClick={() => {
+                                setIdDelete(seguimiento.seguimientos[seguimiento.seguimientos.length-1].seg.id);
+                                setSeguimientoDelete(seguimiento.anteproyecto.antp_titulo);
+                                setShowModalDelete(true);
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </div>
+                          :
+                            null
                           }
                           <div className='pt-1 flex items-center'>
                             <button className='bg-blue-600 text-gray-300 p-2 px-3 rounded' onClick={()=> {
@@ -567,16 +556,10 @@ const uploadFiles = async () => {
                         }}
                       >{['PENDIENTE', 'A revisión', 'No Aprobado', 'Evaluado', 'Remitido', 'Aprobado'].map((datos) =>{
                         console.log(datos);
-                        if(body.seg_estado==='PENDIENTE' && (datos === 'PENDIENTE' || datos === 'A revisión')){
+                        if((body.seg_estado==='PENDIENTE' || body.seg_estado==='A revisión') && (datos === 'PENDIENTE' || datos === 'A revisión')){
                           return <option value={datos} disabled={datos === 'PENDIENTE'}>{`${datos}`}</option>
-                        }else if(body.seg_estado==='Evaluado' && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido')){
+                        }else if((body.seg_estado==='Evaluado' || body.seg_estado==='No Aprobado' || body.seg_estado==='Remitido' || body.seg_estado==='Aprobado') && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido' || datos === 'Aprobado')){
                           return <option value={datos} disabled={datos === 'Evaluado'}>{`${datos}`}</option>
-                        }
-                        else if(body.seg_estado==='Remitido' && (datos === 'Remitido' || datos === 'No Aprobado')){
-                          return <option value={datos} disabled={datos === 'Remitido'}>{`${datos}`}</option>
-                        }
-                        else if(body.seg_estado==='Aprobado' && (datos === 'Aprobado' || datos === 'Remitido')){
-                          return <option value={datos} disabled={datos === 'Aprobado'}>{`${datos}`}</option>
                         }
                         return 1
                       })}

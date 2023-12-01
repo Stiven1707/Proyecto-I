@@ -2,9 +2,9 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
-const Anteproyecto = () => {
+const PropuestaTesis = () => {
 
     const datosUsuarioCifrados = (JSON.parse(localStorage.getItem('authTokens'))).access
     const datosUsuario = jwt_decode(datosUsuarioCifrados)
@@ -304,7 +304,7 @@ const Anteproyecto = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} anteproyecto</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} propuesta</h3>
                                 <form className="space-y-6" action="#">
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Titulo</label>
@@ -408,4 +408,4 @@ const Anteproyecto = () => {
 	)
 }
 
-export default Anteproyecto
+export default PropuestaTesis
