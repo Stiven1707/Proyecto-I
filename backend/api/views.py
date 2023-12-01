@@ -149,9 +149,9 @@ class AnteProyectoListCreate(generics.ListCreateAPIView):
             profesores_ids.append(propuesta.user.id)
             print("Propuesta estudiantes_ids: ", estudiantes_ids)
             print("Propuesta profesores_ids: ", profesores_ids)
-            # documentos_ids = []
-            # documentos_ids.append(propuesta.doc.id)
-            # print("Propuesta documentos_ids: ", documentos_ids)
+            documentos_ids = []
+            documentos_ids.append(propuesta.doc.id)
+            print("Propuesta documentos_ids: ", documentos_ids)
 
         #validaciones
         if not estudiantes_ids:
@@ -403,7 +403,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         print("anteproyecto: ", anteproyecto)
         # Creo un seguimiento cunado se actualice el anteproyecto
         # Crear el seguimiento con fecha de hoy y concepto hoy mas 10 dias
-        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now(), seg_fecha_concepto=timezone.now() + timezone.timedelta(days=10))
+        seguimiento = Seguimiento.objects.create(seg_fecha_recepcion=timezone.now())
         print("seguimiento: ", seguimiento)
         # Asociar el seguimiento al anteproyecto mediante la tabla intermedia AntpSeguidoSeg
         AntpSeguidoSeg.objects.create(antp=anteproyecto, seg=seguimiento)
@@ -412,11 +412,11 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
         for usuario_id in usuarios_anteproyecto:
             UserSigueSeg.objects.create(user_id=usuario_id, seg=seguimiento)
         
-        # documentos_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
-        # print("documentos_propuesta: ", documentos_propuesta)
-        # documetos = Documento.objects.filter(id__in=documentos_propuesta)
-        # print("documetos: ", documetos)
-        # seguimiento.docs.add(*documetos)
+        documentos_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
+        print("documentos_propuesta: ", documentos_propuesta)
+        documetos = Documento.objects.filter(id__in=documentos_propuesta)
+        print("documetos: ", documetos)
+        seguimiento.docs.add(*documetos)
 
 class AnteProyectoDetailEvaluadores(generics.RetrieveUpdateDestroyAPIView):
     queryset = AnteProyecto.objects.all()
@@ -441,12 +441,16 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
         # Obtener el estado del seguimiento
         estado = self.request.data.get('seg_estado')
         if estado == 'Evaluado':
+            print("serializer.validated_data['docs']",serializer.validated_data['docs'])
+
             # busco el anteproyecto en la tabla AntpSeguidoSeg
             anteproyecto_id = AntpSeguidoSeg.objects.filter(seg=self.get_object()).first()
             anteproyecto = AnteProyecto.objects.filter(id=anteproyecto_id.antp.id).first() 
             # buscar los documentos del anteproyecto en AntpSoporteDoc
             documentos_anteproyecto = AntpSoporteDoc.objects.filter(antp=anteproyecto).values_list('doc', flat=True)   
             print("documentos_anteproyecto: ", documentos_anteproyecto)
+            # buscar todos los documentos del antp
+            documento_monografia = Documento.objects.filter(id__in=documentos_anteproyecto)
             #Buscar el documento de la propuesta que es la que se va a remitir y se agrega a los documentos
             documento_propuesta = Propuesta.objects.filter(id=anteproyecto.propuesta.id).values_list('doc', flat=True)
             print("documento_propuesta: ", documento_propuesta)
@@ -455,6 +459,8 @@ class SeguimientoDetail(generics.RetrieveUpdateDestroyAPIView):
             # Asociar el documento al seguimiento
             print("serializer",serializer.validated_data)
             serializer.validated_data['docs'].append(documento)
+            serializer.validated_data['docs'].extend(documento_monografia)
+            print("serializer.validated_data['docs']",serializer.validated_data['docs'])
         return super().perform_update(serializer)
 
 
