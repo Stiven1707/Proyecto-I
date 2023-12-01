@@ -274,7 +274,7 @@ class AnteProyectoDetail(generics.RetrieveUpdateDestroyAPIView):
 
          # obtener los id de los roles de los estudiantes y profesores
         rol_nombre_estudiante = Rol.objects.filter(rol_nombre="estudiante").first().rol_nombre
-        rol_nombre_profesor = Rol.objects.filter(rol_nombre="profesor").first().rol_nombre
+        rol_nombre_profesor = Rol.objects.filter(rol_nombre="profesor").first().rol_nombre=="profesor" if "profesor" else "temporal"
         print("rol_nombre_estudiante: ", rol_nombre_estudiante)
         print("rol_nombre_profesor: ", rol_nombre_profesor)
         # Serializar la lista de estudiantes antiguos para su posterior comparación
