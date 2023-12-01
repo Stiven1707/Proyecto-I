@@ -91,9 +91,10 @@ class PropuestaListCreate(generics.ListCreateAPIView):
         serializer.save(user=self.request.user)
 
 class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
+    queryset = Propuesta.objects.all()
     serializer_class = PropuestaSerializer
     permission_classes = ([IsAuthenticated])
-
+    
     def get_queryset(self):
         if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
             return Propuesta.objects.all()
@@ -105,15 +106,10 @@ class PropuestaDetail(generics.RetrieveUpdateDestroyAPIView):
 
 
 class AnteProyectoListCreate(generics.ListCreateAPIView):
-    
+    queryset = AnteProyecto.objects.all()
     #serializer_class = AnteProyectoSerializer
     permission_classes = [IsAuthenticated]
-    def get_queryset(self):
-        if self.request.user.rol.rol_nombre == 'coordinador' or self.request.user.rol.rol_nombre == 'auxiliar':
-            return AnteProyecto.objects.all()
-        if self.request.user.rol.rol_nombre == 'estudiante':
-            return AnteProyecto.objects.filter(estudiantes__id=self.request.user.id)
-        return AnteProyecto.objects.filter(user=self.request.user)
+
     #para listar mediante una pk de ante proyecto quiero que muestre el ante proyecto, los estudiantes, los profesores y los 
     def get_serializer_class(self):
         if self.request and self.request.method == 'POST':
