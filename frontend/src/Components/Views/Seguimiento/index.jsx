@@ -74,30 +74,6 @@ const Seguimiento = () => {
     });
   };
 
-  const onSubmit = async (idAnteproyecto) => {
-    const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    const datosSeguimiento = {
-      seg: {
-        seg_fecha_recepcion: null,
-        seg_estado: '',
-      }
-    }
-    setShowModal(false);
-    axios
-      .post(`http://127.0.0.1:8000/api/seguimientos/anteproyecto/${idAnteproyecto}/`, datosSeguimiento, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-      .then(() => {
-        setBody(initialState);
-        getSeguimientos();
-      })
-      .catch(({ response }) => {
-        console.log(response);
-      });
-  };
-
   function saveFiles(event) {
     // Obtener la lista de archivos seleccionados desde el evento
     const selectedFiles = event.target.files;
