@@ -558,7 +558,7 @@ const uploadFiles = async () => {
                         console.log(datos);
                         if((body.seg_estado==='PENDIENTE' || body.seg_estado==='A revisión') && (datos === 'PENDIENTE' || datos === 'A revisión')){
                           return <option value={datos} disabled={datos === 'PENDIENTE'}>{`${datos}`}</option>
-                        }else if((body.seg_estado==='Evaluado' || body.seg_estado==='No Aprobado' || body.seg_estado==='Remitido' || body.seg_estado==='Aprobado') && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido' || datos === 'Aprobado')){
+                        }else if((body.seg_estado==='Evaluado' || body.seg_estado==='No Aprobado' || body.seg_estado==='Remitido') && (datos === 'Evaluado' || datos === 'No Aprobado' || datos === 'Remitido')){
                           return <option value={datos} disabled={datos === 'Evaluado'}>{`${datos}`}</option>
                         }
                         return 1
