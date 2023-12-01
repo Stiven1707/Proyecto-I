@@ -201,9 +201,12 @@ const uploadFiles = async () => {
       IdEvaluadores.push(parseInt(body.evaluador2));
       body.evaluadores = IdEvaluadores
     }
-    console.log('edit: ',body);
+    let anteproyecto = {
+      evaluadores: IdEvaluadores,
+    }
+    console.log('edit: ',anteproyecto);
     axios
-      .patch(`http://127.0.0.1:8000/api/anteproyectos/${body.idAnteproyecto}/`, body, {
+      .patch(`http://127.0.0.1:8000/api/anteproyectos/${body.idAnteproyecto}/evaluadores/`, anteproyecto, {
         headers: {
           Authorization: `Bearer ${token}`,
         },

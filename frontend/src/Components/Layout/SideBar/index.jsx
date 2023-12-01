@@ -32,7 +32,7 @@ const Layout = () => {
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor','consejo'], state: false },
 		{ title: 'PropuestasT', src: `${Folder}`, path: '/app/propuestasT', token: ['temporal','consejo'], state: false },
 		{ title: 'PropuestasE', src: `${Folder}`, path: '/app/propuestasE', token: ['profesor','consejo'], state: false },
-		{ title: 'PropuestasA', src: `${Folder}`, path: '/app/propuestasA', token: ['profesor','consejo'], state: false },
+		{ title: 'PropuestasA', src: `${Folder}`, path: '/app/propuestasA', token: ['profesor','auxiliar'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectos', token: ['profesor','auxiliar','coordinador'], state: false },
 		{ title: 'AnteproyectoT', src: `${Chat}`, path: '/app/anteproyectosT', token: ['temporal'], state: false },
 		{ title: 'Anteproyecto', src: `${Chat}`, path: '/app/anteproyectosE', token: ['profesor','estudiante'], state: false },

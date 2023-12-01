@@ -38,7 +38,7 @@ const Layout = () => {
 					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasT" element={comprobarAcceso(['temporal'])? <PropuestaTesisTemporal /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasE" element={comprobarAcceso(['profesor'])? <PropuestaTesisEstudiante /> : <Navigate to="/app" /> }/>
-					<Route path="/propuestasA" element={comprobarAcceso(['profesor'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
+					<Route path="/propuestasA" element={comprobarAcceso(['auxiliar'])? <PropuestaTesisAuxiliar /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectos" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Anteproyecto /> : <Navigate to="/app" /> }/>
 					<Route path="/anteproyectosT" element={comprobarAcceso(['temporal','auxiliar', 'coordinador'])? <AnteproyectoTemporal /> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['profesor','auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>

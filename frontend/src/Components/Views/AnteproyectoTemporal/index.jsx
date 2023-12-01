@@ -130,7 +130,8 @@ const Anteproyecto = () => {
             const IdProfesores = [];
             const IdEstudiantes = [];
             IdProfesores.push(datosUsuario.user_id)
-            IdProfesores.push(parseInt(body.coprofesor));
+            IdProfesores.push(parseInt(body.codirector));
+            console.log('Profesores: ', IdProfesores);
             
             IdEstudiantes.push(parseInt(body.estudiante1));
             if(body.antp_modalidad === 'Trabajo de Investigación' && body.estudiante2){
@@ -328,15 +329,21 @@ const Anteproyecto = () => {
                                 </div>
                             : null}
                             
-                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'PENDIENTE' || anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'No Aprobado' ? 
+                            {anteproyecto.seguimientos.length > 0 ? anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'No Aprobado' ? 
                             <div className='flex'>
                             <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                     setBody(anteproyecto)
                                     setTitle('Modificar')
+                                    anteproyecto.usuarios.map((usuario)=> {
+                                        console.log(usuario.user.rol.rol_nombre);
+                                        return 1
+                                    })
+                                    console.log(anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor').user.id);
                                     addPropertyToBody('user', datosUsuario.user_id)
                                     addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                    addPropertyToBody('codirector', anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor').user.id)
                                     addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.propuesta.pro_modalidad)
                                     anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
                                         addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
                                     ))
@@ -360,10 +367,12 @@ const Anteproyecto = () => {
                             <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                     setBody(anteproyecto)
                                     setTitle('Modificar')
+                                    console.log('pro: ', anteproyecto)
                                     addPropertyToBody('user', datosUsuario.user_id)
                                     addPropertyToBody('antp_titulo', anteproyecto.anteproyecto.antp_titulo)
+                                    addPropertyToBody('codirector', anteproyecto.usuarios.find((usuario)=> usuario.user.rol.rol_nombre==='profesor'))
                                     addPropertyToBody('antp_descripcion', anteproyecto.anteproyecto.antp_descripcion)
-                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.antp_modalidad)
+                                    addPropertyToBody('antp_modalidad', anteproyecto.anteproyecto.propuesta.pro_modalidad)
                                     anteproyecto.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
                                         addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
                                     ))
@@ -442,11 +451,11 @@ const Anteproyecto = () => {
                                     </div>
                                     {datosUsuario.rol === 'profesor'? null:
                                         <div>
-                                            <label htmlFor="coprofesor" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
+                                            <label htmlFor="codirector" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
                                             <select
-                                                    name="coprofesor"
+                                                    name="codirector"
                                                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                    value={body.coprofesor}
+                                                    value={body.codirector}
                                                     onChange={(e)=>{
                                                         onChange(e)
                                                         
@@ -479,6 +488,7 @@ const Anteproyecto = () => {
                                             ))} 
                                             </select>
                                     </div>
+                                    {console.log('prueba: ', body)}
                                     {body.antp_modalidad === 'Trabajo de Investigación'?
                                         <div>
                                             <label htmlFor="estudiante2" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Estudiante</label>

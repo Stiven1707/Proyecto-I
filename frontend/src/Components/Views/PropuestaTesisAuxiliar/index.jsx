@@ -40,7 +40,7 @@ const PropuestaTesisAuxiliar = () => {
             }
         })
         console.log(data);
-        if (datosUsuario.rol === 'profesor'){
+        if (datosUsuario.rol === 'auxiliar'){
             const entradaConIdEspecifico = data.filter(entry => {
                 if(entry.pro_estado === 'PENDIENTE'){
                     return entry;
