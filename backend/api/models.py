@@ -146,7 +146,7 @@ class Propuesta(models.Model):
     # EL estado puede ser pendiente, aprobado, rechazado, plazo vencido
     ESTADOS = (
     ('PENDIENTE', 'PENDIENTE'),
-    ('PLAZO VENCIDO', 'PLAZO VENCIDO')
+    ('PLAZO VENCIDO', 'PLAZO VENCIDO'),
     ('APROBADO', 'APROBADO'),
     ('RECHAZADO', 'RECHAZADO'),)
     pro_estado = models.CharField(max_length=45, choices=ESTADOS, default="PENDIENTE", blank=True)
