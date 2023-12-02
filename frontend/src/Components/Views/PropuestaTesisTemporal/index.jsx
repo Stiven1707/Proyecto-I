@@ -234,6 +234,7 @@ const PropuestaTesisTemporal = () => {
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documento</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha maxima de respuesta</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -252,6 +253,7 @@ const PropuestaTesisTemporal = () => {
                             </a></p>
                             </td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_estado}</td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_fecha_max}</td>
                         </tr>
                     ))}
                     </tbody>
