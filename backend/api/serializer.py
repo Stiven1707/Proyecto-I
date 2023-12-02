@@ -296,7 +296,7 @@ class updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.
     user_ids = serializers.PrimaryKeyRelatedField(many=True, queryset=User.objects.all(), required=True)
     class Meta:
         model = TrabajoGrado
-        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_inicio','trag_fecha_fin', , 'trag_fecha_sustentacion_min', 'trag_fecha_sustentacion_max','trag_fecha_sustentacion', 'trag_estado')
+        fields = ('doc_ids', 'user_ids','jurados', 'id', "antp",'trag_fecha_inicio','trag_fecha_fin', 'trag_fecha_sustentacion_min', 'trag_fecha_sustentacion_max','trag_fecha_sustentacion', 'trag_estado')
 
 class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelSerializer):
     doc = serializers.PrimaryKeyRelatedField(many=True, queryset=Documento.objects.all(), required=True)
