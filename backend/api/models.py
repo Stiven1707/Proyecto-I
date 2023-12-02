@@ -2,6 +2,9 @@ from django.db import models
 from django.contrib.auth.models import Permission, Group
 from django.contrib.contenttypes.models import ContentType
 from django.utils import timezone
+from workalendar.america import Colombia
+
+cal = Colombia()
 
 # Create your models here.
 
@@ -140,9 +143,10 @@ class Propuesta(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='propuestas')
     pro_titulo = models.CharField(max_length=255)
     pro_objetivos = models.TextField()
-    # EL estado puede ser pendiente, aprobado, rechazado
+    # EL estado puede ser pendiente, aprobado, rechazado, plazo vencido
     ESTADOS = (
     ('PENDIENTE', 'PENDIENTE'),
+    ('PLAZO VENCIDO', 'PLAZO VENCIDO')
     ('APROBADO', 'APROBADO'),
     ('RECHAZADO', 'RECHAZADO'),)
     pro_estado = models.CharField(max_length=45, choices=ESTADOS, default="PENDIENTE", blank=True)
@@ -158,7 +162,16 @@ class Propuesta(models.Model):
         return timezone.now().date()  # Returns only the date without the time
     pro_fecha_creacion = models.DateField(default=default_fecha_creacion)
     def default_fecha_max():
-        return timezone.now().date() + timezone.timedelta(days=10)
+        fecha_creacion = timezone.now().date()
+        dias_habiles = 10
+        fecha_maxima = fecha_creacion
+
+        for _ in range(dias_habiles):
+            fecha_maxima += timezone.timedelta(days=1)
+            while not cal.is_working_day(fecha_maxima):
+                fecha_maxima += timezone.timedelta(days=1)
+
+        return fecha_maxima
 
     pro_fecha_max = models.DateField(default=default_fecha_max)
     

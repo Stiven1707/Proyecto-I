@@ -686,7 +686,15 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
         if self.request and self.request.method == 'POST':
             return updateUserParticipaAntpRealizaTragSoporteDocsPOSTSerializador
         return updateUserParticipaAntpRealizaTragSoporteDocsSerializador
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        if instance.pro_fecha_max < timezone.now().date():
+            instance.pro_estado = "PLAZO VENCIDO"
+            instance.save()  # Guardar la instancia con el nuevo estado si el plazo ha vencido
 
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    
     def update(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance, data=request.data, partial=True)
