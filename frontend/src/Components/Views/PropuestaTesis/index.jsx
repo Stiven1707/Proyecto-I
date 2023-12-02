@@ -3,6 +3,7 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from '../../config';
 
 const PropuestaTesis = () => {
 
@@ -22,17 +23,10 @@ const PropuestaTesis = () => {
 
 
     const [propuestaList, setPropuestaList] = useState([]);
-    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [showModalDelete, setShowModalDelete] = useState(false);
-    const [idDelete, setIdDelete] = useState('');
-	const [propuestaDelete, setPropuestaDelete] = useState('');
 	const [isId, setIsId] = useState('');
-	const [isEdit, setIsEdit] = useState(false);
-    //const [isFound, setIsFound] = useState(false);
-    const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
@@ -42,12 +36,11 @@ const PropuestaTesis = () => {
 
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
+		const { data } = await axios.get(`${apiRoute}propuestas/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log(data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 if(entry.user.id === datosUsuario.user_id){
@@ -56,23 +49,17 @@ const PropuestaTesis = () => {
                 return null
             });
             setPropuestaList(entradaConIdEspecifico)
-
-        }else{
-            setPropuestaList(data)
         }
 	}
 
     const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
         })
-        const profesoresData = data.filter((user) => user.rol && user.rol.rol_nombre === 'profesor');
         const estudiantesData = data.filter((user) => user.rol && user.rol.rol_nombre === 'estudiante');
-
-		setProfesores(profesoresData);
         setEstudiantes(estudiantesData);
 	}
 
@@ -110,7 +97,7 @@ const PropuestaTesis = () => {
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -132,24 +119,20 @@ const PropuestaTesis = () => {
             }
             body.estudiantes = IdEstudiantes;
             body.Documentos = IdDocumentos;
-            if (isEdit){
-                onEdit()
-            }else{
-                onSubmit();
-            }
+            onSubmit();
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
 
     const checking = () => {
-        if (body.antp_titulo === '') {
+        if (body.pro_titulo === '') {
             setShowMensaje("Por favor llene el campo titulo");
             setIsValid(false);
             return false;
         }
-        if (body.antp_descripcion === '') {
-            setShowMensaje("Por favor llene el campo descripcion");
+        if (body.pro_objetivos === '') {
+            setShowMensaje("Por favor llene el campo objetivos");
             setIsValid(false);
             return false;
         }
@@ -168,6 +151,11 @@ const PropuestaTesis = () => {
             setIsValid(false);
             return false;
         }
+        if (fileData.length === 0) {
+            setShowMensaje('Por gavor, seleccione un documento');
+            setIsValid(false);
+            return false;
+        }
         setIsValid(true);
         uploadFiles();
     };
@@ -181,6 +169,7 @@ const PropuestaTesis = () => {
             }
             body.estudiantes = IdEstudiantes;
         setShowModal(false);
+
         let datosPropuesta = {
             estudiantes: IdEstudiantes,
             doc: IdDocumentos[0],
@@ -188,9 +177,9 @@ const PropuestaTesis = () => {
             pro_objetivos: body.pro_objetivos,
             pro_modalidad: body.pro_modalidad
         }
-        console.log('Datos propuesta: ', JSON.stringify(datosPropuesta));
+
         axios
-            .post('http://127.0.0.1:8000/api/propuestas/', datosPropuesta, {
+            .post(`${apiRoute}propuestas/`, datosPropuesta, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -204,33 +193,6 @@ const PropuestaTesis = () => {
             });
     };
     
-
-        
-    const onEdit = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        setShowModal(false);
-        console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            setBody(initialState)
-            getPropuestas()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
-    }
-
-    const addPropertyToBody = (name, value) => {
-        setBody(prevBody => ({
-            ...prevBody,
-            [name]: value
-        }));
-    };
-
 
     return (
         <div >
@@ -254,7 +216,6 @@ const PropuestaTesis = () => {
                             <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
                                     setTitle('Crear')
                                     setBody(initialState)
-                                    setIsEdit(false)
                                     setIsValid(true)
                                     setShowModal(true)}}>
                                     <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
@@ -273,7 +234,6 @@ const PropuestaTesis = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {console.log(propuestaList)}
                     {propuestaList.map((propuesta)=>(
                         <tr key={propuesta.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_titulo}</td>

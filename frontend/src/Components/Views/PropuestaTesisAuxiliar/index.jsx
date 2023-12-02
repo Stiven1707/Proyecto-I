@@ -3,6 +3,8 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const PropuestaTesisAuxiliar = () => {
 
@@ -34,7 +36,7 @@ const PropuestaTesisAuxiliar = () => {
 
     const getPropuestas = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/propuestas/',{
+		const { data } = await axios.get(`${apiRoute}propuestas/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -81,6 +83,23 @@ const PropuestaTesisAuxiliar = () => {
         }
     }
 
+    const checking = () => {
+        if(body.pro_estado === 'PENDIENTE'){
+            setIsValid(false);
+            setShowMensaje('Por favor elija un estado distinto a PENDIENTE');
+            return false
+        }
+    
+        if(fileData.length === 0){
+            setIsValid(false);
+            setShowMensaje('Porfavor suba el documento Formato A, aprobado');
+            return false
+        }
+        setIsValid(true);
+            uploadFiles();
+
+    }
+
     const uploadFiles = async () => {
         try {
             const token = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -89,7 +108,7 @@ const PropuestaTesisAuxiliar = () => {
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -115,7 +134,7 @@ const PropuestaTesisAuxiliar = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        axios.patch(`http://127.0.0.1:8000/api/propuestas/${body.id}/`, body, {
+        axios.patch(`${apiRoute}propuestas/${body.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -143,9 +162,8 @@ const PropuestaTesisAuxiliar = () => {
             Documentos : [],
             propuesta: body.id
         }
-        console.log('datos onsubmit: ', datosAnteproyecto);
         axios
-            .post('http://127.0.0.1:8000/api/anteproyectos/', datosAnteproyecto, {
+            .post(`${apiRoute}anteproyectos/`, datosAnteproyecto, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -288,14 +306,13 @@ const PropuestaTesisAuxiliar = () => {
                                             name="eva_evidencia"
                                             id="eva_evidencia"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                                            placeholder={body.eva_evidencia}
                                             onChange={saveFiles} 
                                             required
                                             />
                                     </div>
                                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
-                                        uploadFiles();
+                                        checking();
                                         e.preventDefault(); // Previene el comportamiento predetermina
                                     }
                                     }>{title}</button>

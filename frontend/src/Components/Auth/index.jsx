@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState, useContext } from "react";
 import jwt_decode from "jwt-decode";
+import { apiRoute } from "../config";
+
 
 const AuthContext = createContext();
 
@@ -15,7 +17,7 @@ export const AuthProvider = ({ children }) => {
     const updateToken = async () => {
         try {
         if (authTokens && authTokens.refresh) {
-            const response = await fetch('http://127.0.0.1:8000/api/token/refresh/', {
+            const response = await fetch(`${apiRoute}token/refresh/`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
