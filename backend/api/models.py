@@ -153,6 +153,15 @@ class Propuesta(models.Model):
     ('Trabajo de Investigación', 'Trabajo de Investigación'),
     ('Práctica Profesional', 'Práctica Profesional'),)
     pro_modalidad = models.CharField(max_length=45, default="Trabajo de Investigación", choices=MODALIDADES, blank=True)
+    # fecha de creacion de la propuesta y fecha maxima para que el comite la apruebe o rechace (max 10 dias despues de la creacion)
+    def default_fecha_creacion():
+        return timezone.now().date()  # Returns only the date without the time
+    pro_fecha_creacion = models.DateField(default=default_fecha_creacion)
+    def default_fecha_max():
+        return timezone.now().date() + timezone.timedelta(days=10)
+
+    pro_fecha_max = models.DateField(default=default_fecha_max)
+    
 
     def __str__(self):
         return self.pro_titulo
@@ -194,6 +203,9 @@ class Seguimiento(models.Model):
 class TrabajoGrado(models.Model):
     trag_fecha_inicio = models.DateField(blank=True, null=True)
     trag_fecha_fin = models.DateField(blank=True, null=True)
+    #new fechas para el rango de tiempo sugerido maximo para sustentar el trabajo de grado
+    trag_fecha_sustentacion_min = models.DateField(blank=True, null=True)
+    trag_fecha_sustentacion_max = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
     # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO
     ESTADOS = (
