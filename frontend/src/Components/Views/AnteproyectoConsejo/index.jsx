@@ -3,6 +3,8 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const AnteproyectoConsejo = () => {
 
@@ -27,7 +29,7 @@ const AnteproyectoConsejo = () => {
     let fileData = [];
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -62,7 +64,7 @@ const AnteproyectoConsejo = () => {
     
                 IdDocumentos = 0;
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -76,7 +78,6 @@ const AnteproyectoConsejo = () => {
                     });
                 });
         }
-        //body.docs = IdDocumentos;
     
         if(IdDocumentos && IdDocumentos.length === 0){
             setShowMensaje(`Por favor, suba el documento Resolución`);
@@ -91,11 +92,11 @@ const AnteproyectoConsejo = () => {
     };
 
     const checking = () => {
-        /* if (body.seg_observaciones === '') {
-            setShowMensaje(`Por favor llene el campo de observaciones`);
+        if(fileData.length === 0){
             setIsValid(false);
-            return false;
-        } */
+            setShowMensaje('Por favor suba el documento Resolucion');
+            return false
+        }
         setIsValid(true);
         uploadFiles();
     };
@@ -106,7 +107,6 @@ const AnteproyectoConsejo = () => {
         let idDocs = []
         body.docs.map((doc)=> {
             if(!(doc.doc_nombre.substr(0,10) === 'Resolución')){
-                console.log('Dentro: ', doc.doc_nombre);
                 idDocs.push(doc.id)
             }
             return 1
@@ -120,7 +120,7 @@ const AnteproyectoConsejo = () => {
         }
 
         axios
-            .patch(`http://127.0.0.1:8000/api/seguimientos/${datosBody.id}/`, datosBody, {
+            .patch(`${apiRoute}seguimientos/${datosBody.id}/`, datosBody, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },
@@ -146,7 +146,6 @@ const AnteproyectoConsejo = () => {
         const fechaActual = new Date();
         let fechaFinal = new Date();
         fechaFinal.setMonth(fechaActual.getMonth() + 9)
-        console.log(body);
         let datosTesis = {
             doc: [],
             trag_fecha_inicio: fechaActual.toISOString().split("T")[0],
@@ -157,10 +156,9 @@ const AnteproyectoConsejo = () => {
             jurados: []
 
         }
-        console.log(datosTesis);
         setShowModal(false);
         axios
-        .post(`http://127.0.0.1:8000/api/trabajosdegrado/`, datosTesis, {
+        .post(`${apiRoute}trabajosdegrado/`, datosTesis, {
         headers: {
             Authorization: `Bearer ${token}`,
         },

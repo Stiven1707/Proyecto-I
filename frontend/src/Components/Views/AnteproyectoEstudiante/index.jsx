@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCirclePlus, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const AnteproyectoEstudiante = () => {
 
@@ -17,7 +19,7 @@ const AnteproyectoEstudiante = () => {
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -36,7 +38,7 @@ const AnteproyectoEstudiante = () => {
 
     const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }

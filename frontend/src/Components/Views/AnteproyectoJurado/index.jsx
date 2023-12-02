@@ -3,6 +3,8 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const Anteproyecto = () => {
 
@@ -26,7 +28,7 @@ const Anteproyecto = () => {
     let fileData = [];
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -74,7 +76,7 @@ const Anteproyecto = () => {
 
                 IdDocumentos = [];
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -90,11 +92,6 @@ const Anteproyecto = () => {
         }
         body.docs = IdDocumentos;
 
-        if(body.docs && body.docs.length === 0){
-            setShowMensaje(`Por favor, suba el documento tipo B`);
-            setIsValid(false);
-            return false;
-        }
         onEdit()
 
         } catch (error) {
@@ -103,12 +100,16 @@ const Anteproyecto = () => {
     };
 
     const checking = () => {
-
-        
         if (body.seg_observaciones === '') {
             setShowMensaje(`Por favor llene el campo de observaciones`);
             setIsValid(false);
             return false;
+        }
+
+        if(fileData.length === 0){
+            setIsValid(false);
+            setShowMensaje('Por favor suba el documento Formato B');
+            return false
         }
         setIsValid(true);
         uploadFiles();
@@ -117,7 +118,7 @@ const Anteproyecto = () => {
     const onEdit = async () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         body.seg_estado = 'Evaluado'
-        axios.patch(`http://127.0.0.1:8000/api/seguimientos/${body.seg_id}/`, body, {
+        axios.patch(`${apiRoute}seguimientos/${body.seg_id}/`, body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },

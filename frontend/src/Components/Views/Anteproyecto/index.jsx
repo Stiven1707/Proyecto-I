@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const Anteproyecto = () => {
 
@@ -47,7 +49,7 @@ const Anteproyecto = () => {
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -66,7 +68,7 @@ const Anteproyecto = () => {
 
     const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -88,15 +90,7 @@ const Anteproyecto = () => {
             ...body,
             [name]: value
         });
-        //setSelectedPeriodo(value !== "");
     };
-
-/*     const isWorking = () => {
-        if (body.estudiantes.find((id) => id === estudiantes.id)) {
-            console.log('Es estudiante ya esta en un anteproyecto');
-        }else{
-        }
-    } */
 
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
@@ -119,7 +113,7 @@ const Anteproyecto = () => {
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -179,6 +173,13 @@ const Anteproyecto = () => {
             setIsValid(false);
             return false;
         }
+
+        if(fileData.length === 0){
+            setIsValid(false);
+            setShowMensaje('Por favor suba el documento Anteroyecto');
+            return false
+        }
+
         setIsValid(true);
         uploadFiles();
     };
@@ -188,7 +189,7 @@ const Anteproyecto = () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
         console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
+        axios.put(`${apiRoute}anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -205,7 +206,7 @@ const Anteproyecto = () => {
     const onDelete = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 
-        axios.delete(`http://127.0.0.1:8000/api/anteproyectos/${idDelete}/`, {
+        axios.delete(`${apiRoute}anteproyectos/${idDelete}/`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }

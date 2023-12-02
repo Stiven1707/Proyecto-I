@@ -2,7 +2,9 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash, faClockRotateLeft  } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const Anteproyecto = () => {
 
@@ -46,7 +48,7 @@ const Anteproyecto = () => {
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -65,7 +67,7 @@ const Anteproyecto = () => {
 
     const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -111,7 +113,7 @@ const Anteproyecto = () => {
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -129,7 +131,6 @@ const Anteproyecto = () => {
             const IdEstudiantes = [];
             IdProfesores.push(datosUsuario.user_id)
             IdProfesores.push(parseInt(body.codirector));
-            console.log('Profesores: ', IdProfesores);
             
             IdEstudiantes.push(parseInt(body.estudiante1));
             if(body.antp_modalidad === 'Trabajo de Investigación' && body.estudiante2){
@@ -171,26 +172,20 @@ const Anteproyecto = () => {
             setIsValid(false);
             return false;
         }
+        if (body.codirector === '') {
+            setShowMensaje('No seleccione un codirector');
+            setIsValid(false);
+            return false;
+        }
+
+        if(fileData.length === 0){
+            setIsValid(false);
+            setShowMensaje('Por favor suba el documento Anteroyecto');
+            return false
+        }
+
         setIsValid(true);
         uploadFiles();
-    };
-    
-    const onSubmit = async () => {
-        const token = JSON.parse(localStorage.getItem('authTokens')).access;
-        setShowModal(false);
-        axios
-            .post('http://127.0.0.1:8000/api/anteproyectos/', body, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then(() => {
-                setBody(initialState);
-                getAnteproyectos();
-            })
-            .catch(({ response }) => {
-                console.log(response);
-            });
     };
     
 
@@ -199,7 +194,7 @@ const Anteproyecto = () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
         console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/anteproyectos/${body.anteproyecto.id}/`, body, {
+        axios.put(`${apiRoute}anteproyectos/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -216,7 +211,7 @@ const Anteproyecto = () => {
     const onDelete = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 
-        axios.delete(`http://127.0.0.1:8000/api/anteproyectos/${idDelete}/`, {
+        axios.delete(`${apiRoute}anteproyectos/${idDelete}/`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -400,7 +395,7 @@ const Anteproyecto = () => {
                                     </div>
                                     {datosUsuario.rol === 'profesor'? null:
                                         <div>
-                                            <label htmlFor="codirector" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Coordinador de proyecto</label>
+                                            <label htmlFor="codirector" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Codirector de proyecto</label>
                                             <select
                                                     name="codirector"
                                                     className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'

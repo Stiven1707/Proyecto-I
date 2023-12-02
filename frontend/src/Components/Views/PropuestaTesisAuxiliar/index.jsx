@@ -92,7 +92,7 @@ const PropuestaTesisAuxiliar = () => {
     
         if(fileData.length === 0){
             setIsValid(false);
-            setShowMensaje('Porfavor suba el documento Formato A, aprobado');
+            setShowMensaje('Por favor suba el documento Formato A (Aprobado o no Aprobado)');
             return false
         }
         setIsValid(true);
