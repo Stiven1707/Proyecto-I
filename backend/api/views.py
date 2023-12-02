@@ -671,117 +671,11 @@ class UserRealizaTragListCreate(generics.ListCreateAPIView):
             data.reverse()
         return Response(data)
 
-    
-    
-   
-
-
-
-# class ClosedUserRealizaTragListCreate(generics.ListCreateAPIView):
-#     queryset = TrabajoGrado.objects.all()
-#     serializer_class = UserRealizaTragSerializer
-#     permission_classes = ([IsAuthenticated])
-
-#     def create(self, request, *args, **kwargs):
-#         # Datos del objeto 
-#         if isinstance(request.data, QueryDict):
-#             data = request.data.dict()
-#         else:
-#             data = request.data
-         
-#         print("data: ", data)
-#         # Extraer datos de usuarios y documentos
-#         users_data = []
-#         for key, value in data.items():
-#             if key.startswith("users") and value.get("user"):
-#                 users_data.append(value.get("user"))
-
-#         docs_data = []
-#         for key, value in data.items():
-#             if key.startswith("docs") and value.get("doc"):
-#                 docs_data.append(value.get("doc"))
-
-#         # Crear el objeto TrabajoGrado
-#         #si ña fecha de recepcion es nula se le asigna la fecha actual
-#         if not data.get('trag_fecha_recepcion'):
-#             data['trag_fecha_recepcion'] = date.today()
-#         trabajo_grado_serializer = TrabajoDeGradoSerializer(data=data)
-#         print("trabajo_grado_serializer: ", trabajo_grado_serializer)
-#         print("is_valid trabajo_grado_serializer: ", trabajo_grado_serializer.is_valid())
-#         if trabajo_grado_serializer.is_valid():
-#             trabajo_grado = trabajo_grado_serializer.save()
-#             print("ID del trabajo de grado:", trabajo_grado.id)
-#             print("users_data: ", users_data)
-#             #saco la lista de correos
-#             print("users: ", users_data)
-#             users_emails = []
-#             for user_data in users_data:
-#                 users_emails.append(user_data['user']['email'])
-#             print("users_emails: ", users_emails)
-#             # Busco los id de los usuarios mediante el correo que envian
-#             users_ids = []
-#             # segun los email busco los id de los usuarios
-#             for user_email in users_emails:
-#                 user = User.objects.filter(email=user_email).first()
-#                 if user:
-#                     users_ids.append(user.id)
-#                 else:
-#                     raise ValidationError(f"El usuario con correo {user_email} no existe")
-#             print("users_ids: ", users_ids)
-#             # Mediante el serializador UserRealizaTragGETSerializer se crea la asociación entre el usuario y el trabajo de grado
-#             user_realiza_trag_errors = []
-#             for user in users_ids:
-#                 user_realiza_trag_serializer = UserRealizaTragPOSTSerializer(data={"user": user, "trag": trabajo_grado.id})
-#                 print("user_realiza_trag_serializer: ", user_realiza_trag_serializer)
-#                 print("is_valid user_realiza_trag_serializer: ", user_realiza_trag_serializer.is_valid())
-#                 if user_realiza_trag_serializer.is_valid():
-#                     user_realiza_trag_serializer.save()
-#                 else:
-#                     user_realiza_trag_errors.append(user_realiza_trag_serializer.errors)
-#             print("user_realiza_trag_errors: ", user_realiza_trag_errors)
-
-#             # Creamos los documentos primero mediante DocumentoSerializer y después asociamos con TragSoporteDocSerializer
-#             documento_errors = []
-#             for doc in docs_data:
-#                 print("doc_data: ", doc)
-#                 documento_serializer = DocumentoSerializer(data=doc['doc'])
-#                 print("documento_serializer: ", documento_serializer)
-#                 print("is_valid documento_serializer: ", documento_serializer.is_valid())
-#                 if documento_serializer.is_valid():
-#                     documento = documento_serializer.save()
-#                     trag_soporte_doc_serializer = TragSoporteDocSerializer(data={"trag": trabajo_grado.id, "doc": documento.id})
-#                     print("trag_soporte_doc_serializer: ", trag_soporte_doc_serializer)
-#                     print("is_valid trag_soporte_doc_serializer: ", trag_soporte_doc_serializer.is_valid())
-#                     if trag_soporte_doc_serializer.is_valid():
-#                         trag_soporte_doc_serializer.save()
-#                     else:
-#                         documento_errors.append(trag_soporte_doc_serializer.errors)
-#                 else:
-#                     documento_errors.append(documento_serializer.errors)
-#                     print("documento_errors: ", documento_errors)
-
-#             if user_realiza_trag_errors or documento_errors:
-#                 errors = {
-#                     "user_realiza_trag_errors": user_realiza_trag_errors,
-#                     "documento_errors": documento_errors,
-#                 }
-#                 return Response(errors, status=status.HTTP_400_BAD_REQUEST)
-
-#             return Response(trabajo_grado_serializer.data, status=status.HTTP_201_CREATED)
-
-#         return Response(trabajo_grado_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-
 
 class TrabajoDeGradoCreate(generics.CreateAPIView):
     queryset = TrabajoGrado.objects.all()
     serializer_class = UserRealizaTragSerializer
     permission_classes = ([IsAuthenticated])
-
-    
-
 
 
 class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
