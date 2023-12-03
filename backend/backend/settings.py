@@ -17,10 +17,19 @@ import dj_database_url
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DEBUG = 'RENDER' not in os.environ
 
 # Configuración de archivos estáticos (CSS, JavaScript, etc.)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+# Following settings only make sense on production and may break development environments.
+if not DEBUG:
+    # Tell Django to copy statics to the `staticfiles` directory
+    # in your application directory on Render.
+    STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+
+    # Turn on WhiteNoise storage backend that takes care of compressing static files
+    # and creating unique names for each version so they can safely be cached forever.
+    STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # Configuración de archivos de medios (documentos, imágenes, etc.)
 MEDIA_URL = '/media/'
@@ -36,15 +45,15 @@ import environ
 env = environ.Env()
 environ.Env.read_env()
 #SECRET_KEY = 'django-insecure-hocn!xbl*$ro)&e=rs+@z5rc6_a$8^!0yq765wx*sfkoeyk2m&'
-SECRET_KEY = os.environ.get('SECRET_KEY',default='your_secret_key')
+SECRET_KEY = 'django-insecure-hocn!xbl*$ro)&e=rs+@z5rc6_a$8^!0yq765wx*sfkoeyk2m&'
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = 'RENDER' not in os.environ
 
 ALLOWED_HOSTS = []
 
-RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', default='localhost')
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME', default='127.0.0.1')
 if RENDER_EXTERNAL_HOSTNAME:
     ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+
 
 # Application definition
 
@@ -72,6 +81,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # whitenoise
 ]
 
 CORS_ORIGIN_WHITELIST = (
