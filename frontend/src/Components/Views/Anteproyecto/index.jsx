@@ -254,7 +254,7 @@ const Anteproyecto = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Descripcion</th>
-                            <th scope='col' className='border px-6 py-3'>Coordiandor</th>
+                            <th scope='col' className='border px-6 py-3'>Directores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
                             <th scope='col' className='border px-6 py-3'>Observaciones</th>

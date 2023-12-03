@@ -3,6 +3,8 @@ import axios from 'axios';
 import jwt_decode from 'jwt-decode';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faClockRotateLeft } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const Seguimiento = () => {
   const datosUsuarioCifrados = JSON.parse(localStorage.getItem('authTokens')).access;
@@ -37,7 +39,7 @@ const Seguimiento = () => {
 
   const getSeguimientos = async () => {
     const token = JSON.parse(localStorage.getItem('authTokens')).access;
-    const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/', {
+    const { data } = await axios.get(`${apiRoute}anteproyectos/`, {
       headers: {
         Authorization: `Bearer ${token}`,
       },
@@ -47,7 +49,7 @@ const Seguimiento = () => {
 
   const getParticipantes = async () => {
     const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-    const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+    const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -94,7 +96,7 @@ const uploadFiles = async () => {
 
             IdDocumentos = 0;
             const promises = fileData.map((file) => {
-                return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                return axios.post(`${apiRoute}documentos/`, file, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                         'Content-Type': 'multipart/form-data',
@@ -175,7 +177,7 @@ const uploadFiles = async () => {
       evaluadores: IdEvaluadores,
     }
     axios
-      .patch(`http://127.0.0.1:8000/api/anteproyectos/${body.idAnteproyecto}/evaluadores/`, anteproyecto, {
+      .patch(`${apiRoute}anteproyectos/${body.idAnteproyecto}/evaluadores/`, anteproyecto, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -210,7 +212,7 @@ const uploadFiles = async () => {
     }
       console.log('datosBody:',datosBody);
     axios
-      .patch(`http://127.0.0.1:8000/api/seguimientos/${datosBody.id}/`, datosBody, {
+      .patch(`${apiRoute}seguimientos/${datosBody.id}/`, datosBody, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -288,7 +290,7 @@ const uploadFiles = async () => {
                       <tr>
                         <th scope="col" className="border px-6 py-3">Titulo</th>
                         <th scope="col" className="border px-6 py-3">Modalidad</th>
-                        <th scope="col" className="border px-6 py-3">Director</th>
+                        <th scope="col" className="border px-6 py-3">Directores</th>
                         <th scope="col" className="border px-6 py-3">Estudiantes</th>
                         <th scope="col" className="border px-6 py-3">Evaluadores</th>
                       </tr>

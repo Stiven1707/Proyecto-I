@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faTrash  } from '@fortawesome/free-solid-svg-icons';
 import { apiRoute } from "../../config";
 
 
@@ -22,11 +22,7 @@ const TrabajoDeGrado = () => {
     const [anteproyectoList, setAnteproyectoList] = useState([]);
     //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
-	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
-    const [showModalDelete, setShowModalDelete] = useState(false);
-    const [idDelete, setIdDelete] = useState('');
-	const [anteproyectoDelete, setAnteproyectoDelete] = useState('');
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
     //const [isFound, setIsFound] = useState(false);
@@ -96,7 +92,8 @@ const TrabajoDeGrado = () => {
     useEffect(()=>{
         getTrabajoDeGrado();
 		getAnteproyectos();
-        getParticipantes()}, [])
+        getParticipantes();
+        comprobarFecha()}, [isDateValid, body])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -151,50 +148,37 @@ const TrabajoDeGrado = () => {
         }
         
             body.doc = IdDocumentos;
-            if (isEdit){
-                onEdit()
-            }else{
-                onSubmit();
-            }
+            onEdit()
+            
         } catch (error) {
             console.error('Fallo al subir el archivo: ', error);
         }
     };
 
     const checking = () => {
-
+        if (isDateValid && (body.trag_estado === 'ACTIVO')) {
+            setShowMensaje('Por favor seleccione una opcion');
+            setIsValid(false);
+            return false;
+        }else{
+            body.trag_estado = 'PENDIENTE'
+        }
+        if (fileData.length < 3) {
+            setShowMensaje('Por gavor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+            setIsValid(false);
+            return false;
+        }
 
         setIsValid(true);
         uploadFiles();
     };
-    
-    const onSubmit = async () => {
-        const token = JSON.parse(localStorage.getItem('authTokens')).access;
-        setShowModal(false);
-        axios
-            .post(`${apiRoute}trabajosdegrado/`, body, {
-                headers: {
-                    Authorization: `Bearer ${token}`,
-                },
-            })
-            .then(() => {
-                setBody(initialState);
-                getTrabajoDeGrado();
-            })
-            .catch(({ response }) => {
-                console.log(response.data.antp[0]);
-                setShowMensaje(response.data.antp[0]);
-                setIsValid(false);
-            });
-    };
-    
 
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
         console.log('Datos a editar: ', body);
-        axios.put(`${apiRoute}trabajosdegrado/${body.anteproyecto.id}/`, body, {
+        axios.patch(`${apiRoute}trabajosdegrado/${body.trag_id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -231,30 +215,6 @@ const TrabajoDeGrado = () => {
             setIsDateValid(false)
         }
     }
-
-    const onDelete = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-
-        axios.delete(`${apiRoute}trabajosdegrado/${idDelete}/`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        .then(() => {
-            getTrabajoDeGrado()
-        })
-        .catch(({response})=>{
-            console.log(response)
-        })
-    }
-
-    const addPropertyToBody = (name, value) => {
-        setBody(prevBody => ({
-            ...prevBody,
-            [name]: value
-        }));
-    };
-
 
     return (
         <div >
@@ -327,29 +287,20 @@ const TrabajoDeGrado = () => {
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         console.log(trabajoDeGrado);
                                         setBody({
+                                            user: datosUsuario.user_id,
+                                            trag_id: trabajoDeGrado.trag.trag_id,
                                             trag_titulo: trabajoDeGrado.trag.antp.antp_titulo,
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
                                             fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
                                             fechaFin: trabajoDeGrado.trag.trag_fecha_fin,
                                         })
-                                        comprobarFecha()
-                                        setTitle('Modificar')
-                                        addPropertyToBody('user', datosUsuario.user_id)
-                                        
+                                        comprobarFecha()                                     
                                         setIsValid(true)
                                         setIsEdit(true)
                                         setShowModal(true);}}
                                     >
                                         <FontAwesomeIcon icon={faEdit} /> 
                                     </button>    
-                                        &nbsp;
-                                    <button className='bg-red-700 text-gray-300 p-2 px-3 rounded'  onClick={() => {
-                                        setIdDelete(trabajoDeGrado.anteproyecto.id)
-                                        setAnteproyectoDelete(trabajoDeGrado.anteproyecto.antp_titulo)
-                                        setShowModalDelete(true)
-                                        }}>
-                                        <FontAwesomeIcon icon={faTrash} />
-                                    </button>
                                 </div>
                             </td> 
                         </tr>
@@ -367,7 +318,7 @@ const TrabajoDeGrado = () => {
                                 <span className="sr-only text-black">Close modal</span>
                             </button>
                             <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} trabajo de grado</h3>
+                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Modificar trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                 <div>
                       <label
@@ -427,42 +378,8 @@ const TrabajoDeGrado = () => {
                                         checking();
                                         e.preventDefault(); // Previene el comportamiento predetermina
                                     }
-                                    }>{title}</button>
+                                    }>Editar</button>
                                 </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </>
-            ) : null}
-
-			{showModalDelete ? (
-                <>
-                <div className="flex justify-center items-center overflow-x-hidden overflow-y-auto fixed inset-0 z-50 outline-none focus:outline-none bg-gray-500">
-                    <div className="relative w-full max-w-md max-h-full">
-                        <div className="relative bg-white rounded-lg shadow dark:bg-gray-700">
-                            <button type="button" className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => setShowModalDelete(false)} >
-                                <svg aria-hidden="true" className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd"></path></svg>
-                                <span className="sr-only text-black">Close modal</span>
-                            </button>
-                            <div className="px-6 py-6 lg:px-8">
-                                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Desea eliminar el anteproyecto "{anteproyectoDelete}"</h3>
-                                <div className='border px-6 py-6 pl-10 flex justify-evenly'>
-                                    <button className='bg-green-600 text-gray-300 p-2 px-10 rounded' onClick={() => {
-                                        onDelete();
-                                        setShowModalDelete(false);}}
-                                        >
-                                        Aceptar 
-                                    </button>    
-                                    &nbsp;
-                                    <button className='bg-red-700 text-gray-300 p-2 px-10 rounded'  onClick={() => {
-                                        setIdDelete('')
-                                        setAnteproyectoDelete('')
-                                        setShowModalDelete(false)
-                                    }}>
-                                        Cancelar
-                                    </button>
-                                </div>
                             </div>
                         </div>
                     </div>
