@@ -145,7 +145,7 @@ const AnteproyectoConsejo = () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         const fechaActual = new Date();
         let fechaFinal = new Date();
-        fechaFinal.setMonth(fechaActual.getMonth() + 9)
+        fechaFinal.setMonth(fechaActual.getMonth() + 6)
         let datosTesis = {
             doc: [],
             trag_fecha_inicio: fechaActual.toISOString().split("T")[0],

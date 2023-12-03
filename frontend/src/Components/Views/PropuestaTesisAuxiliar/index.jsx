@@ -220,9 +220,10 @@ const PropuestaTesisAuxiliar = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Objetivos</th>
-                            <th scope='col' className='border px-6 py-3'>Coordiandor</th>
+                            <th scope='col' className='border px-6 py-3'>Director</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documento</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha limite</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
                         </tr>
@@ -243,9 +244,8 @@ const PropuestaTesisAuxiliar = () => {
                                 {`${propuesta.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
                             </td>
+                            <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_fecha_max}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{propuesta.pro_estado}</td>
-
-
                             <td className='border px-6 py-4'>
                                 {propuesta.pro_estado === 'APROBADO'? null : 
                                     <div className='flex'>
