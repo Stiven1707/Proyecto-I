@@ -28,8 +28,9 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.rol:
             if self.is_superuser:
-                # Lista de roles a crear si no existen
+                # Lista de roles a crear si no existen, el usuario admin tambien
                 roles_to_create = [
+                    {'nombre': 'admin', 'descripcion': 'Administrador del sistema de gestion de usuarios'},
                     {'nombre': 'coordinador', 'descripcion': 'Coordinador del programa Sistemas'},
                     {'nombre': 'auxiliar', 'descripcion': 'Secretaria...'},
                     {'nombre': 'consejo', 'descripcion': 'Consejo de la FIET'},
@@ -43,8 +44,8 @@ class User(AbstractUser):
                     if not rol:
                         Rol.objects.create(rol_nombre=rol_info['nombre'], rol_descripcion=rol_info['descripcion'])
 
-                coordinador_role = Rol.objects.get(rol_nombre='coordinador')
-                self.rol = coordinador_role
+                admin_role = Rol.objects.get(rol_nombre='admin')
+                self.rol = admin_role
 
         super().save(*args, **kwargs)
     
@@ -75,7 +76,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     full_name = models.CharField(max_length=1000)
     bio = models.TextField(max_length=100, blank=True)
-    img = models.ImageField(upload_to="user_images", default="default.jpg", blank=True)
+    img = models.ImageField(upload_to="user_images", default="default.png", blank=True)
     verified = models.BooleanField(default=False)
     
     def __str__(self):
@@ -220,9 +221,12 @@ class TrabajoGrado(models.Model):
     trag_fecha_sustentacion_min = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion_max = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
-    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO
+    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO, prórroga solicitada, prórroga aprobada, prórroga no aprobada
     ESTADOS = (
     ('PENDIENTE', 'PENDIENTE'),
+    ('PRÓRROGA SOLICITADA', 'PRÓRROGA SOLICITADA'),
+    ('PRÓRROGA APROBADA', 'PRÓRROGA APROBADA'),
+    ('PRÓRROGA NO APROBADA', 'PRÓRROGA NO APROBADA'),
     ('APROBADO', 'APROBADO'),
     ('APROBADO CON OBSERVACIONES', 'APROBADO CON OBSERVACIONES'),
     ('APLAZADO', 'APLAZADO'),

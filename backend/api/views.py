@@ -65,7 +65,7 @@ def dashboard(request):
         return Response({'response': response}, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-class ProfileUpdateAPIView(generics.UpdateAPIView):
+class ProfileRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
     
     serializer_class = ProfileSerializer
     permission_classes = ([IsAuthenticated])
