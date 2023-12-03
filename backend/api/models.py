@@ -220,9 +220,12 @@ class TrabajoGrado(models.Model):
     trag_fecha_sustentacion_min = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion_max = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
-    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO
+    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO, prórroga solicitada, prórroga aprobada, prórroga no aprobada
     ESTADOS = (
     ('PENDIENTE', 'PENDIENTE'),
+    ('PRÓRROGA SOLICITADA', 'PRÓRROGA SOLICITADA'),
+    ('PRÓRROGA APROBADA', 'PRÓRROGA APROBADA'),
+    ('PRÓRROGA NO APROBADA', 'PRÓRROGA NO APROBADA'),
     ('APROBADO', 'APROBADO'),
     ('APROBADO CON OBSERVACIONES', 'APROBADO CON OBSERVACIONES'),
     ('APLAZADO', 'APLAZADO'),
