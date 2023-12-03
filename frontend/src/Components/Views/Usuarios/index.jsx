@@ -1,7 +1,7 @@
 import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
 
 const Usuario = () => {
 
@@ -18,7 +18,6 @@ const Usuario = () => {
 	const [body, setBody] = useState(initialState);
 	const [title, setTitle] = useState('');
     const [showModal, setShowModal] = useState(false);
-	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
     const [isValid, setIsValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');

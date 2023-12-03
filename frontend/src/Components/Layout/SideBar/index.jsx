@@ -28,6 +28,7 @@ const Layout = () => {
 
 	const Menus = [
 		{ title: 'Dashboard', src: `${Chart_fill}`, path: '', token: 0, state: false },
+		{ title: 'Perfil', src: `${Chart}`, path: '/app/perfil', token: ['auxiliar', 'coordinador','consejo','temporal', 'profesor', 'estudiante'], state: false },
 		{ title: 'Usuarios', src: `${Chart}`, path: '/app/usuarios', token: ['auxiliar', 'coordinador'], state: false },
 		{ title: 'Propuestas', src: `${Folder}`, path: '/app/propuestas', token: ['profesor'], state: false },
 		{ title: 'PropuestasT', src: `${Folder}`, path: '/app/propuestasT', token: ['temporal'], state: false },

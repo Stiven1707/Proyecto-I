@@ -173,6 +173,7 @@ const Anteproyecto = () => {
             setIsValid(false);
             return false;
         }
+        console.log(fileData);
 
         if(fileData.length === 0){
             setIsValid(false);

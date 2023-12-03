@@ -3,6 +3,8 @@ import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faEdit, faTrash, faCirclePlus  } from '@fortawesome/free-solid-svg-icons';
+import { apiRoute } from "../../config";
+
 
 const TrabajoDeGrado = () => {
 
@@ -31,6 +33,7 @@ const TrabajoDeGrado = () => {
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
+    const [isDateValid, setIsDateValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
 
@@ -39,7 +42,7 @@ const TrabajoDeGrado = () => {
 
     const getAnteproyectos = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/anteproyectos/',{
+		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -58,7 +61,7 @@ const TrabajoDeGrado = () => {
 
     const getTrabajoDeGrado = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/trabajosdegrado/',{
+		const { data } = await axios.get(`${apiRoute}trabajosdegrado/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -78,7 +81,7 @@ const TrabajoDeGrado = () => {
 
     const getParticipantes = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get('http://127.0.0.1:8000/api/user/',{
+		const { data } = await axios.get(`${apiRoute}user/`,{
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -132,7 +135,7 @@ const TrabajoDeGrado = () => {
                 IdDocumentos = [];
 
                 const promises = fileData.map((file) => {
-                    return axios.post('http://127.0.0.1:8000/api/documentos/', file, {
+                    return axios.post(`${apiRoute}documentos/`, file, {
                         headers: {
                             Authorization: `Bearer ${token}`,
                             'Content-Type': 'multipart/form-data',
@@ -169,7 +172,7 @@ const TrabajoDeGrado = () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         setShowModal(false);
         axios
-            .post('http://127.0.0.1:8000/api/trabajosdegrado/', body, {
+            .post(`${apiRoute}trabajosdegrado/`, body, {
                 headers: {
                     Authorization: `Bearer ${token}`,
                 },
@@ -191,7 +194,7 @@ const TrabajoDeGrado = () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
         console.log('Datos a editar: ', body);
-        axios.put(`http://127.0.0.1:8000/api/trabajosdegrado/${body.anteproyecto.id}/`, body, {
+        axios.put(`${apiRoute}trabajosdegrado/${body.anteproyecto.id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -205,10 +208,34 @@ const TrabajoDeGrado = () => {
         })
     }
 
+    const comprobarFecha = async () => {
+        const fechaInicio = new Date(body.fechaInicio);
+        const fechaFin = new Date(body.fechaFin);
+        var quinceDiasAntes = new Date(fechaFin);
+        quinceDiasAntes.setDate(fechaFin.getDate() - 15);
+
+        // Calcular la diferencia en años y meses
+        const diffYears = fechaFin.getFullYear() - fechaInicio.getFullYear();
+        const diffMonths = fechaFin.getMonth() - fechaInicio.getMonth();
+
+        // Convertir la diferencia a meses totales
+        const mesesTotales = diffYears * 12 + diffMonths;
+
+        /* console.log('fecha valida: ', mesesTotales === 6);
+        console.log('fecha valida 2: ', quinceDiasAntes);
+        console.log('fecha valida 3: ', new Date());
+        console.log('fecha valida 4: ', new Date() <= quinceDiasAntes); */
+        if (mesesTotales === 6 && (new Date() <= quinceDiasAntes)){
+            setIsDateValid(true)
+        }else{
+            setIsDateValid(false)
+        }
+    }
+
     const onDelete = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 
-        axios.delete(`http://127.0.0.1:8000/api/trabajosdegrado/${idDelete}/`, {
+        axios.delete(`${apiRoute}trabajosdegrado/${idDelete}/`, {
             headers: {
                 'Authorization': `Bearer ${token}`
             }
@@ -248,14 +275,6 @@ const TrabajoDeGrado = () => {
                                     }}>Buscar</button>
                                 </div>
                             </div>
-                            <button className='px-4 py-2 bg-gray-700 text-white'  onClick={() => {
-                                    setTitle('Crear')
-                                    setBody(initialState)
-                                    setIsEdit(false)
-                                    setIsValid(true)
-                                    setShowModal(true)}}>
-                                    <FontAwesomeIcon icon={faCirclePlus} /> Nuevo
-                            </button>
                         </div>
                 </div>
                 <table className="sticky w-full text-sm text-left text-gray-500 dark:text-gray-400">
@@ -265,14 +284,15 @@ const TrabajoDeGrado = () => {
                             <th scope='col' className='border px-6 py-3'>Profesores</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documentos</th>
-                            <th scope='col' className='border px-6 py-3'>Fecha recepcion</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha inicio</th>
+                            <th scope='col' className='border px-6 py-3'>Fecha fin</th>
                             <th scope='col' className='border px-6 py-3'>Fecha sustentacion</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
                             <th scope='col' className='border px-6 py-3'>Acciones</th>
-
                         </tr>
                     </thead>
                     <tbody>
+                        {console.log(trabajoDeGradoList)}
                     {trabajoDeGradoList.map((trabajoDeGrado)=>(
                         <tr key={trabajoDeGrado.trag.antp.id}>
                             {console.log('Trabajop de grado2: ',trabajoDeGrado)}
@@ -298,22 +318,24 @@ const TrabajoDeGrado = () => {
                                 {`${doc.doc.doc_nombre.substr(0,12)}.pdf`}
                             </a></p>
                             })}</td>
-                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_recepcion}</td>
+                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_inicio}</td>
+                            <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_fin}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        setBody(trabajoDeGrado)
+                                        console.log(trabajoDeGrado);
+                                        setBody({
+                                            trag_titulo: trabajoDeGrado.trag.antp.antp_titulo,
+                                            trag_estado: trabajoDeGrado.trag.trag_estado,
+                                            fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
+                                            fechaFin: trabajoDeGrado.trag.trag_fecha_fin,
+                                        })
+                                        comprobarFecha()
                                         setTitle('Modificar')
                                         addPropertyToBody('user', datosUsuario.user_id)
-                                        addPropertyToBody('antp_titulo', trabajoDeGrado.anteproyecto.antp_titulo)
-                                        addPropertyToBody('antp_descripcion', trabajoDeGrado.anteproyecto.antp_descripcion)
-                                        addPropertyToBody('antp_modalidad', trabajoDeGrado.anteproyecto.antp_modalidad)
-                                        addPropertyToBody('antp', trabajoDeGrado.anteproyecto.antp_modalidad)
-                                        trabajoDeGrado.usuarios.filter((usuario) => usuario.user.rol && usuario.user.rol.rol_nombre === 'estudiante').map((usuario, index)=>(
-                                            addPropertyToBody(`estudiante${index+1}`, usuario.user.id)
-                                        ))
+                                        
                                         setIsValid(true)
                                         setIsEdit(true)
                                         setShowModal(true);}}
@@ -347,25 +369,28 @@ const TrabajoDeGrado = () => {
                             <div className="px-6 py-6 lg:px-8">
                                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">{title} trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
-                                    <div>
-                                        <label htmlFor="antp" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Anteproyecto</label>
-                                        <select
-                                                name="antp"
-                                                className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
-                                                value={body.antp}
-                                                onChange={(e)=>{
-                                                    onChange(e)
-                                                }}
-                                                >
-                                                    <option value={0}>Seleccionar anteproyecto</option>
-                                                        {anteproyectoList.map(anteproyecto => {
-                                                            if(anteproyecto.seguimientos[anteproyecto.seguimientos.length-1].seg.seg_estado === 'Aprobado'){
-                                                            return <option key={anteproyecto.anteproyecto.id} value={anteproyecto.anteproyecto.id}>{anteproyecto.anteproyecto.antp_titulo}</option>
-                                                            }
-                                                            return null
-                                            })} 
-                                            </select>
-                                    </div>
+                                <div>
+                      <label
+                        htmlFor="seg_estado"
+                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+                      >
+                        Estado
+                      </label>
+                      <select
+                        name="trag_estado"
+                        className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        value={body.trag_estado}
+                        onChange={(e) => {
+                          onChange(e);
+                        }}
+                      >
+                        <option value="ACTIVO" disabled>Seleccione una opcion</option>
+                        {isDateValid?
+                        <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
+                        : null}
+                        <option value="PENDIENTE">Solicitar Horario de Sustentación</option>
+                      </select>
+                    </div>
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
                                         <input

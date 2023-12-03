@@ -2,6 +2,7 @@ import React from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import Dashboard from "../Views/Dashboard";
 import SideBar from "../Layout/SideBar";
+import Account from '../Views/Account'
 import PropuestaTesis from "../Views/PropuestaTesis";
 import PropuestaTesisTemporal from "../Views/PropuestaTesisTemporal";
 import PropuestaTesisEstudiante from "../Views/PropuestaTesisEstudiante";
@@ -34,6 +35,7 @@ const Layout = () => {
             <div className="flex-1 p-7 overflow-y-auto overflow-x-auto">
                 <Routes>
 					<Route path="/" element={<Dashboard />} />
+					<Route path="/perfil" element={comprobarAcceso(['auxiliar', 'coordinador','consejo','temporal', 'profesor', 'estudiante'])? <Account /> : <Navigate to="/app" /> }/>
 					<Route path="/usuarios" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Usuarios /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestas" element={comprobarAcceso(['profesor'])? <PropuestaTesis /> : <Navigate to="/app" /> }/>
 					<Route path="/propuestasT" element={comprobarAcceso(['temporal'])? <PropuestaTesisTemporal /> : <Navigate to="/app" /> }/>
