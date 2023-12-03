@@ -24,7 +24,9 @@ from django.conf.urls.static import static
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('api.urls')), # new
-    path('docs/', include_docs_urls(title='Documentación API', public=True)), # new
+    
 ]
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    urlpatterns += [path('docs/', include_docs_urls(title='Documentación API', public=True)), ]
+
