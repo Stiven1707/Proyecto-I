@@ -54,7 +54,7 @@ const PropuestaTesisE = () => {
                         <tr>
                             <th scope='col' className='border px-6 py-3'>Titulo</th>
                             <th scope='col' className='border px-6 py-3'>Objetivos</th>
-                            <th scope='col' className='border px-6 py-3'>Coordiandor</th>
+                            <th scope='col' className='border px-6 py-3'>Director</th>
                             <th scope='col' className='border px-6 py-3'>Estudiantes</th>
                             <th scope='col' className='border px-6 py-3'>Documento</th>
                             <th scope='col' className='border px-6 py-3'>Estado</th>
