@@ -11,7 +11,10 @@ urlpatterns = [
     path('user/<int:pk>/', views.ActualizarUsuarioView.as_view(), name='user_update'),
     path('user/rol/<int:pk>/', views.UserRolList.as_view(), name='user-list'),
     path('rol/', views.RolList.as_view(), name='rol-list'),
-    path('profile/update/<int:pk>/', views.ProfileRetrieveUpdateAPIView.as_view(), name='profile_update'),
+    # URL para ver el perfil (solo lectura)
+    path('profile/<int:pk>', views.ProfileRetrieveAPIView.as_view(), name='profile-retrieve'),
+    # URL para actualizar el perfil
+    path('profile/update/<int:pk>/', views.ProfileUpdateAPIView.as_view(), name='profile_update'),
     path('propuestas/', views.PropuestaListCreate.as_view(), name='propuestas'),
     path('propuestas/<int:pk>/', views.PropuestaDetail.as_view(), name='propuesta-detail'),
 ]+[
