@@ -76,7 +76,7 @@ class Profile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
     full_name = models.CharField(max_length=1000)
     bio = models.TextField(max_length=100, blank=True)
-    img = models.ImageField(upload_to="user_images", default="default.jpg", blank=True)
+    img = models.ImageField(upload_to="user_images", default="default.png", blank=True)
     verified = models.BooleanField(default=False)
     
     def __str__(self):
