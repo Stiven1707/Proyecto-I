@@ -726,6 +726,8 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
                     print("documento: ", documento)
                     # agrego en una lista de documentos
                     documentos.append(documento)
+        else:
+            raise serializers.ValidationError("Debe enviar los documentos")
           
         # buscar los users
         if user_ids:
@@ -737,6 +739,9 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
                     print("usuario: ", usuario)
                     # agrego en una lista de usuarios
                     usuarios.append(usuario)
+        else:
+            raise serializers.ValidationError("Debe enviar los usuarios")
+        
         # buacar en la tabla intermedia TragSoporteDoc
         documentos_TragSoporteDoc = TragSoporteDoc.objects.filter(trag=instance)
         # buacar en la tabla intermedia UserRealizaTrag
