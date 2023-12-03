@@ -288,7 +288,7 @@ const TrabajoDeGrado = () => {
                                         console.log(trabajoDeGrado);
                                         setBody({
                                             user: datosUsuario.user_id,
-                                            trag_id: trabajoDeGrado.trag.trag_id,
+                                            trag_id: trabajoDeGrado.trag.id,
                                             trag_titulo: trabajoDeGrado.trag.antp.antp_titulo,
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
                                             fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
