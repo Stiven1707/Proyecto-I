@@ -28,8 +28,9 @@ class User(AbstractUser):
     def save(self, *args, **kwargs):
         if not self.rol:
             if self.is_superuser:
-                # Lista de roles a crear si no existen
+                # Lista de roles a crear si no existen, el usuario admin tambien
                 roles_to_create = [
+                    {'nombre': 'admin', 'descripcion': 'Administrador del sistema de gestion de usuarios'},
                     {'nombre': 'coordinador', 'descripcion': 'Coordinador del programa Sistemas'},
                     {'nombre': 'auxiliar', 'descripcion': 'Secretaria...'},
                     {'nombre': 'consejo', 'descripcion': 'Consejo de la FIET'},
@@ -43,8 +44,8 @@ class User(AbstractUser):
                     if not rol:
                         Rol.objects.create(rol_nombre=rol_info['nombre'], rol_descripcion=rol_info['descripcion'])
 
-                coordinador_role = Rol.objects.get(rol_nombre='coordinador')
-                self.rol = coordinador_role
+                admin_role = Rol.objects.get(rol_nombre='admin')
+                self.rol = admin_role
 
         super().save(*args, **kwargs)
     
