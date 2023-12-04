@@ -366,10 +366,11 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
         return instance
 
 class HistorialTragSerializer(serializers.ModelSerializer):
-
+    trag = TrabajoDeGradoSerializer(read_only=True)
     class Meta:
         model = HistorialEstadoTrag
         fields = '__all__'
+        depth = 1
     
     
 
