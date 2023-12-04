@@ -220,7 +220,7 @@ class TrabajoGrado(models.Model):
     #new fechas para el rango de tiempo sugerido maximo para sustentar el trabajo de grado
     trag_fecha_sustentacion_min = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion_max = models.DateField(blank=True, null=True)
-    trag_fecha_sustentacion = models.DateField(blank=True, null=True)
+    trag_fecha_sustentacion = models.DateTimeField(blank=True, null=True)
     # los estados que puede tener son ACTIVO, SOLICITUD FECHA,JURADOS ASIGNADOS, SUSTENTACION ASIGNADA, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO APROBADA; CANCELACION RECHAZADA,SOLICITAR CANCELACION, prórroga solicitada, prórroga aprobada, prórroga no aprobada
     ESTADOS = (
     ('ACTIVO', 'ACTIVO'),
