@@ -38,14 +38,7 @@ const TrabajoDeGradoConsejo = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        if (datosUsuario.rol === 'profesor'){
-            const entradaConIdEspecifico = data.filter(entry => {
-                // Verificar si el id buscado está presente en el array de usuarios
-                return entry.users.some(usuario => usuario.user.id === datosUsuario.user_id);
-            });
-            setTrabajoDeGradoList(entradaConIdEspecifico)
-
-        }else{
+        if (datosUsuario.rol === 'consejo'){
             setTrabajoDeGradoList(data)
         }
 	}
@@ -123,21 +116,28 @@ const TrabajoDeGradoConsejo = () => {
     };
 
     const checking = () => {
-        if (isDateValid && (body.trag_estado === 'ACTIVO' || body.trag_estado === 'PRÓRROGA NO APROBADA' || body.trag_estado === 'CANCELACION NO APROBADA')) {
+        if (isDateValid && (body.trag_estado === 'SOLICITUD FECHA' || body.trag_estado === 'PRÓRROGA SOLICITADA' || body.trag_estado === 'SOLICITAR CANCELACION')) {
             setShowMensaje('Por favor seleccione una opcion');
             setIsValid(false);
             return false;
         }
-        if (body.trag_estado === 'SOLICITUD FECHA' && fileData.length < 3) {
-            setShowMensaje('Por favor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+        if (body.trag_estado === 'JURADOS ASIGNADOS') {
+            if (body.juradoC === '' ) {
+                setShowMensaje('Por favor seleccione al jurado Coordinador');
+                setIsValid(false);
+                return false;
+            }
+            if (body.juradoA === '') {
+                setShowMensaje('Por favor seleccione al segundo jurado');
+                setIsValid(false);
+                return false;
+            }
+        }else if((body.trag_estado === 'PRÓRROGA APROBADA' || body.trag_estado === 'PRÓRROGA NO APROBADA') && fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento respuesta solucitud prorroga');
             setIsValid(false);
             return false;
-        }else if(body.trag_estado === 'PRÓRROGA SOLICITADA' && fileData.length < 1){
-            setShowMensaje('Por favor, seleccione el documento de prorroga');
-            setIsValid(false);
-            return false;
-        }else if(body.trag_estado === 'SOLICITAR CANCELACION' && fileData.length < 1){
-            setShowMensaje('Por favor, seleccione el documento de prorroga');
+        }else if((body.trag_estado === 'CANCELACION APROBADA' || body.trag_estado === 'CANCELACION NO APROBADA') && fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento respuesta solucitud cancelacion');
             setIsValid(false);
             return false;
         }
@@ -307,6 +307,17 @@ const TrabajoDeGradoConsejo = () => {
                             {isDateValid?
                             <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
                             : null}
+                            {['PRÓRROGA SOLICITADA', 'PRÓRROGA APROBADA', 'PRÓRROGA NO APROBADA', 'SOLICITUD FECHA', 'JURADOS ASIGNADOS', 'SOLICITAR CANCELACION', 'CANCELACION APROBADA', 'CANCELACION NO APROBADA'].map((estado)=> {
+                                if((body.trag_estado === 'PRÓRROGA SOLICITADA' || body.trag_estado === 'PRÓRROGA APROBADA'|| body.trag_estado === 'PRÓRROGA NO APROBADA') && (estado === 'PRÓRROGA SOLICITADA' || estado === 'PRÓRROGA APROBADA'|| estado === 'PRÓRROGA NO APROBADA')){
+                                    return <option value={estado} disabled={estado === 'PRÓRROGA SOLICITADA'}>{`${estado}`}</option>
+                                }else if((body.trag_estado === 'SOLICITUD FECHA' || body.trag_estado === 'JURADOS ASIGNADOS') && (estado === 'SOLICITUD FECHA' || estado === 'JURADOS ASIGNADOS')){
+                                    return <option value={estado} disabled={estado === 'SOLICITUD FECHA'}>{`${estado}`}</option>
+                                }else  if((body.trag_estado === 'SOLICITAR CANCELACION' || body.trag_estado === 'CANCELACION APROBADA'|| body.trag_estado === 'CANCELACION NO APROBADA') && (estado === 'PRÓRROGA SOLICITADA' || estado === 'CANCELACION APROBADA'|| estado === 'CANCELACION NO APROBADA')){
+                                    return <option value={estado} disabled={estado === 'SOLICITAR CANCELACION'}>{`${estado}`}</option>
+                                }
+                                return 1
+                            })}
+                            {body.trag_estado === 'SOLICITUD FECHA'}
                             <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
                             <option value="SOLICITAR CANCELACION">Solicitar Cancelacion</option>
                         </select>
@@ -321,7 +332,6 @@ const TrabajoDeGradoConsejo = () => {
                                             placeholder={body.eva_evidencia}
                                             onChange={saveFiles} // Pasa la función como manejador de eventos
                                             required
-                                            multiple
                                             />
                                     </div>
                                     {isEdit && Array.isArray(body.documentos)? 
