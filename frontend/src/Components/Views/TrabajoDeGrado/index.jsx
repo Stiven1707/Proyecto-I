@@ -36,25 +36,6 @@ const TrabajoDeGrado = () => {
 
     let fileData = [];
 
-    const getAnteproyectos = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        console.log('data: ', data);
-        if (datosUsuario.rol === 'profesor'){
-            const entradaConIdEspecifico = data.filter(entry => {
-                // Verificar si el id buscado está presente en el array de usuarios
-                return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
-            });
-            setAnteproyectoList(entradaConIdEspecifico)
-            console.log(entradaConIdEspecifico);
-            console.log(anteproyectoList);
-        }
-	}
-
     const getTrabajoDeGrado = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
 		const { data } = await axios.get(`${apiRoute}trabajosdegrado/`,{
@@ -65,6 +46,7 @@ const TrabajoDeGrado = () => {
         console.log('Trabajos de grado: ', data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
+                console.log('Entry',entry);
                 // Verificar si el id buscado está presente en el array de usuarios
                 return entry.users.some(usuario => usuario.user.id === datosUsuario.user_id);
             });
@@ -91,9 +73,8 @@ const TrabajoDeGrado = () => {
 
     useEffect(()=>{
         getTrabajoDeGrado();
-		getAnteproyectos();
         getParticipantes();
-        comprobarFecha()}, [isDateValid, body])
+        comprobarFecha()}, [isDateValid])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -288,7 +269,7 @@ const TrabajoDeGrado = () => {
                                         console.log(trabajoDeGrado);
                                         setBody({
                                             user: datosUsuario.user_id,
-                                            trag_id: trabajoDeGrado.trag.trag_id,
+                                            trag_id: trabajoDeGrado.trag.id,
                                             trag_titulo: trabajoDeGrado.trag.antp.antp_titulo,
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
                                             fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
