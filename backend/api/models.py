@@ -221,9 +221,12 @@ class TrabajoGrado(models.Model):
     trag_fecha_sustentacion_min = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion_max = models.DateField(blank=True, null=True)
     trag_fecha_sustentacion = models.DateField(blank=True, null=True)
-    # los estados que puede tener son PENDIENTE, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO, prórroga solicitada, prórroga aprobada, prórroga no aprobada
+    # los estados que puede tener son ACTIVO, SOLICITUD FECHA,JURADOS ASIGNADOS, SUSTENTACION ASIGNADA, APROBADO, APROBADO CON OBSERVACIONES, APLAZADO,NO APROBADO, CANCELADO, prórroga solicitada, prórroga aprobada, prórroga no aprobada
     ESTADOS = (
-    ('PENDIENTE', 'PENDIENTE'),
+    ('ACTIVO', 'ACTIVO'),
+    ('SOLICITUD FECHA', 'SOLICITUD FECHA'),
+    ('JURADOS ASIGNADOS', 'JURADOS ASIGNADOS'),
+    ('SUSTENTACION ASIGNADA', 'SUSTENTACION ASIGNADA'),
     ('PRÓRROGA SOLICITADA', 'PRÓRROGA SOLICITADA'),
     ('PRÓRROGA APROBADA', 'PRÓRROGA APROBADA'),
     ('PRÓRROGA NO APROBADA', 'PRÓRROGA NO APROBADA'),
@@ -232,7 +235,7 @@ class TrabajoGrado(models.Model):
     ('APLAZADO', 'APLAZADO'),
     ('NO APROBADO', 'NO APROBADO'),
     ('CANCELADO', 'CANCELADO'),)
-    trag_estado = models.CharField(max_length=45, default="PENDIENTE", blank=True)
+    trag_estado = models.CharField(max_length=45, choices=ESTADOS, default="ACTIVO", blank=True)
     antp = models.OneToOneField(AnteProyecto, on_delete=models.CASCADE, related_name='trabajos_grado')
     jurados = models.ManyToManyField(User, related_name='trabajos_grado_jurados', blank=True)
     
