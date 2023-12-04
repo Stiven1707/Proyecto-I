@@ -8,10 +8,12 @@ from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework_simplejwt.views import TokenObtainPairView
 from rest_framework.response import Response
+from rest_framework import permissions
 from django.utils import timezone
 from datetime import date, datetime
 from rest_framework.exceptions import ValidationError
 from django.http import QueryDict
+from .permissions import IsOwnerOrReadOnly
 
 
 
@@ -65,14 +67,22 @@ def dashboard(request):
         return Response({'response': response}, status=status.HTTP_200_OK)
     return Response({}, status=status.HTTP_400_BAD_REQUEST)
 
-class ProfileRetrieveUpdateAPIView(generics.RetrieveUpdateAPIView):
-    
+
+
+
+class ProfileRetrieveAPIView(generics.RetrieveAPIView):
     serializer_class = ProfileSerializer
-    permission_classes = ([IsAuthenticated])
+    permission_classes = [IsOwnerOrReadOnly]
 
     def get_queryset(self):
-        #return self.get_serializer().Meta.model.objects.filter(state = True)
-        return self.get_serializer().Meta.model.objects.filter(user=self.request.user)
+        return Profile.objects.all()
+
+class ProfileUpdateAPIView(generics.RetrieveUpdateAPIView):
+    serializer_class = ProfileSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return Profile.objects.filter(user=self.request.user)
 
 class PropuestaListCreate(generics.ListCreateAPIView):
     serializer_class = PropuestaSerializer
@@ -716,6 +726,8 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
                     print("documento: ", documento)
                     # agrego en una lista de documentos
                     documentos.append(documento)
+        else:
+            raise serializers.ValidationError("Debe enviar los documentos")
           
         # buscar los users
         if user_ids:
@@ -727,6 +739,9 @@ class TrabajoDeGradoDetail(generics.RetrieveUpdateDestroyAPIView):
                     print("usuario: ", usuario)
                     # agrego en una lista de usuarios
                     usuarios.append(usuario)
+        else:
+            raise serializers.ValidationError("Debe enviar los usuarios")
+        
         # buacar en la tabla intermedia TragSoporteDoc
         documentos_TragSoporteDoc = TragSoporteDoc.objects.filter(trag=instance)
         # buacar en la tabla intermedia UserRealizaTrag
