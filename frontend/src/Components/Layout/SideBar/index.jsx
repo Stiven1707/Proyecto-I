@@ -40,7 +40,11 @@ const Layout = () => {
 		{ title: 'AnteproyectoC', src: `${Chat}`, path: '/app/anteproyectosC', token: ['consejo'], state: false },
 		{ title: 'Seguimiento', src: `${Calendar}`, path: '/app/seguimiento', token: ['auxiliar', 'coordinador'], state: false },
 		{ title: 'Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegrado', token: ['profesor'], state: false },
+		{ title: 'Trabajo de Grado T', src: `${setting}`, path: '/app/trabajodegradoT', token: ['temporal'], state: false },
+		{ title: 'Trabajo de Grado E', src: `${setting}`, path: '/app/trabajodegradoE', token: ['estudiante'], state: false },
+		{ title: 'Seg. Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegradoC', token: ['consejo'], state: false },
 		{ title: 'Evaluar Anteproyectos', src: `${Chat}`, path: '/app/anteproyectosJ', token: ['profesor'], state: false },
+		{ title: 'Evaluar Trabajo de Grado', src: `${setting}`, path: '/app/trabajodegradoJ', token: ['profesor'], state: false },
 		{ title: 'Log out', src: `${Logout}`, gap: true, path: handleLogout, token: 0, state: false },
 	];
 

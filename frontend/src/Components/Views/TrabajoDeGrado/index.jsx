@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit  } from '@fortawesome/free-solid-svg-icons';
 import { apiRoute } from "../../config";
 
 
@@ -19,20 +19,15 @@ const TrabajoDeGrado = () => {
 	}
 
     const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
-    const [anteproyectoList, setAnteproyectoList] = useState([]);
-    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
     const [showModal, setShowModal] = useState(false);
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
-    //const [isFound, setIsFound] = useState(false);
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
     const [isDateValid, setIsDateValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
-
-
 
     let fileData = [];
 
@@ -43,10 +38,8 @@ const TrabajoDeGrado = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Trabajos de grado: ', data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
-                console.log('Entry',entry);
                 // Verificar si el id buscado está presente en el array de usuarios
                 return entry.users.some(usuario => usuario.user.id === datosUsuario.user_id);
             });
@@ -74,7 +67,7 @@ const TrabajoDeGrado = () => {
     useEffect(()=>{
         getTrabajoDeGrado();
         getParticipantes();
-        comprobarFecha()}, [isDateValid])
+        comprobarFecha()}, [isDateValid, body])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -82,15 +75,8 @@ const TrabajoDeGrado = () => {
             ...body,
             [name]: value
         });
-        //setSelectedPeriodo(value !== "");
     };
 
-/*     const isWorking = () => {
-        if (body.estudiantes.find((id) => id === estudiantes.id)) {
-            console.log('Es estudiante ya esta en un anteproyecto');
-        }else{
-        }
-    } */
 
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
@@ -128,7 +114,7 @@ const TrabajoDeGrado = () => {
                 });
         }
         
-            body.doc = IdDocumentos;
+            body.doc_ids = IdDocumentos;
             onEdit()
             
         } catch (error) {
@@ -137,15 +123,17 @@ const TrabajoDeGrado = () => {
     };
 
     const checking = () => {
-        if (isDateValid && (body.trag_estado === 'ACTIVO')) {
+        if (isDateValid && (body.trag_estado === 'ACTIVO' || body.trag_estado === 'PRÓRROGA NO APROBADA')) {
             setShowMensaje('Por favor seleccione una opcion');
             setIsValid(false);
             return false;
-        }else{
-            body.trag_estado = 'PENDIENTE'
         }
-        if (fileData.length < 3) {
-            setShowMensaje('Por gavor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+        if (body.trag_estado === 'SOLICITUD FECHA' && fileData.length < 3) {
+            setShowMensaje('Por favor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+            setIsValid(false);
+            return false;
+        }else if(fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento de prorroga');
             setIsValid(false);
             return false;
         }
@@ -158,7 +146,12 @@ const TrabajoDeGrado = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        console.log('Datos a editar: ', body);
+        let user_ids = []
+        body.users.map((user)=>{
+            user_ids.push(parseInt(user.user.id))
+            return 1
+        })
+        body.user_ids = user_ids
         axios.patch(`${apiRoute}trabajosdegrado/${body.trag_id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -186,10 +179,6 @@ const TrabajoDeGrado = () => {
         // Convertir la diferencia a meses totales
         const mesesTotales = diffYears * 12 + diffMonths;
 
-        /* console.log('fecha valida: ', mesesTotales === 6);
-        console.log('fecha valida 2: ', quinceDiasAntes);
-        console.log('fecha valida 3: ', new Date());
-        console.log('fecha valida 4: ', new Date() <= quinceDiasAntes); */
         if (mesesTotales === 6 && (new Date() <= quinceDiasAntes)){
             setIsDateValid(true)
         }else{
@@ -233,10 +222,8 @@ const TrabajoDeGrado = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {console.log(trabajoDeGradoList)}
                     {trabajoDeGradoList.map((trabajoDeGrado)=>(
-                        <tr key={trabajoDeGrado.trag.antp.id}>
-                            {console.log('Trabajop de grado2: ',trabajoDeGrado)}
+                        <tr key={trabajoDeGrado.trag.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{
                             
@@ -264,9 +251,10 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
+                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA'? 
+                                
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        console.log(trabajoDeGrado);
                                         setBody({
                                             user: datosUsuario.user_id,
                                             trag_id: trabajoDeGrado.trag.id,
@@ -274,6 +262,7 @@ const TrabajoDeGrado = () => {
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
                                             fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
                                             fechaFin: trabajoDeGrado.trag.trag_fecha_fin,
+                                            users: trabajoDeGrado.users
                                         })
                                         comprobarFecha()                                     
                                         setIsValid(true)
@@ -283,6 +272,7 @@ const TrabajoDeGrado = () => {
                                         <FontAwesomeIcon icon={faEdit} /> 
                                     </button>    
                                 </div>
+                                : null}
                             </td> 
                         </tr>
                     ))}
@@ -320,11 +310,11 @@ const TrabajoDeGrado = () => {
                         {isDateValid?
                         <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
                         : null}
-                        <option value="PENDIENTE">Solicitar Horario de Sustentación</option>
+                        <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
                       </select>
                     </div>
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documentos</label>
                                         <input
                                             type="file"
                                             name="eva_evidencia"

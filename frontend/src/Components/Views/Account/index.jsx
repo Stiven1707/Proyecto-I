@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { apiRoute } from "../../config";
@@ -13,19 +13,28 @@ const Account = () => {
 
     const initialState = {
         user: datosUsuario.user_id,
-        estudiante1: '',
-        estudiante2: '',
-        estudiantes: [],
-        profesores: [],
-        coprofesor: '',
-        antp_titulo: "",
-        antp_descripcion: "",
-        Documentos: [],
-        antp_modalidad:""
+        bio: '',
+        full_name: '',
+        img: ''
 	}
 
     const [body, setBody] = useState(initialState)
     const [showMensaje, setShowMensaje] = useState(false);
+
+
+    const getPerfil = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+		const { data } = await axios.get(`${apiRoute}profile/${datosUsuario.user_id}`,{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log('Trabajos de grado: ', data);
+        setBody(data)
+	}
+
+    useEffect(()=>{
+        getPerfil();}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -41,6 +50,7 @@ const Account = () => {
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
         const selectedFiles = event.target.files;
+        body.img = selectedFiles[0]
         // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
         // Recorrer la lista de archivos y agregar los datos al arreglo
@@ -55,9 +65,11 @@ const Account = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         console.log('Datos a editar: ', body);
-        axios.put(`${apiRoute}anteproyectos/${body.anteproyecto.id}/`, body, {
+        alert('Hola')
+        axios.patch(`${apiRoute}profile/update/${body.user}/`, body, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
             }
         })
         .then(() => {
@@ -75,7 +87,7 @@ const Account = () => {
                 <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12 text-center">Perfil</h1>
                 <form className="mt-6">
                 <div className="mt-6">
-                        <img src="" alt="foto_perfil" />
+                        <img src={body.img} alt="foto_perfil" />
                     </div>
                     <div className="mt-6 mb-4">
                         <label className="block">Nombre completo</label>
@@ -101,7 +113,7 @@ const Account = () => {
                                         value={body.password}
                                         onChange={onChange}
                                         name='password'
-                                        required/>
+                                        />
                                     </div>
                                     <div className="mb-4">
                                         <label className="block">Confirmar Contraseña</label>
@@ -110,10 +122,10 @@ const Account = () => {
                                         value={body.password2}
                                         onChange={onChange}
                                         name='password2'
-                                        required/>
+                                        />
                                     </div>
                                     <div className="mb-4">
-                                        <label className="block">Subir Documento</label>
+                                        <label className="block">Subir Imagen</label>
                                         <input
                                             type="file"
                                             name="eva_evidencia"
