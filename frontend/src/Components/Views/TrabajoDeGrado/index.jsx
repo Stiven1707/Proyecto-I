@@ -2,7 +2,7 @@ import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEdit, faTrash  } from '@fortawesome/free-solid-svg-icons';
+import { faEdit  } from '@fortawesome/free-solid-svg-icons';
 import { apiRoute } from "../../config";
 
 
@@ -19,41 +19,17 @@ const TrabajoDeGrado = () => {
 	}
 
     const [trabajoDeGradoList, setTrabajoDeGradoList] = useState([]);
-    const [anteproyectoList, setAnteproyectoList] = useState([]);
-    //const [profesorList, setProfesorList] = useState([]);
 	const [body, setBody] = useState(initialState);
     const [showModal, setShowModal] = useState(false);
 	const [isId, setIsId] = useState('');
 	const [isEdit, setIsEdit] = useState(false);
-    //const [isFound, setIsFound] = useState(false);
     const [profesores, setProfesores] = useState([]);
     const [estudiantes, setEstudiantes] = useState([]);
     const [isValid, setIsValid] = useState(true);
     const [isDateValid, setIsDateValid] = useState(true);
 	const [showMensaje, setShowMensaje] = useState('');
 
-
-
     let fileData = [];
-
-    const getAnteproyectos = async () => {
-        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-		const { data } = await axios.get(`${apiRoute}anteproyectos/`,{
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
-        })
-        console.log('data: ', data);
-        if (datosUsuario.rol === 'profesor'){
-            const entradaConIdEspecifico = data.filter(entry => {
-                // Verificar si el id buscado está presente en el array de usuarios
-                return entry.usuarios.some(usuario => usuario.user.id === datosUsuario.user_id);
-            });
-            setAnteproyectoList(entradaConIdEspecifico)
-            console.log(entradaConIdEspecifico);
-            console.log(anteproyectoList);
-        }
-	}
 
     const getTrabajoDeGrado = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
@@ -62,7 +38,6 @@ const TrabajoDeGrado = () => {
                 'Authorization': `Bearer ${token}`
             }
         })
-        console.log('Trabajos de grado: ', data);
         if (datosUsuario.rol === 'profesor'){
             const entradaConIdEspecifico = data.filter(entry => {
                 // Verificar si el id buscado está presente en el array de usuarios
@@ -91,7 +66,6 @@ const TrabajoDeGrado = () => {
 
     useEffect(()=>{
         getTrabajoDeGrado();
-		getAnteproyectos();
         getParticipantes();
         comprobarFecha()}, [isDateValid, body])
 
@@ -101,15 +75,8 @@ const TrabajoDeGrado = () => {
             ...body,
             [name]: value
         });
-        //setSelectedPeriodo(value !== "");
     };
 
-/*     const isWorking = () => {
-        if (body.estudiantes.find((id) => id === estudiantes.id)) {
-            console.log('Es estudiante ya esta en un anteproyecto');
-        }else{
-        }
-    } */
 
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
@@ -147,7 +114,7 @@ const TrabajoDeGrado = () => {
                 });
         }
         
-            body.doc = IdDocumentos;
+            body.doc_ids = IdDocumentos;
             onEdit()
             
         } catch (error) {
@@ -156,15 +123,21 @@ const TrabajoDeGrado = () => {
     };
 
     const checking = () => {
-        if (isDateValid && (body.trag_estado === 'ACTIVO')) {
+        if (isDateValid && (body.trag_estado === 'ACTIVO' || body.trag_estado === 'PRÓRROGA NO APROBADA' || body.trag_estado === 'CANCELACION NO APROBADA')) {
             setShowMensaje('Por favor seleccione una opcion');
             setIsValid(false);
             return false;
-        }else{
-            body.trag_estado = 'PENDIENTE'
         }
-        if (fileData.length < 3) {
-            setShowMensaje('Por gavor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+        if (body.trag_estado === 'SOLICITUD FECHA' && fileData.length < 3) {
+            setShowMensaje('Por favor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
+            setIsValid(false);
+            return false;
+        }else if(body.trag_estado === 'PRÓRROGA SOLICITADA' && fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento de prorroga');
+            setIsValid(false);
+            return false;
+        }else if(body.trag_estado === 'SOLICITAR CANCELACION' && fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento de prorroga');
             setIsValid(false);
             return false;
         }
@@ -177,7 +150,12 @@ const TrabajoDeGrado = () => {
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
         setShowModal(false);
-        console.log('Datos a editar: ', body);
+        let user_ids = []
+        body.users.map((user)=>{
+            user_ids.push(parseInt(user.user.id))
+            return 1
+        })
+        body.user_ids = user_ids
         axios.patch(`${apiRoute}trabajosdegrado/${body.trag_id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -205,10 +183,6 @@ const TrabajoDeGrado = () => {
         // Convertir la diferencia a meses totales
         const mesesTotales = diffYears * 12 + diffMonths;
 
-        /* console.log('fecha valida: ', mesesTotales === 6);
-        console.log('fecha valida 2: ', quinceDiasAntes);
-        console.log('fecha valida 3: ', new Date());
-        console.log('fecha valida 4: ', new Date() <= quinceDiasAntes); */
         if (mesesTotales === 6 && (new Date() <= quinceDiasAntes)){
             setIsDateValid(true)
         }else{
@@ -252,10 +226,8 @@ const TrabajoDeGrado = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {console.log(trabajoDeGradoList)}
                     {trabajoDeGradoList.map((trabajoDeGrado)=>(
-                        <tr key={trabajoDeGrado.trag.antp.id}>
-                            {console.log('Trabajop de grado2: ',trabajoDeGrado)}
+                        <tr key={trabajoDeGrado.trag.id}>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{trabajoDeGrado.trag.antp.antp_titulo}</td>
                             <td className='border px-6 py-4 font-medium text-sm dark:text-slate-900'>{
                             
@@ -283,9 +255,10 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
+                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA APROBADA' || trabajoDeGrado.trag.trag_estado === 'CANCELACION NO APROBADA'? 
+                                
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
-                                        console.log(trabajoDeGrado);
                                         setBody({
                                             user: datosUsuario.user_id,
                                             trag_id: trabajoDeGrado.trag.id,
@@ -293,6 +266,7 @@ const TrabajoDeGrado = () => {
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
                                             fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
                                             fechaFin: trabajoDeGrado.trag.trag_fecha_fin,
+                                            users: trabajoDeGrado.users
                                         })
                                         comprobarFecha()                                     
                                         setIsValid(true)
@@ -302,6 +276,7 @@ const TrabajoDeGrado = () => {
                                         <FontAwesomeIcon icon={faEdit} /> 
                                     </button>    
                                 </div>
+                                : null}
                             </td> 
                         </tr>
                     ))}
@@ -321,29 +296,30 @@ const TrabajoDeGrado = () => {
                                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Modificar trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                 <div>
-                      <label
-                        htmlFor="seg_estado"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Estado
-                      </label>
-                      <select
-                        name="trag_estado"
-                        className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        <label htmlFor="seg_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Estado</label>
+                        <select name="trag_estado" className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         value={body.trag_estado}
                         onChange={(e) => {
-                          onChange(e);
+                            onChange(e);
                         }}
-                      >
-                        <option value="ACTIVO" disabled>Seleccione una opcion</option>
-                        {isDateValid?
-                        <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
-                        : null}
-                        <option value="PENDIENTE">Solicitar Horario de Sustentación</option>
-                      </select>
+                        >
+                        {console.log(body)}
+                            {body.trag_estado === 'PRÓRROGA NO APROBADA' ? 
+                                <option value="PRÓRROGA NO APROBADA" disabled>Seleccione una opcion</option>
+                            : body.trag_estado === 'CANCELACION NO APROBADA' ? 
+                                <option value="CANCELACION NO APROBADA" disabled>Seleccione una opcion</option>
+                            :
+                                <option value="ACTIVO" disabled>Seleccione una opcion</option>
+                            }
+                            {isDateValid?
+                            <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
+                            : null}
+                            <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
+                            <option value="SOLICITAR CANCELACION">Solicitar Cancelacion</option>
+                        </select>
                     </div>
                                     <div>
-                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documento</label>
+                                        <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documentos</label>
                                         <input
                                             type="file"
                                             name="eva_evidencia"

@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from 'react'
 import axios from 'axios'
 import jwt_decode from "jwt-decode";
 import { apiRoute } from "../../config";
-
-
+import './styles.css';
 
 
 const Account = () => {
@@ -13,19 +12,28 @@ const Account = () => {
 
     const initialState = {
         user: datosUsuario.user_id,
-        estudiante1: '',
-        estudiante2: '',
-        estudiantes: [],
-        profesores: [],
-        coprofesor: '',
-        antp_titulo: "",
-        antp_descripcion: "",
-        Documentos: [],
-        antp_modalidad:""
+        bio: '',
+        full_name: '',
+        img: ''
 	}
 
     const [body, setBody] = useState(initialState)
     const [showMensaje, setShowMensaje] = useState(false);
+
+
+    const getPerfil = async () => {
+        const token = (JSON.parse(localStorage.getItem('authTokens'))).access
+		const { data } = await axios.get(`${apiRoute}profile/${datosUsuario.user_id}`,{
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        console.log('Trabajos de grado: ', data);
+        setBody(data)
+	}
+
+    useEffect(()=>{
+        getPerfil();}, [])
 
     const onChange = ({ target }) => {
         const { name, value } = target
@@ -41,6 +49,7 @@ const Account = () => {
     function saveFiles(event) {
         // Obtener la lista de archivos seleccionados desde el evento
         const selectedFiles = event.target.files;
+        body.img = selectedFiles[0]
         // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
         // Recorrer la lista de archivos y agregar los datos al arreglo
@@ -54,10 +63,10 @@ const Account = () => {
         
     const onEdit = async () => {
         const token = (JSON.parse(localStorage.getItem('authTokens'))).access
-        console.log('Datos a editar: ', body);
-        axios.put(`${apiRoute}anteproyectos/${body.anteproyecto.id}/`, body, {
+        axios.patch(`${apiRoute}profile/update/${body.id}/`, body, {
             headers: {
-                'Authorization': `Bearer ${token}`
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'multipart/form-data',
             }
         })
         .then(() => {
@@ -71,12 +80,16 @@ const Account = () => {
     return (
         <main className="">
             <section className="text-black text-opacity-70 w-full md:max-w-md lg:max-w-full md:mx-auto md:w-1/2 xl:w-3/5 h-screen ">
-            <div className="w-full h-100">
-                <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12 text-center">Perfil</h1>
-                <form className="mt-6">
-                <div className="mt-6">
-                        <img src="" alt="foto_perfil" />
+            <div className="w-full h-100 flex justify-between">
+                <div className='ml-8'>
+                <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12 text-center">Foto de Perfil</h1>
+                <div className="contenedor-imagen">
+                <img src={body.img} alt=""/>
                     </div>
+
+                </div>
+                <form className="mt-6">
+                
                     <div className="mt-6 mb-4">
                         <label className="block">Nombre completo</label>
                         <input type="text" placeholder="Digite su nombre" className="w-full px-4 py-3 rounded-lg  mt-2 border border-gray-600 focus:border-blue-500  focus:outline-none" 
@@ -84,14 +97,14 @@ const Account = () => {
                         value={body.full_name}
                         onChange={onChange}
                         name='full_name'
-                        required/>
+                        />
                     </div>
                     <div className="mb-4">
                                         <label className="block">Biografia</label>
                                             <textarea name='bio' label='bio' id='bio' className="mt-2 border border-gray-600 focus:border-blue-500  text-sm rounded-lg block w-full p-2.5 " placeholder="Digite su biografia"
                                             value={body.bio}
                                             onChange={onChange}
-                                            required
+                                            
                                             />
                                     </div>
                     <div className="mb-4">
@@ -101,7 +114,7 @@ const Account = () => {
                                         value={body.password}
                                         onChange={onChange}
                                         name='password'
-                                        required/>
+                                        />
                                     </div>
                                     <div className="mb-4">
                                         <label className="block">Confirmar Contraseña</label>
@@ -110,10 +123,10 @@ const Account = () => {
                                         value={body.password2}
                                         onChange={onChange}
                                         name='password2'
-                                        required/>
+                                        />
                                     </div>
                                     <div className="mb-4">
-                                        <label className="block">Subir Documento</label>
+                                        <label className="block">Subir Imagen</label>
                                         <input
                                             type="file"
                                             name="eva_evidencia"

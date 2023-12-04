@@ -145,7 +145,12 @@ const AnteproyectoConsejo = () => {
         const token = JSON.parse(localStorage.getItem('authTokens')).access;
         const fechaActual = new Date();
         let fechaFinal = new Date();
-        fechaFinal.setMonth(fechaActual.getMonth() + 6)
+        let mesesAAgregar = 6;
+        let añosAAgregar = Math.floor(mesesAAgregar / 12); // Determinar cuántos años sumar basado en la cantidad de meses
+        mesesAAgregar = mesesAAgregar % 12; // Obtener el resto para los meses
+        
+        fechaFinal.setMonth(fechaActual.getMonth() + mesesAAgregar);
+        fechaFinal.setFullYear(fechaActual.getFullYear() + añosAAgregar);
         let datosTesis = {
             doc: [],
             trag_fecha_inicio: fechaActual.toISOString().split("T")[0],

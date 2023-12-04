@@ -15,6 +15,7 @@ import ValidarAnteproyecto from "../Views/AnteproyectoConsejo";
 import Seguimiento from "./../Views/Seguimiento";
 import Usuarios from "./../Views/Usuarios";
 import TrabajoDeGrado from "../Views/TrabajoDeGrado";
+import TrabajoDeGradoConsejo from "../Views/TrabajoDeGradoConsejo";
 import jwt_decode from "jwt-decode";
 
 const comprobarAcceso = (accesoUsuario) => {
@@ -48,6 +49,10 @@ const Layout = () => {
                     <Route path="/anteproyectosC" element={comprobarAcceso(['consejo'])? <ValidarAnteproyecto/> : <Navigate to="/app" /> }/>
 					<Route path="/seguimiento" element={comprobarAcceso(['auxiliar', 'coordinador'])? <Seguimiento /> : <Navigate to="/app" /> }/>
 					<Route path="/trabajodegrado" element={comprobarAcceso(['profesor'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegradoT" element={comprobarAcceso(['temporal'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegradoC" element={comprobarAcceso(['consejo'])? <TrabajoDeGradoConsejo /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegradoJ" element={comprobarAcceso(['profesor'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
+					<Route path="/trabajodegradoE" element={comprobarAcceso(['estudiante'])? <TrabajoDeGrado /> : <Navigate to="/app" /> }/>
                 </Routes>
             </div>
         </div>
