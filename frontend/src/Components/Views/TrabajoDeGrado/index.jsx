@@ -123,7 +123,7 @@ const TrabajoDeGrado = () => {
     };
 
     const checking = () => {
-        if (isDateValid && (body.trag_estado === 'ACTIVO' || body.trag_estado === 'PRÓRROGA NO APROBADA')) {
+        if (isDateValid && (body.trag_estado === 'ACTIVO' || body.trag_estado === 'PRÓRROGA NO APROBADA' || body.trag_estado === 'CANCELACION NO APROBADA')) {
             setShowMensaje('Por favor seleccione una opcion');
             setIsValid(false);
             return false;
@@ -132,7 +132,11 @@ const TrabajoDeGrado = () => {
             setShowMensaje('Por favor, seleccione los 3 documentos (Trabajo de Grado, Formato Tipo E, Paz y Salvo)');
             setIsValid(false);
             return false;
-        }else if(fileData.length < 1){
+        }else if(body.trag_estado === 'PRÓRROGA SOLICITADA' && fileData.length < 1){
+            setShowMensaje('Por favor, seleccione el documento de prorroga');
+            setIsValid(false);
+            return false;
+        }else if(body.trag_estado === 'SOLICITAR CANCELACION' && fileData.length < 1){
             setShowMensaje('Por favor, seleccione el documento de prorroga');
             setIsValid(false);
             return false;
@@ -251,7 +255,7 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
-                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA'? 
+                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA' || trabajoDeGrado.trag.trag_estado === 'CANCELACION NO APROBADA'? 
                                 
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
@@ -292,26 +296,20 @@ const TrabajoDeGrado = () => {
                                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-white">Modificar trabajo de grado</h3>
                                 <form className="space-y-6" action="#">
                                 <div>
-                      <label
-                        htmlFor="seg_estado"
-                        className="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                      >
-                        Estado
-                      </label>
-                      <select
-                        name="trag_estado"
-                        className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
+                        <label htmlFor="seg_estado" className="block mb-2 text-sm font-medium text-gray-900 dark:text-white" >Estado</label>
+                        <select name="trag_estado" className='bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500'
                         value={body.trag_estado}
                         onChange={(e) => {
-                          onChange(e);
+                            onChange(e);
                         }}
-                      >
-                        <option value="ACTIVO" disabled>Seleccione una opcion</option>
-                        {isDateValid?
-                        <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
-                        : null}
-                        <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
-                      </select>
+                        >
+                            <option value="ACTIVO" disabled>Seleccione una opcion</option>
+                            {isDateValid?
+                            <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
+                            : null}
+                            <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
+                            <option value="SOLICITAR CANCELACION">Solicitar Cancelacion</option>
+                        </select>
                     </div>
                                     <div>
                                         <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Subir Documentos</label>
