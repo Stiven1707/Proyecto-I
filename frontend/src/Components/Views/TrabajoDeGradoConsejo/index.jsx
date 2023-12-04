@@ -89,7 +89,7 @@ const TrabajoDeGradoConsejo = () => {
             const token = JSON.parse(localStorage.getItem('authTokens')).access;
             if (!(Array.isArray(fileData) && fileData.length === 0)) {
 
-                IdDocumentos = [];
+                IdDocumentos = 0;
 
                 const promises = fileData.map((file) => {
                     return axios.post(`${apiRoute}documentos/`, file, {
@@ -102,12 +102,11 @@ const TrabajoDeGradoConsejo = () => {
         
                 await Promise.all(promises).then((results) => {
                     results.forEach((data) => {
-                        IdDocumentos.push(parseInt(data.data.id));
+                        IdDocumentos=data.data.id;
                     });
                 });
         }
         
-            body.doc_ids = IdDocumentos;
             onEdit()
             
         } catch (error) {
@@ -116,6 +115,7 @@ const TrabajoDeGradoConsejo = () => {
     };
 
     const checking = () => {
+        console.log(body);
         if (isDateValid && (body.trag_estado === 'SOLICITUD FECHA' || body.trag_estado === 'PRÓRROGA SOLICITADA' || body.trag_estado === 'SOLICITAR CANCELACION')) {
             setShowMensaje('Por favor seleccione una opcion');
             setIsValid(false);
@@ -142,6 +142,22 @@ const TrabajoDeGradoConsejo = () => {
             return false;
         }
 
+        if(body.trag_estado === 'PRÓRROGA APROBADA'){
+            let fechaInicial= new Date(body.trag_fecha_fin);
+            let fechaFinal = new Date();
+            fechaFinal.setMonth(fechaInicial.getMonth() + 3)
+            body.trag_fecha_fin = fechaFinal.toISOString().split("T")[0]
+        }
+        if(body.trag_estado === 'PRÓRROGA APROBADA'){
+            let fechaMinima = new Date();
+            let fechaMaxima = new Date();
+            fechaMinima.setDate(fechaMinima.getDate() + 7)
+            fechaMaxima.setDate(fechaMinima.getDate() + 21)
+
+            body.trag_fecha_sustentacion_min = fechaMinima;
+            body.trag_fecha_sustentacion_max = fechaMaxima;
+        }
+
         setIsValid(true);
         uploadFiles();
     };
@@ -156,6 +172,15 @@ const TrabajoDeGradoConsejo = () => {
             return 1
         })
         body.user_ids = user_ids
+
+        let idDocs = []
+        body.docs.map((doc)=> {
+            idDocs.push(doc.doc.id)
+            return 1
+        })
+        idDocs.push(parseInt(IdDocumentos))
+        body.doc_ids = idDocs;
+
         axios.patch(`${apiRoute}trabajosdegrado/${body.trag_id}/`, body, {
             headers: {
                 'Authorization': `Bearer ${token}`
@@ -171,19 +196,15 @@ const TrabajoDeGradoConsejo = () => {
     }
 
     const comprobarFecha = async () => {
-        const fechaInicio = new Date(body.fechaInicio);
-        const fechaFin = new Date(body.fechaFin);
-        var quinceDiasAntes = new Date(fechaFin);
-        quinceDiasAntes.setDate(fechaFin.getDate() - 15);
+        const fechaFin = new Date(body.trag_fecha_fin);
+        fechaFin.setHours(0, 0, 0, 0);
 
-        // Calcular la diferencia en años y meses
-        const diffYears = fechaFin.getFullYear() - fechaInicio.getFullYear();
-        const diffMonths = fechaFin.getMonth() - fechaInicio.getMonth();
+        const fechaActual = new Date();
+        fechaActual.setHours(0, 0, 0, 0); 
 
-        // Convertir la diferencia a meses totales
-        const mesesTotales = diffYears * 12 + diffMonths;
-
-        if (mesesTotales === 6 && (new Date() <= quinceDiasAntes)){
+        console.log(fechaFin);
+        console.log(fechaFin < fechaActual);
+        if (fechaActual <= fechaFin){
             setIsDateValid(true)
         }else{
             setIsDateValid(false)
@@ -255,8 +276,6 @@ const TrabajoDeGradoConsejo = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
-                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA' || trabajoDeGrado.trag.trag_estado === 'CANCELACION NO APROBADA'? 
-                                
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
                                         setBody({
@@ -264,9 +283,10 @@ const TrabajoDeGradoConsejo = () => {
                                             trag_id: trabajoDeGrado.trag.id,
                                             trag_titulo: trabajoDeGrado.trag.antp.antp_titulo,
                                             trag_estado: trabajoDeGrado.trag.trag_estado,
-                                            fechaInicio: trabajoDeGrado.trag.trag_fecha_inicio,
-                                            fechaFin: trabajoDeGrado.trag.trag_fecha_fin,
-                                            users: trabajoDeGrado.users
+                                            trag_fecha_inicio: trabajoDeGrado.trag.trag_fecha_inicio,
+                                            trag_fecha_fin: trabajoDeGrado.trag.trag_fecha_fin,
+                                            users: trabajoDeGrado.users,
+                                            docs: trabajoDeGrado.docs
                                         })
                                         comprobarFecha()                                     
                                         setIsValid(true)
@@ -276,7 +296,6 @@ const TrabajoDeGradoConsejo = () => {
                                         <FontAwesomeIcon icon={faEdit} /> 
                                     </button>    
                                 </div>
-                                : null}
                             </td> 
                         </tr>
                     ))}
@@ -303,23 +322,16 @@ const TrabajoDeGradoConsejo = () => {
                             onChange(e);
                         }}
                         >
-                            <option value="ACTIVO" disabled>Seleccione una opcion</option>
-                            {isDateValid?
-                            <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
-                            : null}
                             {['PRÓRROGA SOLICITADA', 'PRÓRROGA APROBADA', 'PRÓRROGA NO APROBADA', 'SOLICITUD FECHA', 'JURADOS ASIGNADOS', 'SOLICITAR CANCELACION', 'CANCELACION APROBADA', 'CANCELACION NO APROBADA'].map((estado)=> {
                                 if((body.trag_estado === 'PRÓRROGA SOLICITADA' || body.trag_estado === 'PRÓRROGA APROBADA'|| body.trag_estado === 'PRÓRROGA NO APROBADA') && (estado === 'PRÓRROGA SOLICITADA' || estado === 'PRÓRROGA APROBADA'|| estado === 'PRÓRROGA NO APROBADA')){
                                     return <option value={estado} disabled={estado === 'PRÓRROGA SOLICITADA'}>{`${estado}`}</option>
                                 }else if((body.trag_estado === 'SOLICITUD FECHA' || body.trag_estado === 'JURADOS ASIGNADOS') && (estado === 'SOLICITUD FECHA' || estado === 'JURADOS ASIGNADOS')){
                                     return <option value={estado} disabled={estado === 'SOLICITUD FECHA'}>{`${estado}`}</option>
-                                }else  if((body.trag_estado === 'SOLICITAR CANCELACION' || body.trag_estado === 'CANCELACION APROBADA'|| body.trag_estado === 'CANCELACION NO APROBADA') && (estado === 'PRÓRROGA SOLICITADA' || estado === 'CANCELACION APROBADA'|| estado === 'CANCELACION NO APROBADA')){
+                                }else  if((body.trag_estado === 'SOLICITAR CANCELACION' || body.trag_estado === 'CANCELACION APROBADA'|| body.trag_estado === 'CANCELACION NO APROBADA') && (estado === 'SOLICITAR CANCELACION' || estado === 'CANCELACION APROBADA'|| estado === 'CANCELACION NO APROBADA')){
                                     return <option value={estado} disabled={estado === 'SOLICITAR CANCELACION'}>{`${estado}`}</option>
                                 }
                                 return 1
                             })}
-                            {body.trag_estado === 'SOLICITUD FECHA'}
-                            <option value="SOLICITUD FECHA">Solicitar Horario de Sustentación</option>
-                            <option value="SOLICITAR CANCELACION">Solicitar Cancelacion</option>
                         </select>
                     </div>
                                     <div>

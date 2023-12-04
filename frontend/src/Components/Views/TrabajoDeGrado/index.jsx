@@ -255,7 +255,7 @@ const TrabajoDeGrado = () => {
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_fecha_sustentacion}</td>
                             <td className='border px-6 py-4'>{trabajoDeGrado.trag.trag_estado}</td>
                             <td className='border px-6 py-4'>
-                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA' || trabajoDeGrado.trag.trag_estado === 'CANCELACION NO APROBADA'? 
+                                {trabajoDeGrado.trag.trag_estado === 'ACTIVO' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA NO APROBADA' || trabajoDeGrado.trag.trag_estado === 'PRÓRROGA APROBADA' || trabajoDeGrado.trag.trag_estado === 'CANCELACION NO APROBADA'? 
                                 
                                 <div className='flex'>
                                     <button className='bg-yellow-400 text-black p-2 px-3 rounded' onClick={() => {
@@ -303,7 +303,14 @@ const TrabajoDeGrado = () => {
                             onChange(e);
                         }}
                         >
-                            <option value="ACTIVO" disabled>Seleccione una opcion</option>
+                        {console.log(body)}
+                            {body.trag_estado === 'PRÓRROGA NO APROBADA' ? 
+                                <option value="PRÓRROGA NO APROBADA" disabled>Seleccione una opcion</option>
+                            : body.trag_estado === 'CANCELACION NO APROBADA' ? 
+                                <option value="CANCELACION NO APROBADA" disabled>Seleccione una opcion</option>
+                            :
+                                <option value="ACTIVO" disabled>Seleccione una opcion</option>
+                            }
                             {isDateValid?
                             <option value="PRÓRROGA SOLICITADA">Solicitar Prórroga</option>
                             : null}
