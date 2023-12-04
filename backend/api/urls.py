@@ -28,5 +28,6 @@ urlpatterns = [
     path('documentos/<int:pk>/', views.DocumentoDetail.as_view(), name='documento-detail'),
     path('trabajosdegrado/', views.UserRealizaTragListCreate.as_view(), name='trabajodegrado-list-create'),
     path('trabajosdegrado/<int:pk>/', views.TrabajoDeGradoDetail.as_view(), name='trabajodegrado-detail'),
+    path('HistorialEstadosTrag/', views.HistorialEstadoTragList.as_view(), name='historialtrag-list'),
 ]
 

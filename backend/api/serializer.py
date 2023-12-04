@@ -1,5 +1,5 @@
 from datetime import date
-from .models import User, Rol, Profile, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, AntpSeguidoSeg, AntpSoporteDoc, TragSoporteDoc, UserParticipaAntp, UserRealizaTrag, UserSigueSeg
+from .models import HistorialEstadoTrag, User, Rol, Profile, Propuesta, AnteProyecto, Seguimiento, Documento, TrabajoGrado, AntpSeguidoSeg, AntpSoporteDoc, TragSoporteDoc, UserParticipaAntp, UserRealizaTrag, UserSigueSeg
 from django.contrib.auth.password_validation import validate_password
 from rest_framework import serializers
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
@@ -364,7 +364,12 @@ class UserParticipaAntpRealizaTragSoporteDocsPOSTSerializador(serializers.ModelS
             TragSoporteDoc.objects.get_or_create(trag=instance, doc=documento)
 
         return instance
-   
+
+class HistorialTragSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = HistorialEstadoTrag
+        fields = '__all__'
     
     
 

@@ -245,6 +245,23 @@ class TrabajoGrado(models.Model):
 
     def __str__(self):
         return self.antp.antp_titulo
+    
+    def save(self, *args, **kwargs):
+        # Verifica si el estado ha cambiado
+        if self.pk:  # Comprueba si ya existe en la base de datos
+            original = TrabajoGrado.objects.get(pk=self.pk)
+            if original.trag_estado != self.trag_estado:
+                HistorialEstado.objects.create(trabajo_grado=self, estado=self.trag_estado)
+        
+        super().save(*args, **kwargs)
+    
+class HistorialEstadoTrag(models.Model):
+    trag = models.ForeignKey('TrabajoGrado', on_delete=models.CASCADE, related_name='historial')
+    trag_estado = models.CharField(max_length=45)
+    fecha_cambio = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-fecha_cambio']  # Esto ordena los cambios por fecha descendente, mostrando el historial más reciente primero    
 
 class TragSoporteDoc(models.Model):
     trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)
