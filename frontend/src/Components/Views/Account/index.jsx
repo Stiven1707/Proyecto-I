@@ -100,8 +100,8 @@ const Account = () => {
                         />
                     </div>
                     <div className="mb-4">
-                                        <label className="block">Biografia</label>
-                                            <textarea name='bio' label='bio' id='bio' className="mt-2 border border-gray-600 focus:border-blue-500  text-sm rounded-lg block w-full p-2.5 " placeholder="Digite su biografia"
+                                        <label className="block">Codigo</label>
+                                            <input name='bio' label='bio' id='bio' className="mt-2 border border-gray-600 focus:border-blue-500  text-sm rounded-lg block w-full p-2.5 " placeholder="Digite su codigo"
                                             value={body.bio}
                                             onChange={onChange}
                                             

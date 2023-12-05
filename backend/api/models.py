@@ -213,6 +213,13 @@ class Seguimiento(models.Model):
 
     def __str__(self):
         return str(self.id) + " - " + self.seg_fecha_recepcion.strftime("%d/%m/%Y")
+class HistorialEstadoTrag(models.Model):
+    trag = models.ForeignKey('TrabajoGrado', on_delete=models.CASCADE, related_name='historial')
+    trag_estado = models.CharField(max_length=45)
+    fecha_cambio = models.DateTimeField(default=timezone.now)
+
+    class Meta:
+        ordering = ['-fecha_cambio']  # Esto ordena los cambios por fecha descendente, mostrando el historial más reciente primero    
 
 class TrabajoGrado(models.Model):
     trag_fecha_inicio = models.DateField(blank=True, null=True)
@@ -251,17 +258,10 @@ class TrabajoGrado(models.Model):
         if self.pk:  # Comprueba si ya existe en la base de datos
             original = TrabajoGrado.objects.get(pk=self.pk)
             if original.trag_estado != self.trag_estado:
-                HistorialEstado.objects.create(trabajo_grado=self, estado=self.trag_estado)
+                HistorialEstadoTrag.objects.create(trag=self, trag_estado=self.trag_estado)
         
         super().save(*args, **kwargs)
     
-class HistorialEstadoTrag(models.Model):
-    trag = models.ForeignKey('TrabajoGrado', on_delete=models.CASCADE, related_name='historial')
-    trag_estado = models.CharField(max_length=45)
-    fecha_cambio = models.DateTimeField(default=timezone.now)
-
-    class Meta:
-        ordering = ['-fecha_cambio']  # Esto ordena los cambios por fecha descendente, mostrando el historial más reciente primero    
 
 class TragSoporteDoc(models.Model):
     trag = models.ForeignKey(TrabajoGrado, on_delete=models.CASCADE)

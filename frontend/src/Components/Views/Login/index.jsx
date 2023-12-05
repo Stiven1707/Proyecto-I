@@ -49,7 +49,7 @@ const Login = () => {
                 <h1 className="text-xl md:text-2xl font-bold leading-tight mt-12 text-center">Inicio de sesion</h1>
                 <form className="mt-6">
                     <div className="mt-6">
-                        <label className="block">Usuario</label>
+                        <label className="block">Correo</label>
                         <input type="text" placeholder="Digite usuario" className="w-full px-4 py-3 rounded-lg bg-gray-800 mt-2 border focus:border-blue-500 focus:bg-gray-900 focus:outline-none" 
                         label='email'
                         value={body.email}
