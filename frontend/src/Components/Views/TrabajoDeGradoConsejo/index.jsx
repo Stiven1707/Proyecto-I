@@ -72,11 +72,8 @@ const TrabajoDeGradoConsejo = () => {
 
 
     function saveFiles(event) {
-        // Obtener la lista de archivos seleccionados desde el evento
         const selectedFiles = event.target.files;
-        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
-        // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
             const fileName = file.name; // Nombre del archivo

@@ -79,14 +79,11 @@ const TrabajoDeGrado = () => {
 
 
     function saveFiles(event) {
-        // Obtener la lista de archivos seleccionados desde el evento
         const selectedFiles = event.target.files;
-        // Inicializar un arreglo para almacenar los nombres y rutas de los archivos
         fileData = [];
-        // Recorrer la lista de archivos y agregar los datos al arreglo
         for (let i = 0; i < selectedFiles.length; i++) {
             const file = selectedFiles[i];
-            const fileName = file.name; // Nombre del archivo
+            const fileName = file.name; 
             fileData.push({ doc_nombre: fileName, doc_ruta: file, anteproyectos: [], trabajos_de_grado: [] });
         }
     }
@@ -326,7 +323,7 @@ const TrabajoDeGrado = () => {
                                             id="eva_evidencia"
                                             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
                                             placeholder={body.eva_evidencia}
-                                            onChange={saveFiles} // Pasa la función como manejador de eventos
+                                            onChange={saveFiles} 
                                             required
                                             multiple
                                             />
@@ -352,7 +349,7 @@ const TrabajoDeGrado = () => {
                                     {isValid ? null : <p className="text-red-700">{showMensaje}</p>}
                                     <button type="submit" className="w-full text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800" onClick={(e) => {
                                         checking();
-                                        e.preventDefault(); // Previene el comportamiento predetermina
+                                        e.preventDefault(); 
                                     }
                                     }>Editar</button>
                                 </form>
